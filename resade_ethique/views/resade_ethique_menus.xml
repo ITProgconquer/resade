@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_resade_ethique_root"
+              name="Éthique &amp; Conformité"
+              sequence="90"
+              groups="resade_ethique.group_resade_ethique_declarant"/>
+
+    <!-- Module 01 : Éthique de la recherche -->
+    <menuitem id="menu_resade_ethique_recherche"
+              name="Éthique de la recherche"
+              parent="menu_resade_ethique_root"
+              sequence="10"/>
+
+    <menuitem id="menu_resade_ethique_soumission"
+              name="Soumissions éthiques"
+              parent="menu_resade_ethique_recherche"
+              action="action_resade_ethique_soumission"
+              sequence="10"/>
+
+    <menuitem id="menu_resade_ethique_consentement"
+              name="Consentements éclairés"
+              parent="menu_resade_ethique_recherche"
+              action="action_resade_ethique_consentement"
+              sequence="20"/>
+
+    <!-- Module 02 : Déontologie et conformité -->
+    <menuitem id="menu_resade_ethique_deontologie"
+              name="Déontologie et conformité"
+              parent="menu_resade_ethique_root"
+              sequence="20"/>
+
+    <menuitem id="menu_resade_ethique_conflit"
+              name="Conflits d'intérêts"
+              parent="menu_resade_ethique_deontologie"
+              action="action_resade_ethique_conflit"
+              sequence="10"/>
+
+    <menuitem id="menu_resade_ethique_signalement"
+              name="Signalements"
+              parent="menu_resade_ethique_deontologie"
+              action="action_resade_ethique_signalement"
+              sequence="20"/>
+
+    <menuitem id="menu_resade_ethique_traitement"
+              name="Registre des traitements (données perso.)"
+              parent="menu_resade_ethique_deontologie"
+              action="action_resade_ethique_traitement"
+              sequence="30"
+              groups="resade_ethique.group_resade_ethique_crsp"/>
+
+    <!-- Module 03 : Gestion des risques institutionnels -->
+    <menuitem id="menu_resade_ethique_risques"
+              name="Gestion des risques"
+              parent="menu_resade_ethique_root"
+              sequence="30"
+              groups="resade_ethique.group_resade_ethique_crsp"/>
+
+    <menuitem id="menu_resade_ethique_risque"
+              name="Registre des risques"
+              parent="menu_resade_ethique_risques"
+              action="action_resade_ethique_risque"
+              sequence="10"/>
+
+    <menuitem id="menu_resade_ethique_plan_continuite"
+              name="Plans de mitigation / continuité"
+              parent="menu_resade_ethique_risques"
+              action="action_resade_ethique_plan_continuite"
+              sequence="20"/>
+
+</odoo>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_treso_reconstitution_form" model="ir.ui.view">
+        <field name="name">resade.tresorerie.reconstitution.form</field>
+        <field name="model">resade.tresorerie.reconstitution</field>
+        <field name="arch" type="xml">
+            <form string="Bordereau mensuel de reconstitution de caisse">
+                <header>
+                    <button name="action_soumettre_caf" string="✅ Soumettre / vérifier (CAF)"
+                        type="object" class="btn-primary"
+                        invisible="statut != 'brouillon'"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <button name="action_autoriser_de" string="🖊️ Autoriser le virement (DE)"
+                        type="object" class="btn-primary"
+                        invisible="statut != 'verifie_caf'"
+                        groups="resade_tresorerie.group_resade_tresorerie_de"/>
+                    <button name="action_enregistrer_virement" string="💳 Enregistrer le virement"
+                        type="object" class="btn-success"
+                        invisible="statut != 'autorise_de'"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <field name="statut" widget="statusbar"
+                        statusbar_visible="brouillon,verifie_caf,autorise_de,reconstitue"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="journal_caisse_id"/>
+                            <field name="journal_banque_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="periode"/>
+                        </group>
+                        <group>
+                            <field name="montant_total_depenses" readonly="1"/>
+                            <field name="montant_virement"/>
+                            <field name="ac_id" readonly="1"/>
+                            <field name="caf_id" readonly="1"/>
+                            <field name="de_id" readonly="1"/>
+                            <field name="date_virement" readonly="1"/>
+                            <field name="account_move_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Décaissements du mois inclus dans ce bordereau"/>
+                    <field name="decaissement_ids">
+                        <list>
+                            <field name="name"/>
+                            <field name="date_demande"/>
+                            <field name="beneficiaire_id"/>
+                            <field name="motif"/>
+                            <field name="montant" sum="Total"/>
+                        </list>
+                    </field>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_treso_reconstitution_list" model="ir.ui.view">
+        <field name="name">resade.tresorerie.reconstitution.list</field>
+        <field name="model">resade.tresorerie.reconstitution</field>
+        <field name="arch" type="xml">
+            <list string="Bordereaux de reconstitution de caisse">
+                <field name="name"/>
+                <field name="journal_caisse_id"/>
+                <field name="periode"/>
+                <field name="montant_total_depenses"/>
+                <field name="statut"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_treso_reconstitution" model="ir.actions.act_window">
+        <field name="name">Reconstitution de caisse</field>
+        <field name="res_model">resade.tresorerie.reconstitution</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

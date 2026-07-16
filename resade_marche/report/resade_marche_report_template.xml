@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ═══════════════════════════════════════════
+     TEMPLATE BON DE COMMANDE / DOSSIER MARCHÉ
+═══════════════════════════════════════════ -->
+<template id="report_resade_marche_template">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- En-tête -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h2>RESADE</h2>
+                            <p>Recherche pour la Santé et le Développement<br/>
+                               Ouagadougou, Burkina Faso</p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h2>BON DE COMMANDE</h2>
+                            <h3><strong><t t-esc="doc.name"/></strong></h3>
+                            <p>Procédure : <t t-esc="doc.code_processus"/></p>
+                            <p>Date : <t t-esc="doc.date_attribution or doc.date_requisition"/></p>
+                        </div>
+                    </div>
+                    <hr/>
+
+                    <!-- Infos générales -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <h4>Objet du marché</h4>
+                            <p><t t-esc="doc.objet"/></p>
+                            <p><strong>Type de procédure :</strong>
+                                <t t-esc="dict(doc._fields['type_procedure'].selection).get(doc.type_procedure)"/>
+                            </p>
+                            <p><strong>Type de marché :</strong>
+                                <t t-esc="dict(doc._fields['type_marche'].selection).get(doc.type_marche)"/>
+                            </p>
+                            <p><strong>Projet / Bailleur :</strong>
+                                <t t-esc="doc.analytic_account_id.name or 'N/A'"/>
+                            </p>
+                            <t t-if="doc.ref_feb">
+                                <p><strong>Réf. FEB :</strong> <t t-esc="doc.ref_feb"/></p>
+                            </t>
+                        </div>
+                        <div class="col-6">
+                            <h4>Fournisseur / Prestataire retenu</h4>
+                            <t t-if="doc.fournisseur_id">
+                                <p><strong><t t-esc="doc.fournisseur_id.name"/></strong></p>
+                                <p><t t-esc="doc.fournisseur_id.adresse or ''"/></p>
+                                <p>IFU : <t t-esc="doc.fournisseur_id.ifu or 'N/A'"/></p>
+                                <p>Tél : <t t-esc="doc.fournisseur_id.telephone or 'N/A'"/></p>
+                            </t>
+                            <t t-else="">
+                                <p class="text-muted">Fournisseur non encore attribué</p>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Lignes / Lots -->
+                    <h4>Détail des prestations / fournitures</h4>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>N°</th>
+                                <th>Désignation</th>
+                                <th class="text-center">Unité</th>
+                                <th class="text-center">Qté</th>
+                                <th class="text-end">PU retenu (FCFA)</th>
+                                <th class="text-end">Montant retenu (FCFA)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.line_ids" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line_index + 1"/></td>
+                                    <td><t t-esc="line.designation"/></td>
+                                    <td class="text-center"><t t-esc="line.unite"/></td>
+                                    <td class="text-center"><t t-esc="line.quantite"/></td>
+                                    <td class="text-end">
+                                        <t t-esc="'{:,.0f}'.format(line.prix_unitaire_retenu or line.prix_unitaire_estime)"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <t t-esc="'{:,.0f}'.format(line.montant_retenu or line.montant_estime)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-secondary">
+                                <td colspan="5"><strong>MONTANT TOTAL</strong></td>
+                                <td class="text-end"><strong>
+                                    <t t-esc="'{:,.0f}'.format(doc.montant_final or doc.montant_estime)"/> FCFA
+                                </strong></td>
+                            </tr>
+                            <t t-if="doc.retenue_garantie_pct">
+                                <tr>
+                                    <td colspan="5">Retenue de garantie
+                                        (<t t-esc="doc.retenue_garantie_pct"/>%)</td>
+                                    <td class="text-end">
+                                        <t t-esc="'{:,.0f}'.format(doc.retenue_garantie_montant)"/> FCFA
+                                    </td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td colspan="5"><strong>MONTANT NET À PAYER</strong></td>
+                                    <td class="text-end"><strong>
+                                        <t t-esc="'{:,.0f}'.format(doc.montant_net_a_payer)"/> FCFA
+                                    </strong></td>
+                                </tr>
+                            </t>
+                        </tfoot>
+                    </table>
+
+                    <!-- Délai et conditions -->
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <t t-if="doc.date_debut and doc.date_fin_prevue">
+                                <p><strong>Délai d'exécution :</strong>
+                                    <t t-esc="doc.delai_execution"/> jours
+                                    (du <t t-esc="doc.date_debut"/> au <t t-esc="doc.date_fin_prevue"/>)
+                                </p>
+                            </t>
+                        </div>
+                        <div class="col-6">
+                            <t t-if="doc.cam_id">
+                                <p><strong>PV CAM :</strong> <t t-esc="doc.cam_id.name"/></p>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Signatures -->
+                    <div class="row mt-5">
+                        <div class="col-4 text-center">
+                            <p><strong>Le Demandeur</strong></p>
+                            <br/><br/><br/>
+                            <p><t t-esc="doc.demandeur_id.name or ''"/></p>
+                            <p>Date : ________________</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <p><strong>Le CAF</strong></p>
+                            <br/><br/><br/>
+                            <p>Date : ________________</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <p><strong>Le Directeur Exécutif</strong></p>
+                            <br/><br/><br/>
+                            <p>Date : ________________</p>
+                        </div>
+                    </div>
+
+                    <hr class="mt-4"/>
+                    <p class="text-muted text-center" style="font-size:10px;">
+                        Document généré par le Système de Gestion des Marchés RESADE –
+                        Conforme au Manuel de Procédures RESADE Volume 2 (Carnets D &amp; E) – Version 2.0 – 2026
+                    </p>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+<!-- ═══════════════════════════════════════════
+     TEMPLATE PV SÉANCE CAM
+═══════════════════════════════════════════ -->
+<template id="report_resade_cam_template">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="text-center mb-4">
+                        <h2>RESADE</h2>
+                        <h3>PROCÈS-VERBAL DE SÉANCE</h3>
+                        <h4>Commission d'Attribution des Marchés (CAM)</h4>
+                        <h4><t t-esc="doc.name"/></h4>
+                    </div>
+                    <hr/>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p><strong>Dossier marché :</strong> <t t-esc="doc.marche_id.name"/></p>
+                            <p><strong>Objet :</strong> <t t-esc="doc.objet"/></p>
+                            <p><strong>Date :</strong> <t t-esc="doc.date_effective or doc.date_prevue"/></p>
+                            <p><strong>Lieu :</strong> <t t-esc="doc.lieu"/></p>
+                        </div>
+                        <div class="col-6">
+                            <p><strong>Président CAM :</strong>
+                                <t t-esc="doc.president_id.name or 'Directeur Exécutif'"/>
+                            </p>
+                            <p><strong>Secrétaire CAM :</strong>
+                                <t t-esc="doc.secretaire_id.name or 'CAF'"/>
+                            </p>
+                            <p><strong>Quorum atteint :</strong>
+                                <t t-if="doc.quorum_atteint">✅ OUI</t>
+                                <t t-else="">❌ NON</t>
+                            </p>
+                            <p><strong>Nb membres présents :</strong>
+                                <t t-esc="doc.nb_membres_presents"/>
+                            </p>
+                        </div>
+                    </div>
+
+                    <h5>Membres présents et déclarations de conflits d'intérêts</h5>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Membre</th>
+                                <th>Rôle</th>
+                                <th class="text-center">Présent</th>
+                                <th class="text-center">Décl. CI signée</th>
+                                <th class="text-center">Conflit déclaré</th>
+                                <th class="text-center">Récusé</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.membre_ids" t-as="m">
+                                <tr>
+                                    <td><t t-esc="m.employe_id.name"/></td>
+                                    <td><t t-esc="m.role or ''"/></td>
+                                    <td class="text-center">
+                                        <t t-if="m.present">✅</t><t t-else="">❌</t>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-if="m.signature_declaration">✅</t><t t-else="">❌</t>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-if="m.conflit_interet">⚠️ OUI</t><t t-else="">Non</t>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-if="m.recuse">Oui</t><t t-else="">Non</t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <h5 class="mt-3">Recommandation de la CAM</h5>
+                    <div class="border p-3">
+                        <p><strong>Fournisseur recommandé :</strong>
+                            <t t-esc="doc.fournisseur_recommande_id.name or 'Non défini'"/>
+                        </p>
+                        <p><strong>Montant recommandé :</strong>
+                            <t t-esc="'{:,.0f}'.format(doc.montant_recommande or 0)"/> FCFA
+                        </p>
+                        <p><strong>Recommandation motivée :</strong></p>
+                        <p><t t-esc="doc.recommandation or ''"/></p>
+                        <t t-if="doc.motif_attribution">
+                            <p><strong>Motif :</strong> <t t-esc="doc.motif_attribution"/></p>
+                        </t>
+                    </div>
+
+                    <div class="row mt-5">
+                        <div class="col-4 text-center">
+                            <p><strong>Le Président (DE)</strong></p>
+                            <br/><br/><br/>
+                            <p>Nom : ________________</p>
+                            <p>Signature : ________________</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <p><strong>Le Secrétaire (CAF)</strong></p>
+                            <br/><br/><br/>
+                            <p>Nom : ________________</p>
+                            <p>Signature : ________________</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <p><strong>Membres présents</strong></p>
+                            <br/><br/><br/>
+                            <p>Signatures : ________________</p>
+                        </div>
+                    </div>
+
+                    <hr class="mt-4"/>
+                    <p class="text-muted text-center" style="font-size:10px;">
+                        PV CAM – Conforme au Manuel RESADE Carnet D Module 01 – P-CIP-01 – Version 2.0 – 2026
+                    </p>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+</odoo>

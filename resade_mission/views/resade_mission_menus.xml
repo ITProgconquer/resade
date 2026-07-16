@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- MENU RACINE -->
+    <menuitem id="menu_resade_mission_root"
+        name="Missions RESADE"
+        sequence="85"
+        web_icon="resade_mission,static/description/icon.png"/>
+
+    <!-- MES MISSIONS (tout agent) -->
+    <menuitem id="menu_resade_mission_mes_missions"
+        name="Mes Missions"
+        parent="menu_resade_mission_root"
+        action="action_resade_mission_mine"
+        sequence="10"
+        groups="resade_mission.group_resade_missionnaire"/>
+
+    <!-- GESTION (Chef Dépt / CAF / DE) -->
+    <menuitem id="menu_resade_mission_gestion"
+        name="Gestion des Missions"
+        parent="menu_resade_mission_root"
+        sequence="20"
+        groups="resade_mission.group_resade_chef_dept"/>
+
+    <menuitem id="menu_resade_mission_toutes"
+        name="Tous les Ordres de Mission (F-GMD-01-06)"
+        parent="menu_resade_mission_gestion"
+        action="action_resade_mission"
+        sequence="10"
+        groups="resade_mission.group_resade_chef_dept"/>
+
+    <menuitem id="menu_resade_mission_a_traiter"
+        name="⏳ Missions à Traiter"
+        parent="menu_resade_mission_gestion"
+        action="action_resade_mission_a_traiter"
+        sequence="20"
+        groups="resade_mission.group_resade_caf"/>
+
+    <!-- REGISTRE F-GMD-02-04 -->
+    <menuitem id="menu_resade_registre_mission"
+        name="📋 Registre Missions Exécutées (F-GMD-02-04)"
+        parent="menu_resade_mission_gestion"
+        action="action_resade_registre_mission"
+        sequence="30"
+        groups="resade_mission.group_resade_caf"/>
+
+    <menuitem id="menu_resade_registre_ged"
+        name="⚠️ Archivages GED à Confirmer"
+        parent="menu_resade_mission_gestion"
+        action="action_registre_ged_a_confirmer"
+        sequence="40"
+        groups="resade_mission.group_resade_caf"/>
+
+    <!-- CONFIGURATION -->
+    <menuitem id="menu_resade_mission_config"
+        name="⚙️ Configuration"
+        parent="menu_resade_mission_root"
+        sequence="90"
+        groups="resade_mission.group_resade_caf"/>
+
+    <menuitem id="menu_resade_taux_perdiem"
+        name="Grille Taux Per Diem (F-GMD-01-05)"
+        parent="menu_resade_mission_config"
+        action="action_resade_taux_perdiem"
+        sequence="10"
+        groups="resade_mission.group_resade_caf"/>
+
+</odoo>

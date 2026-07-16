@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_projet_form" model="ir.ui.view">
+        <field name="name">resade.projet.form</field>
+        <field name="model">resade.projet</field>
+        <field name="arch" type="xml">
+            <form string="Projet RESADE – Carnet H">
+                <header>
+                    <!-- Convention signée (P-CD-01) : DE et CDP -->
+                    <button name="action_convention_signee"
+                        string="📋 Convention Signée (P-CD-01)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'negociation'"
+                        groups="resade_projet_h.group_resade_de_projet,resade_projet_h.group_resade_cdp"/>
+
+                    <!-- Kick-off tenu (P-CD-02) : RP, CDO, DE -->
+                    <button name="action_kickoff_tenu"
+                        string="🚀 Kick-off Tenu → En Exécution"
+                        type="object" class="btn-primary"
+                        invisible="state != 'demarrage'"
+                        groups="resade_projet_h.group_resade_rp,resade_projet_h.group_resade_cdo,resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- Lancer la clôture (P-CC-01) : RP, CDO, DE -->
+                    <button name="action_lancer_cloture"
+                        string="🏁 Lancer la Clôture (P-CC-01)"
+                        type="object" class="btn-warning"
+                        invisible="state != 'execution'"
+                        groups="resade_projet_h.group_resade_rp,resade_projet_h.group_resade_cdo,resade_projet_h.group_resade_de_projet"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="negociation,demarrage,execution,cloture,cloture_ok"/>
+                </header>
+                <sheet>
+                    <!-- Alertes -->
+                    <div class="alert alert-warning" role="alert"
+                        invisible="state != 'demarrage' or delai_demarrage_jours &lt;= 15">
+                        ⚠️ Délai de démarrage : <field name="delai_demarrage_jours" readonly="1"/> jours
+                        (KPI cible ≤ 15j – P-CD-02)
+                    </div>
+                    <div class="alert alert-info" role="alert"
+                        invisible="state != 'execution' or not prochain_rapport_bailleur">
+                        📊 Prochain rapport bailleur :
+                        <field name="prochain_rapport_bailleur" readonly="1"/>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                        <h4>
+                            <field name="ref" readonly="1"/> |
+                            <field name="bailleur"/> |
+                            <field name="type_accord"/>
+                        </h4>
+                    </div>
+
+                    <!-- Dashboard taux -->
+                    <group>
+                        <group string="⚙️ Exécution Technique">
+                            <field name="nb_activites" readonly="1"/>
+                            <field name="nb_activites_realisees" readonly="1"/>
+                            <field name="taux_execution_technique"
+                                widget="progressbar" readonly="1"/>
+                        </group>
+                        <group string="💰 Exécution Financière">
+                            <field name="montant_convention"/>
+                            <field name="montant_depense"/>
+                            <field name="taux_execution_financier"
+                                widget="progressbar" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group string="👥 Équipe Projet">
+                        <group>
+                            <field name="pi_id"/>
+                            <field name="cdp_id"/>
+                            <field name="rp_id"/>
+                        </group>
+                        <group>
+                            <field name="cdo_id"/>
+                            <field name="caf_id"/>
+                            <field name="sea_id"/>
+                        </group>
+                    </group>
+
+                    <group string="📅 Calendrier">
+                        <group>
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                            <field name="duree_mois"/>
+                            <field name="date_kickoff"/>
+                            <field name="delai_demarrage_jours" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="prochain_rapport_bailleur"/>
+                            <field name="frequence_rapport_bailleur"/>
+                            <field name="lien_sharepoint" widget="url"/>
+                            <field name="panier_commun_id"/>
+                            <field name="taux_overhead_convention"/>
+                            <field name="montant_overhead_prevu" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+
+                        <!-- P-CD-01 : Convention -->
+                        <page string="📋 Convention (P-CD-01)">
+                            <group string="Négociation &amp; Signature">
+                                <group>
+                                    <field name="date_reception_draft"/>
+                                    <field name="date_signature"/>
+                                    <field name="checklist_conformite_juridique"
+                                        widget="boolean_toggle"
+                                        string="Checklist conformité juridique (F-CD-01-04) ✓"/>
+                                    <field name="archivage_ged_confirme"
+                                        widget="boolean_toggle"
+                                        string="Archivage GED confirmé (F-CD-01-05) ✓"/>
+                                    <field name="code_analytique_sage"/>
+                                </group>
+                            </group>
+                            <field name="memo_negociation" widget="html"
+                                string="Mémo de négociation (F-CD-01-01)"
+                                placeholder="Amendements techniques, financiers et juridiques à discuter..."/>
+                            <field name="pv_validation_de_ca" widget="html"
+                                string="PV de validation institutionnelle (F-CD-01-02)"
+                                placeholder="Décision DE et CA autorisant la signature..."/>
+                            <field name="convention_signee_ids" widget="many2many_binary"
+                                string="Convention / Contrat signé (F-CD-01-05)"/>
+                            <field name="bordereau_notification_ids" widget="many2many_binary"
+                                string="Bordereau de notification démarrage (F-CD-01-03)"/>
+                        </page>
+
+                        <!-- P-CD-02 : Démarrage -->
+                        <page string="🚀 Démarrage Kick-off (P-CD-02)">
+                            <group>
+                                <group>
+                                    <field name="date_kickoff"/>
+                                    <field name="delai_demarrage_jours" readonly="1"/>
+                                    <field name="checklist_demarrage_ok"
+                                        widget="boolean_toggle"
+                                        string="Checklist démarrage GFGP (F-CD-02-07) ✓"/>
+                                </group>
+                            </group>
+                            <field name="note_nomination_equipe" widget="html"
+                                string="Note de nomination de l'équipe (F-CD-02-02)"
+                                placeholder="Note de service CDO + DE désignant le RP et les experts (J+3)..."/>
+                            <field name="poa_detaille" widget="html"
+                                string="Plan Opérationnel Annuel – POA (F-CD-02-03)"
+                                placeholder="Chronogramme, activités, responsables, jalons, indicateurs MELA (J+10)..."/>
+                            <field name="budget_operationnel" widget="html"
+                                string="Budget opérationnel (F-CD-02-04)"
+                                placeholder="Budget calé sur le POA et l'ouverture du code SAGE (J+12)..."/>
+                            <field name="pv_kickoff_ids" widget="many2many_binary"
+                                string="PV de réunion de démarrage – Kick-off (F-CD-02-05)"/>
+                        </page>
+
+                        <!-- P-EST-01 : Activités POA -->
+                        <page string="⚙️ Activités POA (P-EST-01)">
+                            <field name="activite_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="code_activite"/>
+                                    <field name="name" string="Activité"/>
+                                    <field name="responsable_id" string="Responsable"/>
+                                    <field name="date_debut_prevue"/>
+                                    <field name="date_fin_prevue"/>
+                                    <field name="date_realisation"/>
+                                    <field name="budget_prevu" widget="monetary"
+                                        sum="Total prévu"/>
+                                    <field name="depense_reelle" widget="monetary"
+                                        sum="Total réel"/>
+                                    <field name="taux_realisation" widget="progressbar"/>
+                                    <field name="state" widget="badge"
+                                        decoration-success="state == 'realisee'"
+                                        decoration-warning="state == 'en_cours'"
+                                        decoration-muted="state == 'annulee'"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- MELA / Indicateurs -->
+                        <page string="📊 Indicateurs MELA">
+                            <field name="indicateur_ids">
+                                <list editable="bottom">
+                                    <field name="niveau" widget="badge"/>
+                                    <field name="name" string="Indicateur"/>
+                                    <field name="unite"/>
+                                    <field name="valeur_baseline"/>
+                                    <field name="cible_finale"/>
+                                    <field name="valeur_actuelle"/>
+                                    <field name="taux_atteinte" widget="progressbar"/>
+                                    <field name="frequence_collecte"/>
+                                    <field name="source_verification"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Registre des risques -->
+                        <page string="⚠️ Registre des Risques">
+                            <field name="risque_ids">
+                                <list editable="bottom">
+                                    <field name="name" string="Risque"/>
+                                    <field name="categorie" widget="badge"/>
+                                    <field name="probabilite"/>
+                                    <field name="impact"/>
+                                    <field name="score_risque" readonly="1"/>
+                                    <field name="niveau_risque" widget="badge"
+                                        decoration-danger="niveau_risque == 'eleve'"
+                                        decoration-warning="niveau_risque == 'moyen'"
+                                        decoration-success="niveau_risque == 'faible'"/>
+                                    <field name="responsable_id"/>
+                                    <field name="mesure_mitigation"/>
+                                    <field name="statut" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- P-EST-02 : Rapports d'avancement -->
+                        <page string="📈 Rapports d'Avancement (P-EST-02)">
+                            <field name="rapport_avancement_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="type_rapport" widget="badge"/>
+                                    <field name="periode_debut"/>
+                                    <field name="periode_fin"/>
+                                    <field name="date_rapport"/>
+                                    <field name="taux_execution_technique_rapport"
+                                        string="% Technique"/>
+                                    <field name="taux_execution_financier_rapport"
+                                        string="% Financier"/>
+                                    <field name="valide_par_rp" widget="boolean"/>
+                                    <field name="approuve_par_de" widget="boolean"/>
+                                    <field name="soumis_au_bailleur" widget="boolean"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Partenaires -->
+                        <page string="🤝 Partenaires &amp; Sous-traitants (P-EST-03)">
+                            <field name="partenaire_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="type_engagement" widget="badge"/>
+                                    <field name="pays"/>
+                                    <field name="due_diligence_concluante" widget="boolean"/>
+                                    <field name="montant_subaward" widget="monetary"/>
+                                    <field name="score_moyen_performance"/>
+                                    <field name="state" widget="badge"
+                                        decoration-success="state == 'actif'"
+                                        decoration-danger="state in ['suspendu','resilie']"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Documents -->
+                        <page string="📁 Documents &amp; GED">
+                            <group>
+                                <field name="lien_sharepoint" widget="url"/>
+                                <field name="cloture_id" readonly="1"
+                                    invisible="not cloture_id"/>
+                            </group>
+                            <field name="document_ids" widget="many2many_binary"
+                                string="Documents projets (conventions, POA, rapports...)"/>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_projet_list" model="ir.ui.view">
+        <field name="name">resade.projet.list</field>
+        <field name="model">resade.projet</field>
+        <field name="arch" type="xml">
+            <list string="Projets RESADE – Portefeuille"
+                decoration-success="state == 'cloture_ok'"
+                decoration-warning="state == 'cloture'"
+                decoration-muted="state in ['suspendu','abandonne']">
+                <field name="ref" string="Code"/>
+                <field name="name" string="Projet"/>
+                <field name="bailleur"/>
+                <field name="type_accord" widget="badge" optional="show"/>
+                <field name="pi_id" string="PI" optional="show"/>
+                <field name="date_debut" optional="show"/>
+                <field name="date_fin" optional="show"/>
+                <field name="montant_convention" widget="monetary" optional="show"/>
+                <field name="taux_execution_technique" widget="progressbar" optional="show"/>
+                <field name="taux_execution_financier" widget="progressbar" optional="show"/>
+                <field name="prochain_rapport_bailleur" optional="show"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'cloture_ok'"
+                    decoration-warning="state in ['cloture','execution']"
+                    decoration-muted="state in ['suspendu','abandonne']"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_projet_search" model="ir.ui.view">
+        <field name="name">resade.projet.search</field>
+        <field name="model">resade.projet</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="bailleur"/>
+                <field name="ref" string="Code projet"/>
+                <field name="pi_id" string="PI"/>
+                <filter string="En négociation" name="negociation"
+                    domain="[('state','=','negociation')]"/>
+                <filter string="En démarrage" name="demarrage"
+                    domain="[('state','=','demarrage')]"/>
+                <filter string="En exécution" name="execution"
+                    domain="[('state','=','execution')]"/>
+                <filter string="En clôture" name="cloture"
+                    domain="[('state','in',['cloture','cloture_ok'])]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Bailleur" name="group_bailleur"
+                        context="{'group_by':'bailleur'}"/>
+                    <filter string="Phase" name="group_state"
+                        context="{'group_by':'state'}"/>
+                    <filter string="PI" name="group_pi"
+                        context="{'group_by':'pi_id'}"/>
+                    <filter string="Panier commun" name="group_panier"
+                        context="{'group_by':'panier_commun_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_resade_projet" model="ir.actions.act_window">
+        <field name="name">Portefeuille de Projets RESADE</field>
+        <field name="res_model">resade.projet</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_projet_search"/>
+    </record>
+
+    <record id="action_resade_rapport_projet" model="ir.actions.act_window">
+        <field name="name">Rapports d'Avancement – P-EST-02</field>
+        <field name="res_model">resade.rapport.projet</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_resade_panier_commun" model="ir.actions.act_window">
+        <field name="name">Panier Commun – P-CD-03</field>
+        <field name="res_model">resade.panier.commun</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

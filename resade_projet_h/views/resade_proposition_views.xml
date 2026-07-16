@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_proposition_form" model="ir.ui.view">
+        <field name="name">resade.proposition.form</field>
+        <field name="model">resade.proposition</field>
+        <field name="arch" type="xml">
+            <form string="Proposition de Financement – RESADE P-MRV-02">
+                <header>
+                    <!-- Chargé DPMR / CDP : peut initier la proposition -->
+                    <button name="action_valider_gonogo"
+                        string="✅ Valider GO/NO-GO (DE)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'brouillon'"
+                        groups="resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- PI / RP : lance la rédaction -->
+                    <button name="action_lancer_redaction"
+                        string="✍️ Lancer la Rédaction"
+                        type="object" class="btn-primary"
+                        invisible="state != 'gonogo_valide'"
+                        groups="resade_projet_h.group_resade_rp"/>
+
+                    <!-- PI / RP : soumet à la revue qualité -->
+                    <button name="action_soumettre_revue"
+                        string="🔬 Soumettre à la Revue Qualité (J-15)"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'en_redaction'"
+                        groups="resade_projet_h.group_resade_rp"/>
+
+                    <!-- CDP : valide la revue qualité -->
+                    <button name="action_valider_revue"
+                        string="✅ Valider Revue Qualité (CDP)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'revue_qualite'"
+                        groups="resade_projet_h.group_resade_cdp"/>
+
+                    <!-- DE : valide et soumet au bailleur -->
+                    <button name="action_valider_de_et_soumettre"
+                        string="📤 Valider DE &amp; Soumettre au Bailleur"
+                        type="object" class="btn-success"
+                        invisible="state != 'validation_de'"
+                        groups="resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- CDP / DE : enregistre la décision du bailleur -->
+                    <button name="action_enregistrer_decision"
+                        string="📬 Enregistrer Décision Bailleur"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'soumise'"
+                        groups="resade_projet_h.group_resade_cdp,resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- DE / CDP : crée le projet -->
+                    <button name="action_creer_projet"
+                        string="🚀 Créer le Projet (P-CD-01)"
+                        type="object" class="btn-success"
+                        invisible="state != 'acceptee' or projet_id"
+                        groups="resade_projet_h.group_resade_de_projet,resade_projet_h.group_resade_cdp"/>
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="brouillon,gonogo_valide,en_redaction,revue_qualite,validation_de,soumise,acceptee"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="delai_jours >= 15 or state in ['soumise','acceptee','rejetee','no_go']">
+                        ⏰ <field name="delai_jours" readonly="1"/> jours avant la deadline !
+                    </div>
+                    <div class="alert alert-success" role="alert"
+                        invisible="state != 'acceptee'">
+                        🎉 Proposition acceptée par <field name="bailleur" readonly="1"/> !
+                        <button name="action_creer_projet"
+                            string="→ Créer le Projet (P-CD-01)"
+                            type="object" class="btn-sm btn-success"
+                            invisible="projet_id"/>
+                        <field name="projet_id" readonly="1" invisible="not projet_id"/>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                        <h4>
+                            <field name="ref" readonly="1"/> |
+                            <field name="bailleur" readonly="1"/>
+                        </h4>
+                    </div>
+
+                    <group string="📋 Identification (Registre F-MRV-02-07)">
+                        <group>
+                            <field name="opportunite_id"/>
+                            <field name="bailleur" readonly="1"/>
+                            <field name="date_limite_soumission"/>
+                            <field name="delai_jours" readonly="1"/>
+                            <field name="date_go"/>
+                            <field name="date_soumission_effective" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="pi_id"/>
+                            <field name="cdp_id"/>
+                            <field name="montant_sollicite"/>
+                            <field name="taux_overhead"/>
+                            <field name="montant_couts_indirects"/>
+                            <field name="duree_projet_mois"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group string="👥 Équipe de rédaction">
+                        <field name="co_pi_ids" widget="many2many_tags"
+                            string="Co-PI / Co-Investigateurs pressentis"/>
+                        <field name="reviewer_ids" widget="many2many_tags"
+                            string="Reviewers internes (pairs scientifiques)"/>
+                    </group>
+
+                    <notebook>
+
+                        <page string="🚦 GO/NO-GO (F-MRV-02-01)">
+                            <group>
+                                <field name="decision_gonogo" widget="radio"/>
+                                <field name="decide_par_de_id" readonly="1"/>
+                                <field name="date_decision_gonogo" readonly="1"/>
+                            </group>
+                            <field name="fiche_arbitrage_gonogo" widget="html"
+                                placeholder="Analyse coûts/bénéfices, capacités disponibles, alignement PS RESADE 2026-2030, risques opérationnels..."/>
+                        </page>
+
+                        <page string="📝 Note Conceptuelle (F-MRV-02-02)"
+                            invisible="state in ['brouillon','gonogo_valide']">
+                            <field name="note_conceptuelle" widget="html"
+                                placeholder="Trame LOI (Letter of Intent) : Contexte – Problème – Approche – Résultats attendus – Budget estimatif – Équipe – Pertinence..."/>
+                        </page>
+
+                        <page string="📄 Proposition Complète (F-MRV-02-03)"
+                            invisible="state in ['brouillon','gonogo_valide']">
+                            <group>
+                                <field name="theory_of_change" widget="html"
+                                    string="Theory of Change (ToC)"
+                                    placeholder="Logique d'intervention : problème → activités → résultats → impact (standard EuropeAid PCM)..."/>
+                                <field name="logframe" widget="html"
+                                    string="Cadre logique (Logframe)"
+                                    placeholder="Matrice 4×4 : objectifs – résultats – activités – indicateurs. Aligné sur le dispositif MELA RESADE..."/>
+                            </group>
+                            <field name="resume_technique" widget="html"
+                                placeholder="Résumé technique / Abstract (max 500 mots selon format bailleur)..."/>
+                            <field name="proposition_complete" widget="html"
+                                placeholder="Sections : Contexte – Problématique – Méthodologie – Plan de travail – Équipe – Impact – Budget..."/>
+                        </page>
+
+                        <page string="💰 Budget (F-MRV-02-04)"
+                            invisible="state in ['brouillon','gonogo_valide']">
+                            <group>
+                                <group>
+                                    <field name="montant_sollicite"/>
+                                    <field name="taux_overhead"/>
+                                    <field name="montant_couts_indirects"/>
+                                    <field name="cofinancement"/>
+                                </group>
+                                <group>
+                                    <field name="portail_soumission"/>
+                                    <field name="accuse_reception"
+                                        invisible="state not in ['soumise','acceptee','rejetee']"/>
+                                </group>
+                            </group>
+                            <field name="budget_excel_ids" widget="many2many_binary"
+                                string="Budget détaillé Excel (F-MRV-02-04)"/>
+                        </page>
+
+                        <page string="🔬 Revue Qualité (F-MRV-02-05)"
+                            invisible="state in ['brouillon','gonogo_valide','en_redaction']">
+                            <group>
+                                <field name="revue_qualite_faite" widget="boolean_toggle"/>
+                                <field name="conformite_administrative" widget="boolean_toggle"
+                                    string="Conformité administrative (J-3)"/>
+                            </group>
+                            <field name="rapport_revue_qualite" widget="html"
+                                placeholder="Observations reviewers, corrections demandées, conclusion..."/>
+                            <field name="lettre_engagement_de_ids" widget="many2many_binary"
+                                string="Lettre d'engagement DE signée (F-MRV-02-06)"/>
+                        </page>
+
+                        <page string="📬 Décision Bailleur"
+                            invisible="state not in ['soumise','acceptee','rejetee','liste_att']">
+                            <group>
+                                <field name="decision_bailleur" widget="radio"/>
+                                <field name="date_decision_bailleur"/>
+                            </group>
+                            <field name="note_capitalisation" widget="html"
+                                placeholder="F-MRV-02-08 : Enseignements tirés (succès ou rejet), facteurs explicatifs, recommandations pour futures propositions..."/>
+                        </page>
+
+                        <field name="document_ids" widget="many2many_binary"
+                            string="Autres documents (annexes, CV, MoU partenaires, registre légal...)"/>
+
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_proposition_list" model="ir.ui.view">
+        <field name="name">resade.proposition.list</field>
+        <field name="model">resade.proposition</field>
+        <field name="arch" type="xml">
+            <list string="Propositions de Financement – Registre F-MRV-02-07"
+                decoration-success="state == 'acceptee'"
+                decoration-muted="state in ['rejetee','no_go']"
+                decoration-danger="delai_jours &lt; 15 and state not in ['soumise','acceptee','rejetee','no_go']">
+                <field name="ref" string="Réf."/>
+                <field name="name" string="Titre"/>
+                <field name="bailleur"/>
+                <field name="date_limite_soumission"/>
+                <field name="delai_jours" string="Jours restants"/>
+                <field name="pi_id" string="PI" optional="show"/>
+                <field name="montant_sollicite" widget="monetary" optional="show"/>
+                <field name="revue_qualite_faite" widget="boolean" optional="show"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'acceptee'"
+                    decoration-muted="state in ['rejetee','no_go']"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_proposition_search" model="ir.ui.view">
+        <field name="name">resade.proposition.search</field>
+        <field name="model">resade.proposition</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="bailleur"/>
+                <field name="pi_id" string="PI"/>
+                <filter string="En rédaction" name="en_redaction"
+                    domain="[('state','in',['en_redaction','revue_qualite','validation_de'])]"/>
+                <filter string="Soumises" name="soumises"
+                    domain="[('state','=','soumise')]"/>
+                <filter string="Acceptées" name="acceptees"
+                    domain="[('state','=','acceptee')]"/>
+                <filter string="Rejetées" name="rejetees"
+                    domain="[('state','=','rejetee')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Bailleur" name="group_bailleur"
+                        context="{'group_by':'bailleur'}"/>
+                    <filter string="Statut" name="group_state"
+                        context="{'group_by':'state'}"/>
+                    <filter string="PI" name="group_pi"
+                        context="{'group_by':'pi_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_resade_proposition" model="ir.actions.act_window">
+        <field name="name">Propositions de Financement (Registre F-MRV-02-07)</field>
+        <field name="res_model">resade.proposition</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_proposition_search"/>
+    </record>
+
+</odoo>

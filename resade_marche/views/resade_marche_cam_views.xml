@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════
+         FORMULAIRE CAM
+    ═══════════════════════════════════════════════ -->
+    <record id="view_resade_marche_cam_form" model="ir.ui.view">
+        <field name="name">resade.marche.cam.form</field>
+        <field name="model">resade.marche.cam</field>
+        <field name="arch" type="xml">
+            <form string="Séance CAM – Commission d'Attribution des Marchés">
+                <header>
+                    <button name="action_tenir_seance"
+                        string="📋 Tenir la séance"
+                        type="object" class="btn-primary"
+                        invisible="state != 'brouillon'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+                    <button name="action_signer_pv"
+                        string="✍️ Signer le PV"
+                        type="object" class="btn-primary"
+                        invisible="state != 'tenue'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+                    <button name="action_cloturer"
+                        string="🔒 Clôturer la séance"
+                        type="object"
+                        invisible="state != 'pv_signe'"
+                        groups="resade_marche.group_resade_marche_de"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="brouillon,tenue,pv_signe,cloturee"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3><field name="objet"/></h3>
+                    </div>
+
+                    <group>
+                        <group string="Dossier marché">
+                            <field name="marche_id" readonly="id != False"/>
+                            <field name="date_prevue"/>
+                            <field name="date_effective"/>
+                            <field name="lieu"/>
+                        </group>
+                        <group string="Composition CAM (Carnet D Module 01 – P-CIP-01)">
+                            <field name="president_id"/>
+                            <field name="secretaire_id"/>
+                            <field name="quorum_atteint" readonly="1" widget="boolean_toggle"/>
+                            <field name="nb_membres_presents" readonly="1"/>
+                            <field name="declarations_ci_signees"/>
+                        </group>
+                    </group>
+
+                    <separator string="Membres présents (techniques + invités)"/>
+                    <field name="membre_ids">
+                        <list editable="bottom">
+                            <field name="employe_id"/>
+                            <field name="role"/>
+                            <field name="present"/>
+                            <field name="signature_declaration"/>
+                            <field name="conflit_interet"
+                                decoration-danger="conflit_interet == True"/>
+                            <field name="nature_conflit" optional="show"/>
+                            <field name="recuse" optional="show"/>
+                        </list>
+                    </field>
+
+                    <separator string="Délibérations et recommandation"/>
+                    <group>
+                        <group>
+                            <field name="fournisseur_recommande_id"/>
+                            <field name="montant_recommande"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="pv_signe" readonly="1"/>
+                            <field name="date_signature_pv" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Recommandation motivée (obligatoire)">
+                        <field name="recommandation" nolabel="1" colspan="2"
+                            placeholder="Recommandation d'attribution motivée – mentionner les offres reçues, les notes techniques, les montants et le classement final..."/>
+                    </group>
+                    <group string="Motif de l'attribution">
+                        <field name="motif_attribution" nolabel="1" colspan="2"/>
+                    </group>
+
+                    <separator string="PV signé (document scanné)"/>
+                    <field name="pj_pv" widget="many2many_binary"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE LISTE CAM
+    ═══════════════════════════════════════════════ -->
+    <record id="view_resade_marche_cam_list" model="ir.ui.view">
+        <field name="name">resade.marche.cam.list</field>
+        <field name="model">resade.marche.cam</field>
+        <field name="arch" type="xml">
+            <list string="Séances CAM"
+                decoration-success="state == 'cloturee'"
+                decoration-warning="state == 'brouillon'">
+                <field name="name"/>
+                <field name="marche_id"/>
+                <field name="objet"/>
+                <field name="date_prevue"/>
+                <field name="date_effective"/>
+                <field name="quorum_atteint"/>
+                <field name="fournisseur_recommande_id"/>
+                <field name="montant_recommande" optional="show"/>
+                <field name="pv_signe"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'cloturee'"
+                    decoration-warning="state == 'brouillon'"
+                    decoration-info="state == 'tenue'"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════
+         ACTION CAM
+    ═══════════════════════════════════════════════ -->
+    <record id="action_resade_marche_cam" model="ir.actions.act_window">
+        <field name="name">Séances CAM</field>
+        <field name="res_model">resade.marche.cam</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune séance CAM enregistrée</p>
+            <p>Les séances CAM sont créées automatiquement lors du déclenchement d'une procédure de passation soumise à la Commission d'Attribution des Marchés.</p>
+        </field>
+    </record>
+
+</odoo>

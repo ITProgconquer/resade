@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════
+         FORMULAIRE OPPORTUNITÉ – P-MRV-01
+    ═══════════════════════════════════════════════ -->
+    <record id="view_resade_opportunite_form" model="ir.ui.view">
+        <field name="name">resade.opportunite.form</field>
+        <field name="model">resade.opportunite</field>
+        <field name="arch" type="xml">
+            <form string="Opportunité de Financement – RESADE F-MRV-01-01">
+                <header>
+                    <!-- Chargé DPMR : analyse l'opportunité -->
+                    <button name="action_analyser" 
+                        string="🔬 Analyser"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'identifiee'"
+                        groups="resade_projet_h.group_resade_dpmr,resade_projet_h.group_resade_cdp"/>
+
+                    <!-- CDP / DE : qualifie l'opportunité -->
+                    <button name="action_qualifier" 
+                        string="✅ Qualifier → P-MRV-02"
+                        type="object" class="btn-primary"
+                        invisible="state != 'en_analyse'"
+                        groups="resade_projet_h.group_resade_cdp,resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- DPMR / CDP : ne pas retenir -->
+                    <button name="action_non_retenir" 
+                        string="❌ Non retenir"
+                        type="object" class="btn-danger"
+                        invisible="state not in ['identifiee','en_analyse']"
+                        groups="resade_projet_h.group_resade_dpmr,resade_projet_h.group_resade_cdp"/>
+
+                    <!-- DPMR / CDP : créer la proposition -->
+                    <button name="action_creer_proposition"
+                        string="📝 Créer une Proposition (P-MRV-02)"
+                        type="object" class="btn-success"
+                        invisible="state != 'qualifiee'"
+                        groups="resade_projet_h.group_resade_dpmr,resade_projet_h.group_resade_cdp"/>
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="identifiee,en_analyse,qualifiee"/>
+                </header>
+                <sheet>
+                    <!-- Alerte urgence -->
+                    <div class="alert alert-danger" role="alert"
+                        invisible="urgence != 'haute'">
+                        🔴 URGENT : <field name="jours_restants" readonly="1"/> jours restants avant la deadline !
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="urgence != 'moyenne'">
+                        🟡 <field name="jours_restants" readonly="1"/> jours restants — À analyser rapidement.
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                        invisible="urgence != 'expiree'">
+                        ⌛ Opportunité expirée.
+                    </div>
+
+                    <!-- Score qualif -->
+                    <div class="alert alert-success" role="alert"
+                        invisible="not qualifiee">
+                        ✅ Score <field name="score_total" readonly="1"/>/25 — Opportunité qualifiée pour P-MRV-02
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Intitulé de l'opportunité..."/></h1>
+                        <h4><field name="ref" readonly="1"/> | <field name="bailleur"/></h4>
+                    </div>
+
+                    <group string="🔍 Identification (F-MRV-01-01)">
+                        <group>
+                            <field name="bailleur"/>
+                            <field name="type_bailleur"/>
+                            <field name="date_identification"/>
+                            <field name="date_limite_soumission"/>
+                            <field name="jours_restants" readonly="1"/>
+                            <field name="urgence" readonly="1" widget="badge"
+                                decoration-danger="urgence == 'haute'"
+                                decoration-warning="urgence == 'moyenne'"
+                                decoration-success="urgence == 'basse'"
+                                decoration-muted="urgence == 'expiree'"/>
+                        </group>
+                        <group>
+                            <field name="zone_geographique"/>
+                            <field name="montant_estime"/>
+                            <field name="duree_projet_mois"/>
+                            <field name="lien_appel" widget="url"/>
+                            <field name="plan_veille_id"/>
+                            <field name="identifie_par_id"/>
+                        </group>
+                    </group>
+
+                    <group string="🎯 Axes thématiques (alignement PS RESADE 2026-2030)">
+                        <field name="axes_thematiques" widget="many2many_tags" nolabel="1"/>
+                    </group>
+
+                    <group string="📋 Description de l'opportunité">
+                        <field name="description" nolabel="1"
+                            placeholder="Résumé de l'appel, axes prioritaires, résultats attendus, critères d'éligibilité, budget disponible..."/>
+                    </group>
+
+                    <field name="document_appel_ids" widget="many2many_binary"
+                        string="Documents de l'appel à projets (PDF guidelines, ToR...)"/>
+
+                    <notebook>
+                        <page string="📊 Grille de Scoring (F-MRV-01-07)">
+                            <div class="alert alert-info" role="alert">
+                                Grille multicritères – Score seuil de qualification :
+                                <field name="seuil_qualification" readonly="1"/> /25.
+                                Score actuel : <strong><field name="score_total" readonly="1"/>/25</strong>
+                            </div>
+                            <group>
+                                <group string="Critères (saisir une valeur de 0 à 5)">
+                                    <field name="score_alignement_strategique"
+                                        help="0=Nul | 1=Faible | 2=Partiel | 3=Modéré | 4=Fort | 5=Excellent — Alignement PS RESADE 2026-2030"/>
+                                    <field name="score_capacite_interne"
+                                        help="0=Aucune capacité | 5=Équipe disponible et compétente"/>
+                                    <field name="score_potentiel_financier"
+                                        help="0=Montant négligeable | 5=Financement stratégique pluriannuel"/>
+                                    <field name="score_faisabilite"
+                                        help="0=Infaisable | 5=Totalement faisable (délai, clauses, partenaires)"/>
+                                    <field name="score_visibilite"
+                                        help="0=Aucune visibilité | 5=Bailleur stratégique, forte visibilité"/>
+                                </group>
+                                <group string="Résultat">
+                                    <field name="score_total" readonly="1"/>
+                                    <field name="seuil_qualification"/>
+                                    <field name="qualifiee" readonly="1" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                            <group string="Décision &amp; traçabilité">
+                                <field name="note_qualification"
+                                    placeholder="Décision RT + CAF, motifs de qualification ou de non-sélection..."/>
+                                <field name="valide_par_cdp_id" readonly="1"/>
+                                <field name="date_validation_cdp" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <page string="📝 Propositions liées" invisible="nb_propositions == 0">
+                            <field name="proposition_ids">
+                                <list>
+                                    <field name="ref"/>
+                                    <field name="name"/>
+                                    <field name="date_limite_soumission"/>
+                                    <field name="montant_sollicite" widget="monetary"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- VUE LISTE -->
+    <record id="view_resade_opportunite_list" model="ir.ui.view">
+        <field name="name">resade.opportunite.list</field>
+        <field name="model">resade.opportunite</field>
+        <field name="arch" type="xml">
+            <list string="Opportunités de Financement"
+                decoration-danger="urgence == 'haute'"
+                decoration-warning="urgence == 'moyenne'"
+                decoration-muted="state in ['non_retenue','expiree']"
+                decoration-success="state == 'qualifiee'">
+                <field name="ref" string="Réf."/>
+                <field name="name" string="Opportunité"/>
+                <field name="bailleur"/>
+                <field name="type_bailleur" widget="badge" optional="show"/>
+                <field name="date_limite_soumission"/>
+                <field name="jours_restants" string="Jours restants"/>
+                <field name="urgence" widget="badge"
+                    decoration-danger="urgence == 'haute'"
+                    decoration-warning="urgence == 'moyenne'"
+                    decoration-success="urgence == 'basse'"
+                    optional="show"/>
+                <field name="montant_estime" widget="monetary" optional="show"/>
+                <field name="score_total" string="Score /25" optional="show"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'qualifiee'"
+                    decoration-muted="state in ['non_retenue','expiree']"/>
+                <field name="nb_propositions" string="Propositions" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- KANBAN -->
+    <record id="view_resade_opportunite_kanban" model="ir.ui.view">
+        <field name="name">resade.opportunite.kanban</field>
+        <field name="model">resade.opportunite</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="urgence" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="bailleur"/>
+                <field name="date_limite_soumission"/>
+                <field name="score_total"/>
+                <field name="montant_estime"/>
+                <field name="urgence"/>
+                <field name="state"/>
+                <field name="jours_restants"/>
+                <templates>
+                    <t t-name="kanban-card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <strong><field name="name"/></strong>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>🏦 <field name="bailleur"/></div>
+                                <div>📅 Deadline : <field name="date_limite_soumission"/></div>
+                                <div>⏱️ <field name="jours_restants"/> jours</div>
+                                <div>⭐ Score : <field name="score_total"/>/25</div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- RECHERCHE -->
+    <record id="view_resade_opportunite_search" model="ir.ui.view">
+        <field name="name">resade.opportunite.search</field>
+        <field name="model">resade.opportunite</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="bailleur"/>
+                <filter string="Urgentes (&lt; 15j)" name="urgentes"
+                    domain="[('urgence','=','haute')]"/>
+                <filter string="Qualifiées" name="qualifiees"
+                    domain="[('state','=','qualifiee')]"/>
+                <filter string="En analyse" name="en_analyse"
+                    domain="[('state','=','en_analyse')]"/>
+                <filter string="Non retenues / Expirées" name="archives"
+                    domain="[('state','in',['non_retenue','expiree'])]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Bailleur" name="group_bailleur"
+                        context="{'group_by':'bailleur'}"/>
+                    <filter string="Urgence" name="group_urgence"
+                        context="{'group_by':'urgence'}"/>
+                    <filter string="Statut" name="group_state"
+                        context="{'group_by':'state'}"/>
+                    <filter string="Plan de veille" name="group_plan"
+                        context="{'group_by':'plan_veille_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Plan de veille -->
+    <record id="view_resade_plan_veille_form" model="ir.ui.view">
+        <field name="name">resade.plan.veille.form</field>
+        <field name="model">resade.plan.veille</field>
+        <field name="arch" type="xml">
+            <form string="Plan Annuel de Veille – F-MRV-01-04">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="annee"/>
+                            <field name="seuil_score"/>
+                            <field name="valide_par_de" widget="boolean_toggle"/>
+                            <field name="date_validation"/>
+                        </group>
+                        <group>
+                            <field name="nb_opportunites" readonly="1"/>
+                            <field name="nb_qualifiees" readonly="1"/>
+                            <field name="taux_conversion" readonly="1"
+                                string="Taux de conversion (%)"/>
+                        </group>
+                    </group>
+                    <group string="Axes et bailleurs cibles">
+                        <field name="axes_cibles" nolabel="1"
+                            placeholder="Axes thématiques prioritaires pour l'année..."/>
+                        <field name="bailleurs_cibles" nolabel="1"
+                            placeholder="Liste des PTF prioritaires à cibler..."/>
+                    </group>
+                    <field name="note_plan" widget="html"
+                        placeholder="Contenu du plan annuel de veille..."/>
+                    <field name="document_ids" widget="many2many_binary"
+                        string="Documents joints (plan, revues...)"/>
+                    <notebook>
+                        <page string="Opportunités identifiées">
+                            <field name="opportunite_ids">
+                                <list>
+                                    <field name="ref"/>
+                                    <field name="name"/>
+                                    <field name="bailleur"/>
+                                    <field name="date_limite_soumission"/>
+                                    <field name="score_total"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Rapports trimestriels (F-MRV-01-05)">
+                            <field name="rapport_trimestriel_ids">
+                                <list>
+                                    <field name="trimestre"/>
+                                    <field name="date_rapport"/>
+                                    <field name="nb_opportunites_identifiees"/>
+                                    <field name="nb_opportunites_qualifiees"/>
+                                    <field name="nb_propositions_transmises"/>
+                                    <field name="valide_par_cdp" widget="boolean"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTIONS -->
+    <record id="action_resade_opportunite" model="ir.actions.act_window">
+        <field name="name">Opportunités de Financement (F-MRV-01-01)</field>
+        <field name="res_model">resade.opportunite</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_resade_opportunite_search"/>
+        <field name="context">{'search_default_en_analyse': 1}</field>
+    </record>
+
+    <record id="action_resade_plan_veille" model="ir.actions.act_window">
+        <field name="name">Plans Annuels de Veille (F-MRV-01-04)</field>
+        <field name="res_model">resade.plan.veille</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_resade_axe_thematique" model="ir.actions.act_window">
+        <field name="name">Axes Thématiques RESADE</field>
+        <field name="res_model">resade.axe.thematique</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

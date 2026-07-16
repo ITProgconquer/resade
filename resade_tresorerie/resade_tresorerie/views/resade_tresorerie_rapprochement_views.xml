@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_treso_rapprochement_form" model="ir.ui.view">
+        <field name="name">resade.tresorerie.rapprochement.form</field>
+        <field name="model">resade.tresorerie.rapprochement</field>
+        <field name="arch" type="xml">
+            <form string="Rapprochement bancaire mensuel">
+                <header>
+                    <button name="action_valider_caf" string="✅ Valider (CAF) — clôture le rapprochement"
+                        type="object" class="btn-primary"
+                        invisible="statut != 'brouillon'"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <field name="statut" widget="statusbar" statusbar_visible="brouillon,valide_caf"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="not ecart or ecart_justifie">
+                        ⚠️ Écart non justifié entre le solde comptable Odoo et le relevé bancaire.
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="en_retard == False">
+                        ⏱️ Délai réglementaire dépassé (rapprochement attendu au plus tard le
+                        <field name="date_limite" nolabel="1" readonly="1"/> — Carnet F, P-TB-02).
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="not de_notifie">
+                        ℹ️ Le Directeur Exécutif a été informé de la clôture de ce rapprochement
+                        (rôle « Informé » de la RACI — aucune validation de sa part n'est requise).
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <field name="code_document" readonly="1"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="journal_id"/>
+                            <field name="periode"/>
+                            <field name="date_limite" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="solde_theorique_odoo" readonly="1"/>
+                            <field name="solde_releve_bancaire"/>
+                            <field name="ecart" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Justification de l'écart" invisible="not ecart">
+                        <field name="ecart_justifie"/>
+                        <field name="explication_ecart" nolabel="1" colspan="2"
+                            invisible="ecart_justifie == False"/>
+                    </group>
+                    <group string="RACI (conforme Carnet F P-TB-02 B.8)">
+                        <group>
+                            <field name="ac_preparateur_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="caf_valideur_id" readonly="1"/>
+                            <field name="date_visa_caf" readonly="1"/>
+                            <field name="de_notifie" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Relevé bancaire (scan / PDF)"/>
+                    <field name="releve_bancaire" widget="many2many_binary"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_treso_rapprochement_list" model="ir.ui.view">
+        <field name="name">resade.tresorerie.rapprochement.list</field>
+        <field name="model">resade.tresorerie.rapprochement</field>
+        <field name="arch" type="xml">
+            <list string="Rapprochements bancaires" decoration-danger="en_retard == True">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="periode"/>
+                <field name="date_limite"/>
+                <field name="solde_theorique_odoo"/>
+                <field name="solde_releve_bancaire"/>
+                <field name="ecart"/>
+                <field name="en_retard"/>
+                <field name="statut"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_treso_rapprochement" model="ir.actions.act_window">
+        <field name="name">Rapprochements bancaires</field>
+        <field name="res_model">resade.tresorerie.rapprochement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

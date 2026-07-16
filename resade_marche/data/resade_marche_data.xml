@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════════
+             DOMAINES DE MARCHÉ
+        ═══════════════════════════════════════════════ -->
+        <record id="domaine_informatique" model="resade.domaine.marche">
+            <field name="name">Informatique et télécommunications</field>
+            <field name="code">INFO</field>
+        </record>
+        <record id="domaine_fournitures" model="resade.domaine.marche">
+            <field name="name">Fournitures de bureau</field>
+            <field name="code">FOUR</field>
+        </record>
+        <record id="domaine_consulting" model="resade.domaine.marche">
+            <field name="name">Consultance et expertise intellectuelle</field>
+            <field name="code">CONS</field>
+        </record>
+        <record id="domaine_formation" model="resade.domaine.marche">
+            <field name="name">Formation et renforcement de capacités</field>
+            <field name="code">FORM</field>
+        </record>
+        <record id="domaine_travaux" model="resade.domaine.marche">
+            <field name="name">Travaux de construction / réhabilitation</field>
+            <field name="code">TRAV</field>
+        </record>
+        <record id="domaine_transport" model="resade.domaine.marche">
+            <field name="name">Transport et logistique</field>
+            <field name="code">TRAN</field>
+        </record>
+        <record id="domaine_communication" model="resade.domaine.marche">
+            <field name="name">Communication et événementiel</field>
+            <field name="code">COMM</field>
+        </record>
+        <record id="domaine_recherche" model="resade.domaine.marche">
+            <field name="name">Recherche, enquêtes et études</field>
+            <field name="code">RECH</field>
+        </record>
+        <record id="domaine_sante" model="resade.domaine.marche">
+            <field name="name">Santé publique et expertise médicale</field>
+            <field name="code">SANT</field>
+        </record>
+        <record id="domaine_impression" model="resade.domaine.marche">
+            <field name="name">Impression, reproduction et édition</field>
+            <field name="code">IMPR</field>
+        </record>
+        <record id="domaine_maintenance" model="resade.domaine.marche">
+            <field name="name">Maintenance et entretien des équipements</field>
+            <field name="code">MAIN</field>
+        </record>
+        <record id="domaine_securite" model="resade.domaine.marche">
+            <field name="name">Sécurité et gardiennage</field>
+            <field name="code">SECU</field>
+        </record>
+
+    </data>
+</odoo>

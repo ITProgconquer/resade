@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_ethique_plan_continuite_tree" model="ir.ui.view">
+        <field name="name">resade.ethique.plan.continuite.tree</field>
+        <field name="model">resade.ethique.plan.continuite</field>
+        <field name="arch" type="xml">
+            <list string="Plans de mitigation / continuité">
+                <field name="name"/>
+                <field name="risque_id"/>
+                <field name="type_plan"/>
+                <field name="responsable_id"/>
+                <field name="date_elaboration"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'actif'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_ethique_plan_continuite_form" model="ir.ui.view">
+        <field name="name">resade.ethique.plan.continuite.form</field>
+        <field name="model">resade.ethique.plan.continuite</field>
+        <field name="arch" type="xml">
+            <form string="Plan de mitigation / continuité">
+                <header>
+                    <button name="action_valider" string="Valider" type="object"
+                            class="oe_highlight" invisible="state != 'elabore'"/>
+                    <button name="action_marquer_teste" string="Marquer comme testé" type="object"
+                            invisible="state != 'valide' or type_plan != 'continuite'"/>
+                    <button name="action_activer" string="Activer" type="object"
+                            class="oe_highlight" invisible="state not in ('valide', 'teste')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="elabore,valide,teste,actif"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="risque_id"/>
+                            <field name="type_plan"/>
+                            <field name="responsable_id"/>
+                        </group>
+                        <group>
+                            <field name="date_elaboration"/>
+                            <field name="date_validation"/>
+                            <field name="date_test" invisible="type_plan != 'continuite'"/>
+                            <field name="date_prochaine_revue"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="mesures_preventives"/>
+                        <field name="mesures_correctives"/>
+                        <field name="resultat_test" invisible="type_plan != 'continuite'"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_resade_ethique_plan_continuite" model="ir.actions.act_window">
+        <field name="name">Plans de mitigation / continuité (P-GRI-02)</field>
+        <field name="res_model">resade.ethique.plan.continuite</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créez un plan de mitigation ou de continuité</p>
+        </field>
+    </record>
+
+</odoo>

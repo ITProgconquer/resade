@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ═══════════════════════════════════════════════
+     COTATIONS – P-PTM-01 (inline dans marché)
+═══════════════════════════════════════════════ -->
+<record id="view_resade_cotation_tree" model="ir.ui.view">
+    <field name="name">resade.marche.cotation.tree</field>
+    <field name="model">resade.marche.cotation</field>
+    <field name="arch" type="xml">
+        <list string="Cotations fournisseurs" editable="bottom"
+            decoration-success="retenue == True">
+            <field name="rang"/>
+            <field name="fournisseur_nom"/>
+            <field name="fournisseur_id" optional="show"/>
+            <field name="date_cotation"/>
+            <field name="forme"/>
+            <field name="montant_cotation"/>
+            <field name="retenue"/>
+            <field name="justification_choix" optional="show"/>
+            <field name="currency_id" column_invisible="True"/>
+        </list>
+    </field>
+</record>
+
+<!-- ═══════════════════════════════════════════════
+     PVR – P-RC-01 – Réception fournitures
+═══════════════════════════════════════════════ -->
+<record id="view_resade_pvr_form" model="ir.ui.view">
+    <field name="name">resade.marche.pvr.form</field>
+    <field name="model">resade.marche.pvr</field>
+    <field name="arch" type="xml">
+        <form string="Procès-Verbal de Réception (PVR) – P-RC-01">
+            <header>
+                <button name="action_signer_pvr" string="📋 Signer le PVR"
+                    type="object" class="btn-primary"/>
+                <field name="statut" widget="statusbar"
+                    statusbar_visible="conforme,reserves,rejet_partiel,rejet_total"/>
+            </header>
+            <sheet>
+                <div class="alert alert-danger" role="alert"
+                    invisible="statut not in ['rejet_partiel','rejet_total']">
+                    ⚠️ Livraison non conforme — lettre de non-conformité obligatoire
+                    dans les <strong>5 jours ouvrables</strong> (P-RC-01 B.11)
+                </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                </div>
+                <group>
+                    <group string="Identification">
+                        <field name="marche_id" readonly="id != False"/>
+                        <field name="date_reception"/>
+                        <field name="receptionnaire_id"/>
+                        <field name="demandeur_id"/>
+                    </group>
+                    <group string="Résultat réception">
+                        <field name="statut" widget="radio"/>
+                        <field name="lettre_nc_envoyee"
+                            invisible="statut == 'conforme'"/>
+                        <field name="date_lettre_nc"
+                            invisible="statut == 'conforme'"/>
+                        <field name="enregistre_inventaire"
+                            invisible="statut not in ['conforme','reserves']"/>
+                    </group>
+                </group>
+                <separator string="Grille de vérification – P-RC-01 B.6"/>
+                <group>
+                    <group string="Vérification quantitative et qualitative">
+                        <field name="verif_quantitative"/>
+                        <field name="verif_qualitative"/>
+                        <field name="verif_specs_techniques"/>
+                        <field name="verif_docs_accompagnement"/>
+                    </group>
+                    <group string="Équipements de recherche">
+                        <field name="verif_test_equipement"/>
+                        <field name="pool_rd_valide"/>
+                    </group>
+                </group>
+                <group string="Écarts et non-conformités">
+                    <field name="ecarts_constates" nolabel="1" colspan="2"
+                        placeholder="Quantités livrées vs commandées – écarts éventuels..."/>
+                    <field name="non_conformites" nolabel="1" colspan="2"
+                        placeholder="Non-conformités qualitatives ou techniques constatées..."/>
+                </group>
+                <separator string="Documents"/>
+                <group>
+                    <field name="pj_pvr" widget="many2many_binary"/>
+                    <field name="pj_bordereau" widget="many2many_binary"/>
+                </group>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<record id="view_resade_pvr_list" model="ir.ui.view">
+    <field name="name">resade.marche.pvr.list</field>
+    <field name="model">resade.marche.pvr</field>
+    <field name="arch" type="xml">
+        <list string="PV de Réception"
+            decoration-danger="statut in ['rejet_partiel','rejet_total']"
+            decoration-success="statut == 'conforme'">
+            <field name="name"/>
+            <field name="marche_id"/>
+            <field name="date_reception"/>
+            <field name="receptionnaire_id"/>
+            <field name="statut" widget="badge"
+                decoration-success="statut == 'conforme'"
+                decoration-warning="statut == 'reserves'"
+                decoration-danger="statut in ['rejet_partiel','rejet_total']"/>
+            <field name="lettre_nc_envoyee" optional="show"/>
+            <field name="enregistre_inventaire" optional="show"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_resade_pvr" model="ir.actions.act_window">
+    <field name="name">PV de Réception (P-RC-01)</field>
+    <field name="res_model">resade.marche.pvr</field>
+    <field name="view_mode">list,form</field>
+</record>
+
+<!-- ═══════════════════════════════════════════════
+     ASF – P-RC-03 – Prestations intellectuelles
+═══════════════════════════════════════════════ -->
+<record id="view_resade_asf_form" model="ir.ui.view">
+    <field name="name">resade.marche.asf.form</field>
+    <field name="model">resade.marche.asf</field>
+    <field name="arch" type="xml">
+        <form string="Attestation de Service Fait (ASF) – P-RC-03">
+            <header>
+                <button name="action_valider" string="✅ Valider – Émettre ASF"
+                    type="object" class="btn-primary"
+                    invisible="statut_validation in ['valide','rejete']"/>
+                <button name="action_demander_corrections" string="🔄 Corrections demandées"
+                    type="object"
+                    invisible="statut_validation in ['valide','rejete']"/>
+                <button name="action_rejeter" string="❌ Rejet définitif"
+                    type="object" class="btn-danger"
+                    invisible="statut_validation in ['valide','rejete']"/>
+                <field name="statut_validation" widget="statusbar"
+                    statusbar_visible="en_cours,corrections,valide,rejete"/>
+            </header>
+            <sheet>
+                <div class="alert alert-info" role="alert"
+                    invisible="statut_validation != 'corrections'">
+                    🔄 Corrections demandées au prestataire – cycle
+                    <field name="nb_cycles_revision" readonly="1"/> de révision
+                </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                    <h3><field name="intitule_livrable"/></h3>
+                </div>
+                <group>
+                    <group string="Identification">
+                        <field name="marche_id" readonly="id != False"/>
+                        <field name="type_livrable"/>
+                        <field name="date_remise"/>
+                        <field name="date_limite_validation"/>
+                    </group>
+                    <group string="Valideur compétent (grille P-RC-03 B.4)">
+                        <field name="valideur_id"/>
+                        <field name="departement_valideur"/>
+                        <field name="date_validation_finale" readonly="1"/>
+                        <field name="asf_numero"/>
+                    </group>
+                </group>
+                <separator string="Rapport d'évaluation interne (RESADE-F-RC-03-01)"/>
+                <field name="rapport_evaluation" nolabel="1"
+                    placeholder="Observations du valideur : rigueur méthodologique, conformité aux TDR, qualité rédactionnelle..."/>
+                <group string="Corrections demandées"
+                    invisible="statut_validation != 'corrections'">
+                    <field name="corrections_demandees" nolabel="1" colspan="2"/>
+                </group>
+                <separator string="Documents"/>
+                <group>
+                    <field name="pj_livrable" widget="many2many_binary"/>
+                    <field name="pj_asf" widget="many2many_binary"/>
+                </group>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<record id="view_resade_asf_list" model="ir.ui.view">
+    <field name="name">resade.marche.asf.list</field>
+    <field name="model">resade.marche.asf</field>
+    <field name="arch" type="xml">
+        <list string="Attestations de Service Fait"
+            decoration-success="statut_validation == 'valide'"
+            decoration-danger="statut_validation == 'rejete'"
+            decoration-warning="statut_validation == 'corrections'">
+            <field name="name"/>
+            <field name="marche_id"/>
+            <field name="intitule_livrable"/>
+            <field name="type_livrable"/>
+            <field name="date_remise"/>
+            <field name="valideur_id" optional="show"/>
+            <field name="nb_cycles_revision" optional="show"/>
+            <field name="statut_validation" widget="badge"
+                decoration-success="statut_validation == 'valide'"
+                decoration-danger="statut_validation == 'rejete'"
+                decoration-warning="statut_validation in ['en_cours','corrections']"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_resade_asf" model="ir.actions.act_window">
+    <field name="name">Attestations de Service Fait (P-RC-03)</field>
+    <field name="res_model">resade.marche.asf</field>
+    <field name="view_mode">list,form</field>
+</record>
+
+<!-- ═══════════════════════════════════════════════
+     FACTURES – P-RC-02 – Registre certification
+═══════════════════════════════════════════════ -->
+<record id="view_resade_facture_form" model="ir.ui.view">
+    <field name="name">resade.marche.facture.form</field>
+    <field name="model">resade.marche.facture</field>
+    <field name="arch" type="xml">
+        <form string="Certification de facture (P-RC-02)">
+            <header>
+                <button name="action_certifier" string="✔️ Certifier la facture"
+                    type="object" class="btn-primary"
+                    invisible="statut in ['certifiee','rejetee']"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_retourner" string="📤 Retourner au fournisseur"
+                    type="object"
+                    invisible="statut in ['certifiee','rejetee']"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <field name="statut" widget="statusbar"
+                    statusbar_visible="recue,certifiee"/>
+            </header>
+            <sheet>
+                <div class="alert alert-danger" role="alert"
+                    invisible="mentions_legales_ok == True or statut == 'certifiee'">
+                    ⚠️ Mentions légales incomplètes — la facture ne peut pas être certifiée (P-RC-02 B.4)
+                </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                </div>
+                <group>
+                    <group string="Identification facture">
+                        <field name="marche_id" readonly="id != False"/>
+                        <field name="fournisseur_id" readonly="1"/>
+                        <field name="numero_facture"/>
+                        <field name="date_facture"/>
+                        <field name="date_reception"/>
+                    </group>
+                    <group string="Montants">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="montant_ht"/>
+                        <field name="tva"/>
+                        <field name="montant_ttc"/>
+                    </group>
+                </group>
+                <separator string="Checklist mentions légales obligatoires (P-RC-02 B.4)"/>
+                <group>
+                    <group>
+                        <field name="cl_raison_sociale"/>
+                        <field name="cl_ifu"/>
+                        <field name="cl_numero_facture"/>
+                        <field name="cl_date_emission"/>
+                    </group>
+                    <group>
+                        <field name="cl_reference_bc"/>
+                        <field name="cl_description"/>
+                        <field name="cl_prix"/>
+                        <field name="cl_coordonnees_bancaires"/>
+                    </group>
+                </group>
+                <group string="Résultat checklist">
+                    <field name="mentions_legales_ok" readonly="1" widget="boolean_toggle"/>
+                </group>
+                <separator string="Vérifications avant certification"/>
+                <group>
+                    <field name="pvr_ou_asf_present"/>
+                    <field name="ref_pvr_asf"/>
+                    <field name="disponibilite_sage_ok"/>
+                    <field name="code_analytique_ok"/>
+                </group>
+                <group string="Certification">
+                    <field name="date_certification" readonly="1"/>
+                    <field name="certifie_par" readonly="1"/>
+                    <field name="motif_rejet"
+                        invisible="statut not in ['incomplete','rejetee']"/>
+                </group>
+                <separator string="Pièce jointe"/>
+                <field name="pj_facture" widget="many2many_binary"/>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<record id="view_resade_facture_list" model="ir.ui.view">
+    <field name="name">resade.marche.facture.list</field>
+    <field name="model">resade.marche.facture</field>
+    <field name="arch" type="xml">
+        <list string="Registre des factures (P-RC-02)"
+            decoration-success="statut == 'certifiee'"
+            decoration-warning="statut == 'incomplete'"
+            decoration-danger="statut == 'rejetee'">
+            <field name="name"/>
+            <field name="marche_id"/>
+            <field name="fournisseur_id"/>
+            <field name="numero_facture"/>
+            <field name="date_reception"/>
+            <field name="montant_ttc"/>
+            <field name="mentions_legales_ok"/>
+            <field name="pvr_ou_asf_present"/>
+            <field name="statut" widget="badge"
+                decoration-success="statut == 'certifiee'"
+                decoration-warning="statut == 'incomplete'"
+                decoration-danger="statut == 'rejetee'"/>
+            <field name="currency_id" column_invisible="True"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_resade_factures" model="ir.actions.act_window">
+    <field name="name">Registre des factures (P-RC-02)</field>
+    <field name="res_model">resade.marche.facture</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_group_state': 1}</field>
+</record>
+
+<!-- ═══════════════════════════════════════════════
+     TABLEAU DE BORD – P-SCM-01
+     Vue pivot / graphique suivi marchés en cours
+═══════════════════════════════════════════════ -->
+<record id="view_resade_marche_pivot_tdb" model="ir.ui.view">
+    <field name="name">resade.marche.pivot.tdb</field>
+    <field name="model">resade.marche</field>
+    <field name="arch" type="xml">
+        <pivot string="Tableau de bord marchés (P-SCM-01)" display_quantity="True">
+            <field name="type_procedure" type="row"/>
+            <field name="state" type="col"/>
+            <field name="montant_final" type="measure"/>
+            <field name="montant_paye" type="measure"/>
+        </pivot>
+    </field>
+</record>
+
+<record id="view_resade_marche_graph_tdb" model="ir.ui.view">
+    <field name="name">resade.marche.graph.tdb</field>
+    <field name="model">resade.marche</field>
+    <field name="arch" type="xml">
+        <graph string="Marchés par type et état" type="bar" stacked="True">
+            <field name="type_procedure"/>
+            <field name="montant_final" type="measure"/>
+        </graph>
+    </field>
+</record>
+
+<record id="action_resade_tableau_bord" model="ir.actions.act_window">
+    <field name="name">Tableau de bord suivi marchés (P-SCM-01)</field>
+    <field name="res_model">resade.marche</field>
+    <field name="view_mode">list,pivot,graph,kanban</field>
+    <field name="domain">[('state', 'not in', ['paye','annule']), ('dossier_cloture','=',False)]</field>
+    <field name="context">{}</field>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">Aucun marché en cours</p>
+        <p>Tableau de bord P-SCM-01 – Manuel RESADE Carnet E Module 03</p>
+    </field>
+</record>
+
+</odoo>

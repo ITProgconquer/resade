@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_taux_perdiem_form" model="ir.ui.view">
+        <field name="name">resade.taux.perdiem.form</field>
+        <field name="model">resade.taux.perdiem</field>
+        <field name="arch" type="xml">
+            <form string="Grille Taux Per Diem – RESADE-F-GMD-01-05">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        📌 Grille à mettre à jour avant le <strong>31 janvier</strong> de chaque année
+                        par le CAF sur proposition du DE, en référence aux taux PNUD/BF
+                        (Manuel NEX 2022, Section 6.2 – P-GMD-01 B.6).
+                    </div>
+                    <group>
+                        <group>
+                            <field name="zone"/>
+                            <field name="annee"/>
+                            <field name="reference_pnud"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="perdiem_journalier"
+                                help="Per diem journalier FCFA – utilisé pour calcul automatique avance"/>
+                            <field name="plafond_hebergement"
+                                help="Plafond hébergement par nuit – factures originales obligatoires"/>
+                            <field name="indemnite_deplacement"
+                                help="Indemnité de déplacement local (intra-ville)"/>
+                            <field name="taux_carburant_km"
+                                help="FCFA par km – multiplié par km parcourus (carnet de bord RESADE-F-GMD-02-03)"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Notes et conditions particulières, plafonds spécifiques bailleurs..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_taux_perdiem_list" model="ir.ui.view">
+        <field name="name">resade.taux.perdiem.list</field>
+        <field name="model">resade.taux.perdiem</field>
+        <field name="arch" type="xml">
+            <list string="Grille Per Diem RESADE – F-GMD-01-05">
+                <field name="zone"/>
+                <field name="annee"/>
+                <field name="perdiem_journalier" widget="monetary"/>
+                <field name="plafond_hebergement" widget="monetary"/>
+                <field name="indemnite_deplacement" widget="monetary"/>
+                <field name="taux_carburant_km"/>
+                <field name="reference_pnud"/>
+                <field name="active" widget="boolean" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_taux_perdiem" model="ir.actions.act_window">
+        <field name="name">Grille des Taux Per Diem (F-GMD-01-05)</field>
+        <field name="res_model">resade.taux.perdiem</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Configurer la grille des taux</p>
+            <p>
+                Référentiel <strong>RESADE-F-GMD-01-05</strong> — à mettre à jour avant le 31 janvier
+                de chaque année par le CAF, en référence aux taux PNUD/BF (Manuel NEX 2022, §6.2)
+                et aux plafonds des bailleurs actifs.
+            </p>
+        </field>
+    </record>
+
+</odoo>

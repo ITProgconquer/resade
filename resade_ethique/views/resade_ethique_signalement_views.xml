@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_ethique_signalement_tree" model="ir.ui.view">
+        <field name="name">resade.ethique.signalement.tree</field>
+        <field name="model">resade.ethique.signalement</field>
+        <field name="arch" type="xml">
+            <list string="Signalements code de conduite">
+                <field name="name"/>
+                <field name="date_signalement"/>
+                <field name="categorie"/>
+                <field name="gravite"/>
+                <field name="anonyme"/>
+                <field name="state" widget="badge"
+                       decoration-danger="gravite == 'critique'"
+                       decoration-warning="state == 'en_instruction'"
+                       decoration-muted="state == 'cloture'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_ethique_signalement_form" model="ir.ui.view">
+        <field name="name">resade.ethique.signalement.form</field>
+        <field name="model">resade.ethique.signalement</field>
+        <field name="arch" type="xml">
+            <form string="Signalement code de conduite / déontologie">
+                <header>
+                    <button name="action_soumettre" string="Soumettre" type="object"
+                            class="oe_highlight" invisible="state != 'brouillon'"/>
+                    <button name="action_mettre_en_instruction" string="Mettre en instruction" type="object"
+                            class="oe_highlight" invisible="state != 'recu'"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <button name="action_enregistrer_decision" string="Enregistrer la décision" type="object"
+                            class="oe_highlight" invisible="state != 'en_instruction'"
+                            groups="resade_ethique.group_resade_ethique_de"/>
+                    <button name="action_cloturer" string="Clôturer" type="object"
+                            invisible="state != 'decision_rendue'"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="recu,en_instruction,decision_rendue,cloture"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="date_signalement"/>
+                            <field name="canal"/>
+                            <field name="anonyme" readonly="state != 'brouillon'"/>
+                            <field name="signalant_id" invisible="anonyme" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="categorie"/>
+                            <field name="gravite"/>
+                            <field name="instructeur_id"/>
+                            <field name="date_debut_instruction"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Description factuelle des faits signalés..."/>
+                    </group>
+                    <group string="Décision" invisible="state in ('recu')">
+                        <field name="decision"/>
+                        <field name="motivation_decision"/>
+                        <field name="date_cloture"/>
+                    </group>
+                    <group string="⚖️ Décision" 
+                           invisible="state not in ('decision_rendue', 'cloture')">
+                        <field name="decision" required="state == 'decision_rendue'"/>
+                        <field name="motivation_decision" 
+                               placeholder="Motivation détaillée de la décision..."
+                               invisible="decision == 'classe_sans_suite'"/>
+                        <field name="date_cloture" readonly="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_resade_ethique_signalement" model="ir.actions.act_window">
+        <field name="name">Signalements (P-DC-01)</field>
+        <field name="res_model">resade.ethique.signalement</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Effectuez un signalement de manquement au code de conduite</p>
+        </field>
+    </record>
+
+</odoo>

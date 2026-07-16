@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_resade_opportunite" model="ir.sequence">
+            <field name="name">Opportunité RESADE</field>
+            <field name="code">resade.opportunite</field>
+            <field name="prefix">OPP-%(year)s-</field>
+            <field name="padding">3</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+        <record id="seq_resade_proposition" model="ir.sequence">
+            <field name="name">Proposition RESADE</field>
+            <field name="code">resade.proposition</field>
+            <field name="prefix">PROP-%(year)s-</field>
+            <field name="padding">3</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+        <record id="seq_resade_projet" model="ir.sequence">
+            <field name="name">Projet RESADE</field>
+            <field name="code">resade.projet</field>
+            <field name="prefix">PROJ-%(year)s-</field>
+            <field name="padding">3</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+        <record id="axe_sante_maternelle" model="resade.axe.thematique">
+            <field name="name">Santé Maternelle et Infantile (SMI)</field>
+            <field name="code">AX-SMI</field>
+        </record>
+        <record id="axe_maladies_infectieuses" model="resade.axe.thematique">
+            <field name="name">Maladies Infectieuses et Tropicales</field>
+            <field name="code">AX-MIT</field>
+        </record>
+        <record id="axe_nutrition" model="resade.axe.thematique">
+            <field name="name">Nutrition et Sécurité Alimentaire</field>
+            <field name="code">AX-NSA</field>
+        </record>
+        <record id="axe_systemes_sante" model="resade.axe.thematique">
+            <field name="name">Systèmes et Services de Santé (HSS)</field>
+            <field name="code">AX-HSS</field>
+        </record>
+        <record id="axe_climat_sante" model="resade.axe.thematique">
+            <field name="name">Changements Climatiques et Santé</field>
+            <field name="code">AX-CCS</field>
+        </record>
+        <record id="axe_sante_communautaire" model="resade.axe.thematique">
+            <field name="name">Santé Communautaire et One Health</field>
+            <field name="code">AX-SCO</field>
+        </record>
+
+        <record id="cron_opportunites_expirees" model="ir.cron">
+            <field name="name">RESADE : Marquer opportunités expirées (P-MRV-01)</field>
+            <field name="model_id" ref="model_resade_opportunite"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_marquer_expirees()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_resade_tresorerie_root" name="RESADE Trésorerie"
+        sequence="46" web_icon="resade_tresorerie,static/description/icon.png"
+        groups="resade_tresorerie.group_resade_tresorerie_lecture"/>
+
+    <menuitem id="menu_resade_tresorerie_comptes" name="Comptes bancaires / caisses"
+        parent="menu_resade_tresorerie_root" sequence="10"
+        action="action_resade_tresorerie_compte"/>
+
+    <menuitem id="menu_resade_tresorerie_caisse" name="Petite caisse (P-TB-01)"
+        parent="menu_resade_tresorerie_root" sequence="20"/>
+
+    <menuitem id="menu_resade_tresorerie_caisse_dec" name="Décaissements"
+        parent="menu_resade_tresorerie_caisse" sequence="10"
+        action="action_resade_treso_caisse_dec"/>
+
+    <menuitem id="menu_resade_tresorerie_controle_caisse" name="Contrôles hebdomadaires"
+        parent="menu_resade_tresorerie_caisse" sequence="20"
+        action="action_resade_treso_controle_caisse"/>
+
+    <menuitem id="menu_resade_tresorerie_reconstitution" name="Reconstitution mensuelle"
+        parent="menu_resade_tresorerie_caisse" sequence="30"
+        action="action_resade_treso_reconstitution"/>
+
+    <menuitem id="menu_resade_tresorerie_banque" name="Comptes bancaires (P-TB-02)"
+        parent="menu_resade_tresorerie_root" sequence="30"/>
+
+    <menuitem id="menu_resade_tresorerie_previsionnel" name="Prévisionnel de trésorerie"
+        parent="menu_resade_tresorerie_banque" sequence="10"
+        action="action_resade_treso_previsionnel"/>
+
+    <menuitem id="menu_resade_tresorerie_rapprochement" name="Rapprochements bancaires"
+        parent="menu_resade_tresorerie_banque" sequence="20"
+        action="action_resade_treso_rapprochement"/>
+
+    <menuitem id="menu_resade_tresorerie_devise" name="Conversion de devises"
+        parent="menu_resade_tresorerie_banque" sequence="30"
+        action="action_resade_treso_devise"/>
+
+    <menuitem id="menu_resade_tresorerie_tdb" name="Tableau de bord"
+        parent="menu_resade_tresorerie_root" sequence="40"
+        action="action_resade_treso_tdb"/>
+
+</odoo>

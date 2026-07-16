@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- RACINE -->
+    <menuitem id="menu_resade_projet_root"
+        name="Projets &amp; Partenariats"
+        sequence="86"
+        web_icon="resade_projet_h,static/description/icon.png"/>
+
+    <!-- ── MODULE 01 : VEILLE (P-MRV-01) ── -->
+    <menuitem id="menu_resade_mrv"
+        name="🔍 Mobilisation des Ressources"
+        parent="menu_resade_projet_root"
+        sequence="10"
+        groups="resade_projet_h.group_resade_dpmr"/>
+
+    <menuitem id="menu_resade_opportunite"
+        name="Opportunités de Financement (F-MRV-01-01)"
+        parent="menu_resade_mrv"
+        action="action_resade_opportunite"
+        sequence="10"/>
+
+    <menuitem id="menu_resade_plan_veille"
+        name="Plans Annuels de Veille (F-MRV-01-04)"
+        parent="menu_resade_mrv"
+        action="action_resade_plan_veille"
+        sequence="20"/>
+
+    <!-- ── MODULE 02 : PROPOSITIONS (P-MRV-02) ── -->
+    <menuitem id="menu_resade_propositions"
+        name="📝 Propositions de Financement"
+        parent="menu_resade_projet_root"
+        sequence="20"
+        groups="resade_projet_h.group_resade_dpmr"/>
+
+    <menuitem id="menu_resade_proposition_all"
+        name="Registre des Propositions (F-MRV-02-07)"
+        parent="menu_resade_propositions"
+        action="action_resade_proposition"
+        sequence="10"/>
+
+    <!-- ── MODULE 03 + 04 + 05 : PROJETS ── -->
+    <menuitem id="menu_resade_projets"
+        name="📊 Portefeuille de Projets"
+        parent="menu_resade_projet_root"
+        sequence="30"
+        groups="resade_projet_h.group_resade_rp"/>
+
+    <menuitem id="menu_resade_projet_all"
+        name="Tous les Projets (P-CD / P-EST)"
+        parent="menu_resade_projets"
+        action="action_resade_projet"
+        sequence="10"/>
+
+    <menuitem id="menu_resade_rapports_projets"
+        name="Rapports d'Avancement (P-EST-02)"
+        parent="menu_resade_projets"
+        action="action_resade_rapport_projet"
+        sequence="20"/>
+
+    <menuitem id="menu_resade_partenaires"
+        name="Partenaires &amp; Sous-traitants (P-EST-03)"
+        parent="menu_resade_projets"
+        action="action_resade_partenaire_projet"
+        sequence="30"/>
+
+    <!-- ── MODULE 06 : CLÔTURE ── -->
+    <menuitem id="menu_resade_clotures"
+        name="🏁 Clôtures de Projets"
+        parent="menu_resade_projet_root"
+        sequence="40"
+        groups="resade_projet_h.group_resade_cdo"/>
+
+    <menuitem id="menu_resade_cloture_all"
+        name="Dossiers de Clôture (P-CC-01/02)"
+        parent="menu_resade_clotures"
+        action="action_resade_cloture_projet"
+        sequence="10"/>
+
+    <!-- ── CONFIGURATION ── -->
+    <menuitem id="menu_resade_projet_config"
+        name="⚙️ Configuration"
+        parent="menu_resade_projet_root"
+        sequence="90"
+        groups="resade_projet_h.group_resade_cdp"/>
+
+    <menuitem id="menu_resade_axe_thematique"
+        name="Axes Thématiques RESADE"
+        parent="menu_resade_projet_config"
+        action="action_resade_axe_thematique"
+        sequence="10"/>
+
+    <menuitem id="menu_resade_panier_commun"
+        name="Panier Commun (P-CD-03)"
+        parent="menu_resade_projet_config"
+        action="action_resade_panier_commun"
+        sequence="20"
+        groups="resade_projet_h.group_resade_de_projet"/>
+
+</odoo>

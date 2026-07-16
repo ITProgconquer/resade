@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extension du formulaire journal natif Odoo Accounting -->
+    <record id="view_account_journal_form_resade" model="ir.ui.view">
+        <field name="name">account.journal.form.resade.tresorerie</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="RESADE – Trésorerie (Carnet F)"
+                    invisible="type not in ['bank','cash']">
+                    <group>
+                        <field name="resade_type_fonds"/>
+                        <field name="resade_projet_bailleur_id"
+                            invisible="resade_type_fonds != 'restreint'"/>
+                        <field name="resade_solde_comptable" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="resade_double_signature_obligatoire"/>
+                        <field name="resade_signataire_1_id"/>
+                        <field name="resade_signataire_2_id"/>
+                        <field name="resade_plafond_caisse"
+                            invisible="type != 'cash'"/>
+                        <field name="resade_plafond_decaissement_unitaire"
+                            invisible="type != 'cash'"/>
+                        <field name="resade_seuil_autorisation_de"
+                            invisible="type != 'cash'"/>
+                        <field name="resade_seuil_reconstitution"
+                            invisible="type != 'cash'"/>
+                        <field name="resade_devise_etrangere"
+                            invisible="type != 'bank'"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vue liste dédiée : "Comptes RESADE" (banques + caisses) -->
+    <record id="view_resade_tresorerie_compte_list" model="ir.ui.view">
+        <field name="name">account.journal.list.resade.tresorerie</field>
+        <field name="model">account.journal</field>
+        <field name="arch" type="xml">
+            <list string="Comptes bancaires et caisses RESADE">
+                <field name="name"/>
+                <field name="type"/>
+                <field name="resade_type_fonds"/>
+                <field name="resade_projet_bailleur_id"/>
+                <field name="resade_solde_comptable" sum="Total"/>
+                <field name="resade_double_signature_obligatoire" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_tresorerie_compte" model="ir.actions.act_window">
+        <field name="name">Comptes bancaires et caisses</field>
+        <field name="res_model">account.journal</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('type', 'in', ['bank', 'cash'])]</field>
+        <field name="context">{'default_type': 'bank'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Les comptes bancaires et caisses se créent depuis
+                Comptabilité &gt; Configuration &gt; Journaux (Odoo Accounting Enterprise).
+                Cette vue permet d'en piloter les attributs RESADE (fonds propres/
+                restreints, signataires, plafonds).
+            </p>
+        </field>
+    </record>
+
+</odoo>

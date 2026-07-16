@@ -1,0 +1,18 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_resade_mission_missionnaire,resade.mission missionnaire,model_resade_mission,resade_mission.group_resade_missionnaire,1,1,1,0
+access_resade_mission_chef_dept,resade.mission chef dept,model_resade_mission,resade_mission.group_resade_chef_dept,1,1,0,0
+access_resade_mission_caf,resade.mission caf,model_resade_mission,resade_mission.group_resade_caf,1,1,1,0
+access_resade_mission_de,resade.mission de,model_resade_mission,resade_mission.group_resade_de,1,1,1,1
+access_resade_mission_admin,resade.mission admin,model_resade_mission,resade_mission.group_resade_mission_admin,1,1,1,1
+access_resade_mission_line_missionnaire,resade.mission.line missionnaire,model_resade_mission_line,resade_mission.group_resade_missionnaire,1,1,1,0
+access_resade_mission_line_chef_dept,resade.mission.line chef dept,model_resade_mission_line,resade_mission.group_resade_chef_dept,1,1,0,0
+access_resade_mission_line_caf,resade.mission.line caf,model_resade_mission_line,resade_mission.group_resade_caf,1,1,1,1
+access_resade_taux_perdiem_read,resade.taux.perdiem read,model_resade_taux_perdiem,resade_mission.group_resade_missionnaire,1,0,0,0
+access_resade_taux_perdiem_chef,resade.taux.perdiem chef,model_resade_taux_perdiem,resade_mission.group_resade_chef_dept,1,0,0,0
+access_resade_taux_perdiem_caf,resade.taux.perdiem caf,model_resade_taux_perdiem,resade_mission.group_resade_caf,1,1,1,0
+access_resade_taux_perdiem_admin,resade.taux.perdiem admin,model_resade_taux_perdiem,resade_mission.group_resade_mission_admin,1,1,1,1
+access_analytic_line_mission,account.analytic.line mission,model_account_analytic_line,resade_mission.group_resade_caf,1,1,1,0
+access_resade_registre_mission_caf,resade.registre.mission caf,model_resade_registre_mission,resade_mission.group_resade_caf,1,1,1,0
+access_resade_registre_mission_chef,resade.registre.mission chef,model_resade_registre_mission,resade_mission.group_resade_chef_dept,1,0,0,0
+access_resade_registre_mission_missionnaire,resade.registre.mission missionnaire,model_resade_registre_mission,resade_mission.group_resade_missionnaire,1,0,0,0
+access_resade_registre_mission_admin,resade.registre.mission admin,model_resade_registre_mission,resade_mission.group_resade_mission_admin,1,1,1,1

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ═══════════════════════════════════════════
+             CATÉGORIE
+        ═══════════════════════════════════════════ -->
+        <record id="module_resade_ethique" model="ir.module.category">
+            <field name="name">RESADE Éthique &amp; Conformité</field>
+            <field name="description">Éthique de la recherche, déontologie, conflits d'intérêts, protection des données et gestion des risques – Carnet J</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             GROUPES (hiérarchie implicite, conforme RACI Manuel)
+        ═══════════════════════════════════════════ -->
+
+        <!-- Déclarant : tout agent pouvant déclarer un conflit, signaler un manquement,
+             soumettre un dossier éthique dont il est le chercheur responsable -->
+        <record id="group_resade_ethique_declarant" model="res.groups">
+            <field name="name">Déclarant</field>
+            <field name="category_id" ref="module_resade_ethique"/>
+            <field name="comment">Tout agent : déclare un conflit d'intérêts (P-DC-02), effectue un signalement (P-DC-01), prépare ses soumissions éthiques (P-ER-01 à 04)</field>
+        </record>
+
+        <!-- Chargé Éthique / Conformité (CRSP) : instruction et analyse -->
+        <record id="group_resade_ethique_crsp" model="res.groups">
+            <field name="name">Chargé Éthique &amp; Conformité (CRSP)</field>
+            <field name="category_id" ref="module_resade_ethique"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_ethique_declarant'))]"/>
+            <field name="comment">Instruit les signalements, analyse les conflits d'intérêts, tient le registre des traitements et le registre des risques</field>
+        </record>
+
+        <!-- DE : validation, décision, arbitrage -->
+        <record id="group_resade_ethique_de" model="res.groups">
+            <field name="name">Directeur Exécutif (DE)</field>
+            <field name="category_id" ref="module_resade_ethique"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="comment">Valide les décisions de conflits d'intérêts et de signalements, valide les plans de mitigation/continuité</field>
+        </record>
+
+        <!-- CA / Administrateur : accès complet -->
+        <record id="group_resade_ethique_admin" model="res.groups">
+            <field name="name">Conseil d'Administration / Administrateur</field>
+            <field name="category_id" ref="module_resade_ethique"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_ethique_de'))]"/>
+            <field name="comment">Accès complet, y compris suppression et administration du registre des risques institutionnels</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             RÈGLES D'ACCÈS PAR ENREGISTREMENT
+        ═══════════════════════════════════════════ -->
+
+        <!-- Conflits d'intérêts : un déclarant ne voit que ses propres déclarations -->
+        <record id="rule_ethique_conflit_declarant_own" model="ir.rule">
+            <field name="name">Déclarant : voir ses propres déclarations de conflit</field>
+            <field name="model_id" ref="model_resade_ethique_conflit"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_declarant'))]"/>
+            <field name="domain_force">[('declarant_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ethique_conflit_crsp_all" model="ir.rule">
+            <field name="name">CRSP / DE / Admin : voir tous les conflits d'intérêts</field>
+            <field name="model_id" ref="model_resade_ethique_conflit"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Signalements : un déclarant ne voit que les siens (les signalements anonymes
+             ne sont visibles que par CRSP et au-dessus, via les droits de groupe ci-dessous) -->
+        <record id="rule_ethique_signalement_declarant_own" model="ir.rule">
+            <field name="name">Déclarant : voir ses propres signalements (non anonymes)</field>
+            <field name="model_id" ref="model_resade_ethique_signalement"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_declarant'))]"/>
+            <field name="domain_force">[('signalant_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ethique_signalement_crsp_all" model="ir.rule">
+            <field name="name">CRSP / DE / Admin : voir tous les signalements</field>
+            <field name="model_id" ref="model_resade_ethique_signalement"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Soumissions éthiques : le chercheur responsable voit ses dossiers, CRSP et au-dessus voient tout -->
+        <record id="rule_ethique_soumission_declarant_own" model="ir.rule">
+            <field name="name">Déclarant : voir ses propres soumissions éthiques</field>
+            <field name="model_id" ref="model_resade_ethique_soumission"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_declarant'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ethique_soumission_crsp_all" model="ir.rule">
+            <field name="name">CRSP / DE / Admin : voir toutes les soumissions éthiques</field>
+            <field name="model_id" ref="model_resade_ethique_soumission"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Registre des traitements et registre des risques : réservés à CRSP et au-dessus -->
+        <record id="rule_ethique_traitement_crsp_all" model="ir.rule">
+            <field name="name">CRSP / DE / Admin : gestion du registre des traitements</field>
+            <field name="model_id" ref="model_resade_ethique_traitement"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ethique_risque_crsp_all" model="ir.rule">
+            <field name="name">CRSP / DE / Admin : gestion du registre des risques</field>
+            <field name="model_id" ref="model_resade_ethique_risque"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ethique_plan_crsp_all" model="ir.rule">
+            <field name="name">CRSP / DE / Admin : gestion des plans de mitigation/continuité</field>
+            <field name="model_id" ref="model_resade_ethique_plan_continuite"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Consentements : le responsable du recueil et CRSP+ -->
+        <record id="rule_ethique_consentement_declarant_own" model="ir.rule">
+            <field name="name">Déclarant : voir les consentements dont il est responsable du recueil</field>
+            <field name="model_id" ref="model_resade_ethique_consentement"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_declarant'))]"/>
+            <field name="domain_force">[('responsable_recueil_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ethique_consentement_crsp_all" model="ir.rule">
+            <field name="name">CRSP / DE / Admin : voir tous les formulaires de consentement</field>
+            <field name="model_id" ref="model_resade_ethique_consentement"/>
+            <field name="groups" eval="[(4, ref('group_resade_ethique_crsp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

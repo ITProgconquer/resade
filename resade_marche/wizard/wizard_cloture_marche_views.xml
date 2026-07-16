@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wizard_cloture_marche_form" model="ir.ui.view">
+        <field name="name">wizard.cloture.marche.form</field>
+        <field name="model">wizard.cloture.marche</field>
+        <field name="arch" type="xml">
+            <form string="Clôture et archivage du dossier marché (P-DA-02)">
+                <sheet>
+                    <group string="Dossier marché">
+                        <field name="marche_id" readonly="1"/>
+                    </group>
+                    <group string="Archivage GED (P-DA-02 Carnet D Module 03)">
+                        <field name="ref_archivage_ged"
+                            placeholder="Ex : GED/MARCHE/2026/DM-2026-001"/>
+                        <field name="note_cloture"/>
+                    </group>
+                    <group string="Checklist documents obligatoires">
+                        <field name="checklist_contrat"/>
+                        <field name="checklist_offres"/>
+                        <field name="checklist_rapport_analyse"/>
+                        <field name="checklist_pv_cam"/>
+                        <field name="checklist_pv_reception"/>
+                        <field name="checklist_facture"/>
+                        <field name="checklist_preuve_paiement"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_cloturer" string="🗂️ Clôturer et archiver"
+                        type="object" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wizard_cloture_marche" model="ir.actions.act_window">
+        <field name="name">Clôturer le dossier marché</field>
+        <field name="res_model">wizard.cloture.marche</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_resade_marche"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <!-- Wizard seuils -->
+    <record id="view_wizard_seuils_marche_form" model="ir.ui.view">
+        <field name="name">wizard.seuils.marche.form</field>
+        <field name="model">wizard.seuils.marche</field>
+        <field name="arch" type="xml">
+            <form string="Seuils de passation des marchés RESADE (P-CIP-02)">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Référentiel des seuils – Manuel RESADE Carnet D Module 01
+                        (P-CIP-01 / P-CIP-02) – Version 2.0 – 2026
+                    </div>
+                    <group string="Seuils de passation (en FCFA)">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="seuil_entente_directe"/>
+                        <field name="seuil_consultation_min"/>
+                        <field name="seuil_consultation_max"/>
+                        <field name="seuil_aoo_min"/>
+                        <field name="seuil_aoo_max"/>
+                        <field name="seuil_aoo_majeur"/>
+                        <field name="seuil_cam"/>
+                    </group>
+                    <group string="Note réglementaire">
+                        <field name="note" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_fermer" string="Fermer"
+                        type="object" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wizard_seuils_marche" model="ir.actions.act_window">
+        <field name="name">Référentiel des seuils de passation</field>
+        <field name="res_model">wizard.seuils.marche</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    
+
+</odoo>

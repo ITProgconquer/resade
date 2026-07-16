@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════
+             CATÉGORIE
+        ═══════════════════════════════════════════ -->
+        <record id="module_resade_mission" model="ir.module.category">
+            <field name="name">RESADE Missions</field>
+            <field name="description">Gestion des missions et déplacements RESADE – Carnet G Module 03</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             GROUPES  (hiérarchie implicite)
+        ═══════════════════════════════════════════ -->
+
+        <!-- Missionnaire : créer et suivre ses propres missions -->
+        <record id="group_resade_missionnaire" model="res.groups">
+            <field name="name">Missionnaire</field>
+            <field name="category_id" ref="module_resade_mission"/>
+            <field name="comment">Peut créer, rédiger les TDR et suivre ses propres demandes de mission</field>
+        </record>
+
+        <!-- Chef de département : co-valide TDR + valide rapport -->
+        <record id="group_resade_chef_dept" model="res.groups">
+            <field name="name">Chef de Département / Pool</field>
+            <field name="category_id" ref="module_resade_mission"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_missionnaire'))]"/>
+            <field name="comment">Co-valide les TDR (P-GMD-01) et valide les rapports de mission (P-GMD-02 étape 6)</field>
+        </record>
+
+        <!-- CAF : visa budgétaire, calcul avance, contrôle justificatifs, remboursement -->
+        <record id="group_resade_caf" model="res.groups">
+            <field name="name">CAF (Administration &amp; Finances)</field>
+            <field name="category_id" ref="module_resade_mission"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_chef_dept'))]"/>
+            <field name="comment">Chargé(e) Administration et Finances – visa budgétaire, avances, contrôle justificatifs, écritures GFIC</field>
+        </record>
+
+        <!-- DE : signe l'OM, approuve rapport, autorisation finale -->
+        <record id="group_resade_de" model="res.groups">
+            <field name="name">Directeur Exécutif (DE)</field>
+            <field name="category_id" ref="module_resade_mission"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_caf'))]"/>
+            <field name="comment">Directeur Exécutif – signature OM, approbation rapport, autorisation finale missions stratégiques</field>
+        </record>
+
+        <!-- Administrateur module -->
+        <record id="group_resade_mission_admin" model="res.groups">
+            <field name="name">Administrateur Missions</field>
+            <field name="category_id" ref="module_resade_mission"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_de'))]"/>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             RÈGLES D'ACCÈS PAR ENREGISTREMENT
+        ═══════════════════════════════════════════ -->
+
+        <!-- Missionnaire : voit uniquement ses propres missions -->
+        <record id="rule_mission_missionnaire_own" model="ir.rule">
+            <field name="name">Missionnaire : voir ses propres missions</field>
+            <field name="model_id" ref="model_resade_mission"/>
+            <field name="groups" eval="[(4, ref('group_resade_missionnaire'))]"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Chef de département : voit les missions de son département -->
+        <record id="rule_mission_chef_dept" model="ir.rule">
+            <field name="name">Chef Dépt : voir les missions de son département</field>
+            <field name="model_id" ref="model_resade_mission"/>
+            <field name="groups" eval="[(4, ref('group_resade_chef_dept'))]"/>
+            <field name="domain_force">
+                ['|',
+                  ('employee_id.user_id', '=', user.id),
+                  ('chef_dept_id.user_id', '=', user.id)
+                ]
+            </field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- CAF et au-dessus : voir toutes les missions -->
+        <record id="rule_mission_caf_all" model="ir.rule">
+            <field name="name">CAF / DE / Admin : voir toutes les missions</field>
+            <field name="model_id" ref="model_resade_mission"/>
+            <field name="groups" eval="[(4, ref('group_resade_caf'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

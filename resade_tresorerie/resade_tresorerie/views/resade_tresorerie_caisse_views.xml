@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_treso_caisse_dec_form" model="ir.ui.view">
+        <field name="name">resade.tresorerie.caisse.decaissement.form</field>
+        <field name="model">resade.tresorerie.caisse.decaissement</field>
+        <field name="arch" type="xml">
+            <form string="Décaissement de caisse">
+                <header>
+                    <button name="action_demander_autorisation_caf" string="✅ Autoriser (CAF)"
+                        type="object" class="btn-primary"
+                        invisible="statut != 'brouillon'"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <button name="action_autoriser_de" string="🖊️ Autoriser (DE)"
+                        type="object" class="btn-primary"
+                        invisible="statut != 'autorise_caf' or autorisation_de_requise == False"
+                        groups="resade_tresorerie.group_resade_tresorerie_de"/>
+                    <button name="action_decaisser" string="💵 Décaisser et enregistrer"
+                        type="object" class="btn-success"
+                        invisible="statut not in ['autorise_caf','autorise_de']"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <button name="action_rejeter" string="❌ Rejeter" type="object"
+                        invisible="statut in ['decaisse','rejete']"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <field name="statut" widget="statusbar"
+                        statusbar_visible="brouillon,autorise_caf,autorise_de,decaisse"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-danger" role="alert" invisible="montant &lt;= plafond_unitaire">
+                        🚫 Montant supérieur au plafond de décaissement unitaire en caisse
+                        (<field name="plafond_unitaire" nolabel="1" readonly="1"/>) — ce paiement doit
+                        passer par virement bancaire (P-TB-01 B.3).
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="autorisation_de_requise == False">
+                        ⚠️ Montant supérieur au seuil de
+                        <field name="seuil_autorisation_de" nolabel="1" readonly="1"/> :
+                        l'autorisation du Directeur Exécutif est requise en plus de celle du CAF.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="journal_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="date_demande"/>
+                            <field name="beneficiaire_id"/>
+                            <field name="motif"/>
+                            <field name="montant"/>
+                        </group>
+                        <group>
+                            <field name="autorisation_de_requise" readonly="1"/>
+                            <field name="caf_id" readonly="1"/>
+                            <field name="de_id" readonly="1" invisible="autorisation_de_requise == False"/>
+                            <field name="date_decaissement" readonly="1"/>
+                            <field name="account_move_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Pièce justificative (obligatoire — P-TB-01 B.3)">
+                        <field name="piece_justificative" filename="piece_justificative_nom"/>
+                        <field name="piece_justificative_nom" invisible="1"/>
+                    </group>
+                    <group string="Rejet" invisible="statut != 'rejete'">
+                        <field name="motif_rejet"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_treso_caisse_dec_list" model="ir.ui.view">
+        <field name="name">resade.tresorerie.caisse.decaissement.list</field>
+        <field name="model">resade.tresorerie.caisse.decaissement</field>
+        <field name="arch" type="xml">
+            <list string="Décaissements de caisse">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="date_demande"/>
+                <field name="beneficiaire_id"/>
+                <field name="montant" sum="Total"/>
+                <field name="autorisation_de_requise" widget="boolean_toggle"/>
+                <field name="statut"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_treso_caisse_dec" model="ir.actions.act_window">
+        <field name="name">Décaissements de caisse</field>
+        <field name="res_model">resade.tresorerie.caisse.decaissement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

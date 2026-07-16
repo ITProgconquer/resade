@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_resade_seuils"
+        name="Referentiel seuils P-CIP-02"
+        parent="resade_marche.menu_resade_marche_config"
+        action="resade_marche.action_wizard_seuils_marche"
+        sequence="30"/>
+
+</odoo>

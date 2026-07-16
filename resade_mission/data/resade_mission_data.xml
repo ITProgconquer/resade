@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════
+             Grille de référence des taux per diem 2026
+             RESADE-F-GMD-01-05
+             Note : taux à compléter par le DE et le CAF
+             avant le 31 janvier, en référence aux taux
+             PNUD/BF (Manuel NEX 2022, Section 6.2)
+        ═══════════════════════════════════════════ -->
+
+        <record id="taux_ouaga_2026" model="resade.taux.perdiem">
+            <field name="zone">ouaga</field>
+            <field name="name">Taux Ouagadougou 2026</field>
+            <field name="annee">2026</field>
+            <field name="perdiem_journalier">0</field>
+            <field name="plafond_hebergement">0</field>
+            <field name="indemnite_deplacement">0</field>
+            <field name="taux_carburant_km">0</field>
+            <field name="note">Taux à définir par le DE et le CAF avant le 31 janvier. Déplacements intra-Ouagadougou même jour. Référence : taux PNUD/BF Manuel NEX 2022, Section 6.2.</field>
+        </record>
+
+        <record id="taux_interieur_bf_2026" model="resade.taux.perdiem">
+            <field name="zone">interieur_bf</field>
+            <field name="name">Taux Intérieur Burkina Faso 2026</field>
+            <field name="annee">2026</field>
+            <field name="perdiem_journalier">0</field>
+            <field name="plafond_hebergement">0</field>
+            <field name="indemnite_deplacement">0</field>
+            <field name="taux_carburant_km">0</field>
+            <field name="note">Taux à définir par le DE et le CAF. Missions avec nuitée à l'intérieur du Burkina Faso. Référence : taux PNUD/BF Manuel NEX 2022, Section 6.2.2.</field>
+        </record>
+
+        <record id="taux_cedeao_2026" model="resade.taux.perdiem">
+            <field name="zone">cedeao</field>
+            <field name="name">Taux Région CEDEAO 2026</field>
+            <field name="annee">2026</field>
+            <field name="perdiem_journalier">0</field>
+            <field name="plafond_hebergement">0</field>
+            <field name="indemnite_deplacement">0</field>
+            <field name="taux_carburant_km">0</field>
+            <field name="note">Taux à définir. Zone CEDEAO / Afrique subsaharienne. Transport : billet avion / bus selon destination. Référence : taux PNUD/BF Manuel NEX 2022, Section 6.2.3.</field>
+        </record>
+
+        <record id="taux_international_2026" model="resade.taux.perdiem">
+            <field name="zone">international</field>
+            <field name="name">Taux International 2026</field>
+            <field name="annee">2026</field>
+            <field name="perdiem_journalier">0</field>
+            <field name="plafond_hebergement">0</field>
+            <field name="reference_pnud">Référence DSA PNUD – https://icsc.un.org/</field>
+            <field name="note">Taux DSA PNUD applicables selon la ville de destination. Billet avion classe économique obligatoire. Missions stratégiques : avis PCA requis. Référence : Manuel NEX PNUD/BF 2022, Section 6.2.3.</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             CRON : alertes rapports en retard (P-GMD-02 R6)
+             Exécution quotidienne à 7h00
+        ═══════════════════════════════════════════ -->
+        <record id="ir_cron_alerte_rapports_mission" model="ir.cron">
+            <field name="name">RESADE : Alertes rapports de mission en retard (P-GMD-02)</field>
+            <field name="model_id" ref="model_resade_mission"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_alertes_rapports()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+            <!-- numbercall supprimé (obsolète dans Odoo 18) -->
+            <!-- user_id : l'utilisateur qui exécute le cron -->
+            <field name="user_id" ref="base.user_admin"/>
+        </record>
+        
+
+    </data>
+</odoo>

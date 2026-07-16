@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_ethique_consentement_tree" model="ir.ui.view">
+        <field name="name">resade.ethique.consentement.tree</field>
+        <field name="model">resade.ethique.consentement</field>
+        <field name="arch" type="xml">
+            <list string="Formulaires de consentement">
+                <field name="name"/>
+                <field name="titre_etude"/>
+                <field name="type_participant"/>
+                <field name="version_formulaire"/>
+                <field name="nb_consentements_signes"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'en_utilisation'"
+                       decoration-muted="state == 'cloture'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_ethique_consentement_form" model="ir.ui.view">
+        <field name="name">resade.ethique.consentement.form</field>
+        <field name="model">resade.ethique.consentement</field>
+        <field name="arch" type="xml">
+            <form string="Formulaire de consentement éclairé">
+                <header>
+                    <button name="action_valider_cers" string="Valider (CERS)" type="object"
+                            class="oe_highlight" invisible="state != 'brouillon'"/>
+                    <button name="action_mettre_en_utilisation" string="Mettre en utilisation" type="object"
+                            invisible="state != 'valide_cers'"/>
+                    <button name="action_cloturer" string="Clôturer" type="object"
+                            invisible="state != 'en_utilisation'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="brouillon,valide_cers,en_utilisation,cloture"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="titre_etude"/>
+                        <h1><field name="titre_etude"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="soumission_id"/>
+                            <field name="type_participant"/>
+                            <field name="langue_formulaire"/>
+                            <field name="version_formulaire"/>
+                        </group>
+                        <group>
+                            <field name="date_validation_cers"/>
+                            <field name="responsable_recueil_id"/>
+                            <field name="nb_consentements_signes"/>
+                            <field name="nb_retraits"/>
+                            <field name="lieu_archivage"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_resade_ethique_consentement" model="ir.actions.act_window">
+        <field name="name">Consentements éclairés (P-ER-05)</field>
+        <field name="res_model">resade.ethique.consentement</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créez un formulaire de consentement éclairé</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ═══════════════════════════════════════════════
+     FEB – FICHE EXPRESSION DES BESOINS (P-ESB-01)
+═══════════════════════════════════════════════ -->
+<record id="view_resade_feb_form" model="ir.ui.view">
+    <field name="name">resade.marche.feb.form</field>
+    <field name="model">resade.marche.feb</field>
+    <field name="arch" type="xml">
+        <form string="Fiche Expression des Besoins (FEB) – P-ESB-01">
+            <header>
+                <button name="action_soumettre" string="📤 Soumettre au chef dept"
+                    type="object" class="btn-primary"
+                    invisible="statut != 'brouillon'"/>
+                <button name="action_viser_chef" string="✅ Viser (Chef dept)"
+                    type="object" class="btn-primary"
+                    invisible="statut != 'soumise'"
+                    groups="resade_marche.group_resade_marche_resp"/>
+                <button name="action_viser_caf" string="✅ Viser CAF (dispo budgetaire)"
+                    type="object" class="btn-primary"
+                    invisible="statut != 'visee_chef'"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_autoriser_de" string="🖊️ Autoriser DE"
+                    type="object" class="btn-success"
+                    invisible="statut != 'visee_caf'"
+                    groups="resade_marche.group_resade_marche_de"/>
+                <button name="action_rejeter" string="❌ Rejeter"
+                    type="object" class="btn-danger"
+                    invisible="statut in ['autorisee','rejetee']"
+                    groups="resade_marche.group_resade_marche_resp"/>
+                <field name="statut" widget="statusbar"
+                    statusbar_visible="brouillon,soumise,visee_chef,visee_caf,autorisee"/>
+            </header>
+            <sheet>
+                <div class="alert alert-success" role="alert"
+                    invisible="statut != 'autorisee'">
+                    ✅ FEB autorisee par le DE – Piece justificative valide pour le dossier de paiement
+                </div>
+                <div class="alert alert-danger" role="alert"
+                    invisible="statut != 'rejetee'">
+                    ❌ FEB rejetee : <field name="motif_rejet" readonly="1"/>
+                </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                    <h3><field name="titre_besoin" placeholder="Intitule du besoin..."/></h3>
+                </div>
+                <group>
+                    <group string="Identification">
+                        <field name="marche_id"/>
+                        <field name="departement_demandeur"/>
+                        <field name="demandeur_id"/>
+                        <field name="date_creation"/>
+                        <field name="date_besoin"/>
+                        <field name="type_besoin"/>
+                    </group>
+                    <group string="Budget">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="montant_estime"/>
+                        <field name="code_analytique"/>
+                        <field name="ligne_budgetaire"/>
+                    </group>
+                </group>
+                <group string="Justification du besoin (obligatoire)">
+                    <field name="justification" nolabel="1" colspan="2"
+                        placeholder="Pourquoi ce besoin ? Lien avec le plan de travail / activites projet ?"/>
+                </group>
+                <group string="Specifications techniques / TDR synthetiques">
+                    <field name="specifications" nolabel="1" colspan="2"
+                        placeholder="Description precise : marque, modele, caracteristiques, ou termes de reference pour services..."/>
+                </group>
+                <separator string="Validations"/>
+                <group>
+                    <group>
+                        <field name="chef_dept_id"/>
+                        <field name="date_visa_chef" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="caf_valideur_id"/>
+                        <field name="date_visa_caf" readonly="1"/>
+                        <field name="de_id"/>
+                        <field name="date_autorisation_de" readonly="1"/>
+                    </group>
+                </group>
+                <separator string="FEB signee (piece justificative dossier paiement)"/>
+                <field name="pj_feb" widget="many2many_binary"/>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<record id="view_resade_feb_list" model="ir.ui.view">
+    <field name="name">resade.marche.feb.list</field>
+    <field name="model">resade.marche.feb</field>
+    <field name="arch" type="xml">
+        <list string="Fiches Expression des Besoins"
+            decoration-success="statut == 'autorisee'"
+            decoration-danger="statut == 'rejetee'"
+            decoration-warning="statut in ['brouillon','soumise']">
+            <field name="name"/>
+            <field name="titre_besoin"/>
+            <field name="departement_demandeur"/>
+            <field name="type_besoin"/>
+            <field name="date_creation"/>
+            <field name="montant_estime"/>
+            <field name="marche_id" optional="show"/>
+            <field name="statut" widget="badge"
+                decoration-success="statut == 'autorisee'"
+                decoration-warning="statut in ['soumise','visee_chef','visee_caf']"
+                decoration-danger="statut == 'rejetee'"/>
+            <field name="currency_id" column_invisible="True"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_resade_feb" model="ir.actions.act_window">
+    <field name="name">Fiches Expression des Besoins (FEB)</field>
+    <field name="res_model">resade.marche.feb</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">Aucune FEB creee</p>
+        <p>La FEB est la piece justificative N°1 de tout dossier de paiement RESADE – P-ESB-01.</p>
+    </field>
+</record>
+
+<!-- ═══════════════════════════════════════════════
+     P-PL-01 – DOSSIER PAIEMENT FOURNISSEUR
+═══════════════════════════════════════════════ -->
+<record id="view_resade_paiement_form" model="ir.ui.view">
+    <field name="name">resade.marche.paiement.form</field>
+    <field name="model">resade.marche.paiement</field>
+    <field name="arch" type="xml">
+        <form string="Dossier paiement fournisseur – P-PL-01">
+            <header>
+                <button name="action_certifier_dossier" string="✔️ Certifier dossier (CAF)"
+                    type="object" class="btn-primary"
+                    invisible="statut != 'constitution'"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_signer_caf" string="✍️ Signer CAF"
+                    type="object" class="btn-primary"
+                    invisible="statut not in ['complet','constitution']"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_signer_de" string="✍️ Signer DE"
+                    type="object" class="btn-primary"
+                    invisible="statut not in ['complet','constitution']"
+                    groups="resade_marche.group_resade_marche_de"/>
+                <button name="action_executer" string="💰 Executer paiement"
+                    type="object" class="btn-success"
+                    invisible="statut != 'signe'"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_comptabiliser" string="📒 Comptabiliser SAGE"
+                    type="object"
+                    invisible="statut != 'execute'"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <field name="statut" widget="statusbar"
+                    statusbar_visible="constitution,complet,signe,execute,comptabilise"/>
+            </header>
+            <sheet>
+                <div class="alert alert-danger" role="alert"
+                    invisible="double_signature_ok == True or statut in ['execute','comptabilise']">
+                    ⚠️ Double signature DE + CAF obligatoire avant tout paiement – P-PL-01 B.5 etape 4
+                </div>
+                <div class="alert alert-warning" role="alert"
+                    invisible="dossier_complet == True">
+                    ⚠️ Dossier incomplet – FEB + BC/contrat + facture certifiee obligatoires
+                </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                </div>
+                <group>
+                    <group string="Identification">
+                        <field name="marche_id"/>
+                        <field name="date_creation"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="montant"/>
+                        <field name="disponibilite_sage"
+                            groups="resade_marche.group_resade_marche_caf"/>
+                        <field name="code_analytique_sage"/>
+                    </group>
+                    <group string="Double signature (P-PL-01 B.5 etape 4)">
+                        <field name="ordre_virement_prepare"/>
+                        <field name="signe_caf" widget="boolean_toggle" readonly="1"/>
+                        <field name="signe_de" widget="boolean_toggle" readonly="1"/>
+                        <field name="double_signature_ok" readonly="1"/>
+                        <field name="date_double_signature" readonly="1"/>
+                    </group>
+                </group>
+
+                <separator string="Checklist pieces obligatoires – RESADE-F-PL-01-01 (Manuel P-PL-01 B.4)"/>
+                <group>
+                    <group string="Pieces toujours obligatoires">
+                        <field name="cl_feb_visee"/>
+                        <field name="cl_bc_contrat"/>
+                        <field name="cl_facture_certifiee"/>
+                    </group>
+                    <group string="Pieces selon type de marche">
+                        <field name="cl_pvr"/>
+                        <field name="cl_asf"/>
+                        <field name="cl_rib"/>
+                        <field name="cl_cotations"/>
+                        <field name="cl_pv_cam"/>
+                    </group>
+                </group>
+                <group>
+                    <field name="dossier_complet" readonly="1" widget="boolean_toggle"/>
+                </group>
+
+                <separator string="Execution paiement (P-PL-01 B.5 etapes 5 a 8)"/>
+                <group>
+                    <group>
+                        <field name="mode_paiement"/>
+                        <field name="journal_id"/>
+                        <field name="reference_paiement"/>
+                        <field name="date_execution" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="fournisseur_notifie"/>
+                        <field name="comptabilise_sage" readonly="1"/>
+                        <field name="move_id" readonly="1"/>
+                        <field name="payment_id" readonly="1"/>
+                        <field name="dossier_archive_ged"/>
+                        <field name="ref_ged"/>
+                    </group>
+                </group>
+                <group string="Motif blocage / pieces manquantes">
+                    <field name="motif_blocage" nolabel="1" colspan="2"/>
+                </group>
+                <separator string="Pieces justificatives completes"/>
+                <field name="pj_dossier" widget="many2many_binary"/>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<record id="view_resade_paiement_list" model="ir.ui.view">
+    <field name="name">resade.marche.paiement.list</field>
+    <field name="model">resade.marche.paiement</field>
+    <field name="arch" type="xml">
+        <list string="Dossiers paiement fournisseur"
+            decoration-success="statut == 'comptabilise'"
+            decoration-warning="statut in ['constitution','complet']"
+            decoration-danger="double_signature_ok == False and statut == 'signe'">
+            <field name="name"/>
+            <field name="marche_id"/>
+            <field name="date_creation"/>
+            <field name="montant"/>
+            <field name="dossier_complet"/>
+            <field name="signe_caf"/>
+            <field name="signe_de"/>
+            <field name="double_signature_ok"/>
+            <field name="date_execution" optional="show"/>
+            <field name="comptabilise_sage" optional="show"/>
+            <field name="statut" widget="badge"/>
+            <field name="currency_id" column_invisible="True"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_resade_paiement" model="ir.actions.act_window">
+    <field name="name">Dossiers paiement fournisseur (P-PL-01)</field>
+    <field name="res_model">resade.marche.paiement</field>
+    <field name="view_mode">list,form</field>
+</record>
+
+<!-- ═══════════════════════════════════════════════
+     P-PL-02 – PAIEMENT HONORAIRES CONSULTANTS
+═══════════════════════════════════════════════ -->
+<record id="view_resade_honoraires_form" model="ir.ui.view">
+    <field name="name">resade.marche.honoraires.form</field>
+    <field name="model">resade.marche.honoraires</field>
+    <field name="arch" type="xml">
+        <form string="Paiement honoraires consultant – P-PL-02">
+            <header>
+                <button name="action_verifier_dossier" string="✔️ Verifier dossier (CAF)"
+                    type="object" class="btn-primary"
+                    invisible="statut != 'brouillon'"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_signer_caf" string="✍️ Signer CAF"
+                    type="object" class="btn-primary"
+                    invisible="statut not in ['verifie','brouillon']"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_signer_de" string="✍️ Signer DE"
+                    type="object" class="btn-primary"
+                    invisible="statut not in ['verifie','brouillon']"
+                    groups="resade_marche.group_resade_marche_de"/>
+                <button name="action_executer_paiement" string="💰 Executer paiement"
+                    type="object" class="btn-success"
+                    invisible="statut != 'signe'"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <button name="action_comptabiliser_sage" string="📒 Comptabiliser SAGE"
+                    type="object"
+                    invisible="statut != 'paye'"
+                    groups="resade_marche.group_resade_marche_caf"/>
+                <field name="statut" widget="statusbar"
+                    statusbar_visible="brouillon,verifie,signe,paye,comptabilise"/>
+            </header>
+            <sheet>
+                <div class="alert alert-danger" role="alert"
+                    invisible="asf_id != False or statut == 'comptabilise'">
+                    🚫 ASF obligatoire et inconditionnelle avant tout paiement d honoraires – P-PL-02 B.3 risque 1
+                </div>
+                <div class="alert alert-warning" role="alert"
+                    invisible="retenue_source_applicable == False">
+                    ⚠️ Consultant non-resident : retenue a la source applicable – verifier taux DGI Burkina Faso
+                </div>
+                <div class="alert alert-info" role="alert"
+                    invisible="avis_fiscal_requis == False or avis_fiscal_obtenu == True">
+                    📋 Avis fiscal DGI requis pour ce paiement – obtenir avant execution
+                </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                </div>
+                <group>
+                    <group string="Identification">
+                        <field name="marche_id"/>
+                        <field name="asf_id" domain="[('marche_id', '=', marche_id)]"/>
+                        <field name="num_tranche"/>
+                        <field name="type_tranche"/>
+                        <field name="pct_tranche"/>
+                    </group>
+                    <group string="Montants">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="montant_brut"/>
+                        <field name="statut_fiscal_consultant"/>
+                        <field name="retenue_source_applicable" readonly="1"/>
+                        <field name="taux_retenue"
+                            invisible="retenue_source_applicable == False"/>
+                        <field name="montant_retenue" readonly="1"
+                            invisible="retenue_source_applicable == False"/>
+                        <field name="montant_net" readonly="1"/>
+                    </group>
+                </group>
+
+                <separator string="Verification fiscale – RESADE-F-PL-02-02 (P-PL-02 B.5)"/>
+                <group>
+                    <field name="avis_fiscal_requis"/>
+                    <field name="avis_fiscal_obtenu"
+                        invisible="avis_fiscal_requis == False"/>
+                    <field name="ref_avis_fiscal"
+                        invisible="avis_fiscal_requis == False"/>
+                    <field name="fiche_fiscale_etablie"/>
+                </group>
+
+                <separator string="Checklist dossier – RESADE-F-PL-02-01"/>
+                <group>
+                    <group>
+                        <field name="cl_asf_presente"/>
+                        <field name="cl_facture_conforme"/>
+                        <field name="cl_contrat_tdr"/>
+                    </group>
+                    <group>
+                        <field name="cl_livrable_archive"/>
+                        <field name="cl_fiche_fiscale"/>
+                        <field name="cl_rib_presente"/>
+                    </group>
+                </group>
+                <group>
+                    <field name="dossier_complet" readonly="1" widget="boolean_toggle"/>
+                </group>
+
+                <separator string="Double signature et execution (P-PL-02 B.6 etape 6)"/>
+                <group>
+                    <group>
+                        <field name="ordre_virement_prepare"/>
+                        <field name="signe_caf" widget="boolean_toggle" readonly="1"/>
+                        <field name="signe_de" widget="boolean_toggle" readonly="1"/>
+                        <field name="double_signature_ok" readonly="1"/>
+                        <field name="date_double_signature" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="mode_paiement"/>
+                        <field name="journal_id"/>
+                        <field name="reference_virement"/>
+                        <field name="date_execution" readonly="1"/>
+                        <field name="comptabilise_sage" readonly="1"/>
+                        <field name="move_id" readonly="1"/>
+                        <field name="payment_id" readonly="1"/>
+                        <field name="code_analytique_sage"/>
+                    </group>
+                </group>
+                <group string="Notes">
+                    <field name="note" nolabel="1" colspan="2"/>
+                </group>
+                <separator string="Pieces justificatives (ASF, facture, fiche fiscale, contrat)"/>
+                <field name="pj_dossier" widget="many2many_binary"/>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<record id="view_resade_honoraires_list" model="ir.ui.view">
+    <field name="name">resade.marche.honoraires.list</field>
+    <field name="model">resade.marche.honoraires</field>
+    <field name="arch" type="xml">
+        <list string="Paiements honoraires consultants"
+            decoration-success="statut == 'comptabilise'"
+            decoration-warning="statut in ['brouillon','verifie']"
+            decoration-danger="double_signature_ok == False and statut == 'signe'">
+            <field name="name"/>
+            <field name="marche_id"/>
+            <field name="asf_id"/>
+            <field name="num_tranche"/>
+            <field name="type_tranche"/>
+            <field name="montant_brut"/>
+            <field name="retenue_source_applicable"/>
+            <field name="montant_net"/>
+            <field name="dossier_complet"/>
+            <field name="double_signature_ok"/>
+            <field name="statut" widget="badge"/>
+            <field name="currency_id" column_invisible="True"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_resade_honoraires" model="ir.actions.act_window">
+    <field name="name">Paiements honoraires consultants (P-PL-02)</field>
+    <field name="res_model">resade.marche.honoraires</field>
+    <field name="view_mode">list,form</field>
+</record>
+
+<!-- ═══════════════════════════════════════════════
+     P-SCM-01 – KPI TABLEAU DE BORD
+═══════════════════════════════════════════════ -->
+<record id="view_resade_kpi_form" model="ir.ui.view">
+    <field name="name">resade.marche.kpi.form</field>
+    <field name="model">resade.marche.kpi</field>
+    <field name="arch" type="xml">
+        <form string="Tableau de bord KPI Marches – P-SCM-01">
+            <header>
+                <button name="action_generer_kpi" string="🔄 Recalculer les KPI"
+                    type="object" class="btn-primary"
+                    groups="resade_marche.group_resade_marche_caf"/>
+            </header>
+            <sheet>
+                <div class="alert alert-danger" role="alert"
+                    invisible="nb_dossiers_en_retard == 0">
+                    🚨 <field name="nb_dossiers_en_retard" readonly="1"/> dossier(s) en retard sur calendrier – action requise
+                </div>
+                <div class="alert alert-warning" role="alert"
+                    invisible="nb_factures_non_certifiees == 0">
+                    ⚠️ <field name="nb_factures_non_certifiees" readonly="1"/> facture(s) recue(s) non encore certifiee(s)
+                </div>
+                <div class="oe_title">
+                    <h1>Tableau de bord – <field name="name" readonly="1"/></h1>
+                </div>
+                <group>
+                    <field name="periode"/>
+                    <field name="genere_par" readonly="1"/>
+                    <field name="date_generation" readonly="1"/>
+                </group>
+
+                <separator string="Volume des marches (P-SCM-01 B.12)"/>
+                <group>
+                    <group string="Dossiers par etat">
+                        <field name="nb_dossiers_en_cours" readonly="1"/>
+                        <field name="nb_dossiers_execution" readonly="1"/>
+                        <field name="nb_dossiers_payes" readonly="1"/>
+                        <field name="nb_dossiers_annules" readonly="1"/>
+                    </group>
+                    <group string="Montants">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="montant_total_en_cours" readonly="1"/>
+                        <field name="montant_total_paye_periode" readonly="1"/>
+                    </group>
+                </group>
+
+                <separator string="Indicateurs de conformite – Cibles Manuel RESADE"/>
+                <group>
+                    <group string="Qualite (cible 100%)">
+                        <field name="taux_pvr_conformes" readonly="1"
+                            decoration-danger="taux_pvr_conformes &lt; 100"
+                            decoration-success="taux_pvr_conformes == 100"/>
+                        <field name="taux_factures_certifiees" readonly="1"
+                            decoration-danger="taux_factures_certifiees &lt; 100"
+                            decoration-success="taux_factures_certifiees == 100"/>
+                        <field name="taux_paiements_double_signature" readonly="1"
+                            decoration-danger="taux_paiements_double_signature &lt; 100"
+                            decoration-success="taux_paiements_double_signature == 100"/>
+                    </group>
+                    <group string="Delais">
+                        <field name="taux_asf_dans_delai" readonly="1"
+                            decoration-warning="taux_asf_dans_delai &lt; 85"
+                            decoration-success="taux_asf_dans_delai &gt;= 85"/>
+                        <field name="delai_moyen_passation" readonly="1"/>
+                        <field name="delai_moyen_paiement" readonly="1"
+                            decoration-warning="delai_moyen_paiement &gt; 5"
+                            decoration-success="delai_moyen_paiement &lt;= 5"/>
+                    </group>
+                </group>
+
+                <separator string="Alertes"/>
+                <group>
+                    <field name="nb_dossiers_en_retard" readonly="1"
+                        decoration-danger="nb_dossiers_en_retard &gt; 0"/>
+                    <field name="nb_factures_non_certifiees" readonly="1"
+                        decoration-warning="nb_factures_non_certifiees &gt; 0"/>
+                    <field name="nb_pvr_non_conformes" readonly="1"
+                        decoration-warning="nb_pvr_non_conformes &gt; 0"/>
+                </group>
+
+                <separator string="Analyse et points d attention CAF"/>
+                <field name="note_analyse" nolabel="1"
+                    placeholder="Analyse mensuelle CAF – points d attention, actions correctives, tendances..."/>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<record id="view_resade_kpi_list" model="ir.ui.view">
+    <field name="name">resade.marche.kpi.list</field>
+    <field name="model">resade.marche.kpi</field>
+    <field name="arch" type="xml">
+        <list string="Tableaux de bord KPI" decoration-warning="nb_dossiers_en_retard &gt; 0">
+            <field name="name"/>
+            <field name="periode"/>
+            <field name="nb_dossiers_execution"/>
+            <field name="taux_pvr_conformes"/>
+            <field name="taux_factures_certifiees"/>
+            <field name="taux_paiements_double_signature"/>
+            <field name="delai_moyen_paiement"/>
+            <field name="nb_dossiers_en_retard" decoration-danger="nb_dossiers_en_retard &gt; 0"/>
+            <field name="montant_total_en_cours"/>
+            <field name="date_generation" optional="show"/>
+            <field name="currency_id" column_invisible="True"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_resade_kpi" model="ir.actions.act_window">
+    <field name="name">Tableaux de bord KPI (P-SCM-01)</field>
+    <field name="res_model">resade.marche.kpi</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">Aucun tableau de bord genere</p>
+        <p>Creez un nouveau tableau de bord et cliquez sur "Recalculer les KPI" – mise a jour mensuelle – P-SCM-01.</p>
+    </field>
+</record>
+
+</odoo>

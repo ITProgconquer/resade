@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_resade_projet_fiche" model="ir.actions.report">
+        <field name="name">Fiche Projet RESADE</field>
+        <field name="model">resade.projet</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">resade_projet_h.report_resade_projet_template</field>
+        <field name="print_report_name">'FicheProjet_%s' % object.ref.replace('/', '-')</field>
+        <field name="binding_model_id" ref="model_resade_projet"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_resade_opportunite_scoring" model="ir.actions.report">
+        <field name="name">Fiche Scoring Opportunité (F-MRV-01-07)</field>
+        <field name="model">resade.opportunite</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">resade_projet_h.report_resade_opportunite_template</field>
+        <field name="print_report_name">'Scoring_%s' % object.ref.replace('/', '-')</field>
+        <field name="binding_model_id" ref="model_resade_opportunite"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

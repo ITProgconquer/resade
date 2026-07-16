@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_ethique_soumission_tree" model="ir.ui.view">
+        <field name="name">resade.ethique.soumission.tree</field>
+        <field name="model">resade.ethique.soumission</field>
+        <field name="arch" type="xml">
+            <list string="Soumissions éthiques">
+                <field name="name"/>
+                <field name="type_soumission"/>
+                <field name="titre_etude"/>
+                <field name="chercheur_responsable_id"/>
+                <field name="date_soumission"/>
+                <field name="decision"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'decision_rendue'"
+                       decoration-info="state == 'soumis'"
+                       decoration-muted="state == 'clos'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_ethique_soumission_form" model="ir.ui.view">
+        <field name="name">resade.ethique.soumission.form</field>
+        <field name="model">resade.ethique.soumission</field>
+        <field name="arch" type="xml">
+            <form string="Soumission éthique / réglementaire">
+                <header>
+                    <button name="action_soumettre" string="Soumettre" type="object"
+                            class="oe_highlight" invisible="state != 'brouillon'"/>
+                    <button name="action_mettre_en_instruction" string="Mettre en instruction" type="object"
+                            invisible="state != 'soumis'"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <button name="action_enregistrer_decision" string="Enregistrer la décision" type="object"
+                            class="oe_highlight" invisible="state != 'en_instruction'"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <button name="action_cloturer" string="Clôturer" type="object"
+                            invisible="state != 'decision_rendue'"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <button name="action_reouvrir" string="Réouvrir" type="object"
+                            invisible="state not in ('soumis', 'clos')"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="brouillon,soumis,en_instruction,decision_rendue,clos"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="titre_etude"/>
+                        <h1><field name="titre_etude" placeholder="Titre de l'étude / du protocole"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="type_soumission"/>
+                            <field name="chercheur_responsable_id" readonly="1"/>
+                            <field name="organisme"/>
+                            <field name="numero_reference_externe"/>
+                        </group>
+                        <group>
+                            <field name="date_soumission"/>
+                            <field name="date_decision"/>
+                            <field name="date_expiration"/>
+                            <field name="decision"/>
+                            <field name="rapport_annuel_transmis"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="observations" placeholder="Conditions posées par l'organisme, amendements demandés..."/>
+                    </group>
+                    <notebook>
+                        <page string="Consentements liés" invisible="type_soumission != 'cers'">
+                            <field name="consentement_ids"
+                                   context="{'default_titre_etude': titre_etude, 'default_soumission_id': id}">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="type_participant"/>
+                                    <field name="version_formulaire"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_ethique_soumission_search" model="ir.ui.view">
+        <field name="name">resade.ethique.soumission.search</field>
+        <field name="model">resade.ethique.soumission</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher une soumission éthique">
+                <field name="name"/>
+                <field name="titre_etude"/>
+                <field name="chercheur_responsable_id"/>
+                <filter string="En instruction" name="en_instruction" domain="[('state','=','en_instruction')]"/>
+                <filter string="Décision rendue" name="decision_rendue" domain="[('state','=','decision_rendue')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Type de soumission" name="group_type" context="{'group_by': 'type_soumission'}"/>
+                    <filter string="Statut" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_resade_ethique_soumission" model="ir.actions.act_window">
+        <field name="name">Soumissions éthiques (P-ER-01 à 04)</field>
+        <field name="res_model">resade.ethique.soumission</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créez une nouvelle soumission éthique ou réglementaire</p>
+            <p>CERS, visa statistique INSD, autorités sanitaires ou comité d'éthique institutionnel.</p>
+        </field>
+    </record>
+
+</odoo>

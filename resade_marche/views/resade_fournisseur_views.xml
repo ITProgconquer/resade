@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_fournisseur_form" model="ir.ui.view">
+        <field name="name">resade.fournisseur.form</field>
+        <field name="model">resade.fournisseur</field>
+        <field name="arch" type="xml">
+            <form string="Fournisseur / Prestataire RESADE">
+                <sheet>
+                    <div class="alert alert-danger" role="alert"
+                        invisible="blackliste == False">
+                        ⛔ Fournisseur blacklisté — <field name="motif_blacklist" readonly="1"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                        <h3><field name="sigle"/></h3>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="type_fournisseur"/>
+                            <field name="ifu"/>
+                            <field name="rccm"/>
+                            <field name="date_expiration_agrement"/>
+                        </group>
+                        <group string="Coordonnées">
+                            <field name="adresse"/>
+                            <field name="ville"/>
+                            <field name="pays_id"/>
+                            <field name="telephone"/>
+                            <field name="email"/>
+                            <field name="site_web"/>
+                        </group>
+                    </group>
+                    <group string="Domaines de compétence">
+                        <field name="domaines" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                    <group string="Statistiques">
+                        <field name="nb_marches" readonly="1"/>
+                        <field name="montant_total_marches" readonly="1"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Marchés attribués">
+                            <field name="marche_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="objet"/>
+                                    <field name="type_procedure"/>
+                                    <field name="montant_final"/>
+                                    <field name="state"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Statut et observations">
+                            <group>
+                                <field name="active"/>
+                                <field name="blackliste"/>
+                                <field name="motif_blacklist" invisible="blackliste == False"/>
+                            </group>
+                            <group string="Observations">
+                                <field name="note" nolabel="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_fournisseur_list" model="ir.ui.view">
+        <field name="name">resade.fournisseur.list</field>
+        <field name="model">resade.fournisseur</field>
+        <field name="arch" type="xml">
+            <list string="Fournisseurs / Prestataires"
+                decoration-danger="blackliste == True">
+                <field name="name"/>
+                <field name="sigle" optional="show"/>
+                <field name="type_fournisseur"/>
+                <field name="ville"/>
+                <field name="telephone"/>
+                <field name="email" optional="show"/>
+                <field name="nb_marches"/>
+                <field name="montant_total_marches"/>
+                <field name="blackliste"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_domaine_list" model="ir.ui.view">
+        <field name="name">resade.domaine.marche.list</field>
+        <field name="model">resade.domaine.marche</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" string="Domaines de marché">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_fournisseur" model="ir.actions.act_window">
+        <field name="name">Fournisseurs / Prestataires</field>
+        <field name="res_model">resade.fournisseur</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_resade_domaine" model="ir.actions.act_window">
+        <field name="name">Domaines de marché</field>
+        <field name="res_model">resade.domaine.marche</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

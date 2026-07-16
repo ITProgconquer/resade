@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_resade_mission" model="ir.actions.report">
+        <field name="name">Ordre de Mission RESADE (F-GMD-01-03)</field>
+        <field name="model">resade.mission</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">resade_mission.report_resade_mission_template</field>
+        <field name="report_file">resade_mission.report_resade_mission_template</field>
+        <field name="print_report_name">'OM_%s_%s' % (object.name.replace('/', '-'), object.employee_id.name)</field>
+        <field name="binding_model_id" ref="model_resade_mission"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

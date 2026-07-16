@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ═══════════════════════════════════════════════
+             CATÉGORIE MODULE
+        ═══════════════════════════════════════════════ -->
+        <record id="module_resade_marche" model="ir.module.category">
+            <field name="name">RESADE Marchés</field>
+            <field name="description">Passation et exécution des marchés RESADE – Carnets D &amp; E</field>
+            <field name="sequence">91</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════
+             GROUPES D'ACCÈS (hiérarchie RESADE 2025)
+        ═══════════════════════════════════════════════ -->
+
+        <!-- Demandeur : crée et suit ses réquisitions -->
+        <record id="group_resade_demandeur" model="res.groups">
+            <field name="name">Demandeur</field>
+            <field name="category_id" ref="module_resade_marche"/>
+            <field name="comment">Peut créer des réquisitions et suivre ses propres dossiers</field>
+        </record>
+
+        <!-- Chef de département : valide les réquisitions de son service -->
+        <record id="group_resade_marche_resp" model="res.groups">
+            <field name="name">Chef de département (Marchés)</field>
+            <field name="category_id" ref="module_resade_marche"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_demandeur'))]"/>
+            <field name="comment">Valide les réquisitions du département et accède à tous les dossiers du service</field>
+        </record>
+
+        <!-- Membre CAM : participe aux séances de la Commission d'Attribution des Marchés -->
+        <record id="group_resade_marche_cam" model="res.groups">
+            <field name="name">Membre CAM</field>
+            <field name="category_id" ref="module_resade_marche"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_marche_resp'))]"/>
+            <field name="comment">Membre de la Commission d'Attribution des Marchés – accès aux dossiers en analyse et aux PV CAM</field>
+        </record>
+
+        <!-- CAF : gestion complète AO, certification, paiement -->
+        <record id="group_resade_marche_caf" model="res.groups">
+            <field name="name">CAF (Marchés)</field>
+            <field name="category_id" ref="module_resade_marche"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_marche_cam'))]"/>
+            <field name="comment">CAF – gestion AO, certification factures, paiement, tableau de bord</field>
+        </record>
+
+        <!-- Directeur Exécutif : approbation finale, annulation -->
+        <record id="group_resade_marche_de" model="res.groups">
+            <field name="name">Directeur Exécutif (Marchés)</field>
+            <field name="category_id" ref="module_resade_marche"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_marche_caf'))]"/>
+            <field name="comment">DE – approbation finale des attributions, signature lettres de notification</field>
+        </record>
+
+        <!-- Administrateur : accès complet + configuration -->
+        <record id="group_resade_marche_admin" model="res.groups">
+            <field name="name">Administrateur Marchés</field>
+            <field name="category_id" ref="module_resade_marche"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_marche_de'))]"/>
+        </record>
+
+    </data>
+
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════════
+             RÈGLES D'ACCÈS MULTI-ENREGISTREMENTS
+        ═══════════════════════════════════════════════ -->
+
+        <!-- Demandeur : voit uniquement ses propres dossiers -->
+        <record id="rule_marche_demandeur_own" model="ir.rule">
+            <field name="name">Demandeur : ses propres marchés</field>
+            <field name="model_id" ref="model_resade_marche"/>
+            <field name="groups" eval="[(4, ref('group_resade_demandeur'))]"/>
+            <field name="domain_force">[('demandeur_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- CAF et au-dessus : accès à tous les dossiers -->
+        <record id="rule_marche_caf_all" model="ir.rule">
+            <field name="name">CAF : tous les marchés</field>
+            <field name="model_id" ref="model_resade_marche"/>
+            <field name="groups" eval="[(4, ref('group_resade_marche_caf'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Membre CAM : accès aux dossiers en analyse / CAM -->
+        <record id="rule_marche_cam_analyse" model="ir.rule">
+            <field name="name">Membre CAM : dossiers en analyse</field>
+            <field name="model_id" ref="model_resade_marche"/>
+            <field name="groups" eval="[(4, ref('group_resade_marche_cam'))]"/>
+            <field name="domain_force">[('state', 'in', ['analyse', 'cam_convoquee', 'approuve_de', 'notifie'])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_resade_mission_template">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <!-- Un Ordre de Mission signé et complet PAR PERSONNE : le
+                 missionnaire principal ET chaque participant du groupe
+                 reçoivent chacun leur propre document, non mélangé. -->
+            <t t-set="membres" t-value="[o.employee_id] + list(o.participant_ids)"/>
+            <t t-foreach="membres" t-as="membre">
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+
+                    <!-- En-tête RESADE -->
+                    <div style="text-align:center; border-bottom: 2px solid #2c3e50; margin-bottom:16px; padding-bottom:10px;">
+                        <h2 style="color:#2c3e50; margin:0;">RESADE</h2>
+                        <p style="margin:2px; font-size:9px; color:#666;">
+                            Réseau de Recherche en Santé et Développement – Ouagadougou, Burkina Faso
+                        </p>
+                        <h3 style="color:#c0392b; margin:8px 0 0 0; letter-spacing:2px; font-size:14px;">
+                            ORDRE DE MISSION
+                        </h3>
+                        <p style="margin:2px; font-size:8px; color:#888;">
+                            Réf. : Manuel Procédures Carnet G – Module 03 – P-GMD-01 | RESADE-F-GMD-01-03
+                        </p>
+                        <t t-if="len(membres) > 1">
+                            <p style="margin:4px 0 0 0; font-size:9px; color:#c0392b; font-weight:bold;">
+                                Exemplaire individuel — <t t-esc="membre.name"/>
+                                (<t t-esc="membres.index(membre) + 1"/>/<t t-esc="len(membres)"/>)
+                            </p>
+                        </t>
+                    </div>
+
+                    <!-- Numéro et type -->
+                    <table width="100%" style="margin-bottom:12px;">
+                        <tr>
+                            <td width="50%">
+                                <strong>N° OM :</strong>
+                                <span style="font-size:13px; color:#c0392b; font-weight:bold;">
+                                    <t t-esc="o.name"/>
+                                </span>
+                            </td>
+                            <td width="50%" style="text-align:right;">
+                                <strong>Type :</strong>
+                                <t t-if="o.type_mission == 'strategique'">
+                                    <span style="color:red; font-weight:bold;">⭐ STRATÉGIQUE (Avis PCA requis)</span>
+                                </t>
+                                <t t-else="">
+                                    <span>Ordinaire</span>
+                                </t>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Missionnaire (ce document individuel) -->
+                    <table width="100%" border="1" cellpadding="5"
+                        style="border-collapse:collapse; margin-bottom:12px; font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50; color:white;">
+                                <th colspan="4" style="text-align:left; padding:6px;">
+                                    👤 MISSIONNAIRE
+                                    <t t-if="membre.id == o.employee_id.id"> (Principal / Chef de mission)</t>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="22%"><strong>Nom et prénom</strong></td>
+                                <td width="28%"><t t-esc="membre.name"/></td>
+                                <td width="22%"><strong>Poste</strong></td>
+                                <td width="28%"><t t-esc="membre.job_id.name or '—'"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Département / Pool</strong></td>
+                                <td><t t-esc="membre.department_id.name or o.department_id.name or '—'"/></td>
+                                <td><strong>Chef de département</strong></td>
+                                <td><t t-esc="o.chef_dept_id.name or '—'"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Rappel des autres personnes du même déplacement (information uniquement,
+                         aucun montant partagé : chacun a son propre exemplaire et sa propre avance) -->
+                    <t t-set="autres_membres" t-value="[m for m in membres if m.id != membre.id]"/>
+                    <t t-if="autres_membres">
+                        <table width="100%" border="1" cellpadding="5"
+                            style="border-collapse:collapse; margin-bottom:12px; font-size:9px;">
+                            <thead>
+                                <tr style="background:#5d6d7e; color:white;">
+                                    <th style="text-align:left; padding:5px;">
+                                        👥 Déplacement effectué avec (pour information — chacun dispose de son
+                                        propre Ordre de Mission et de sa propre avance)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <t t-esc="', '.join([m.name for m in autres_membres])"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- Mission -->
+                    <table width="100%" border="1" cellpadding="5"
+                        style="border-collapse:collapse; margin-bottom:12px; font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50; color:white;">
+                                <th colspan="4" style="text-align:left; padding:6px;">
+                                    🗺️ MISSION
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="22%"><strong>Destination</strong></td>
+                                <td width="28%"><t t-esc="o.destination"/></td>
+                                <td width="22%"><strong>Zone</strong></td>
+                                <td width="28%">
+                                    <t t-esc="dict(o._fields['zone_mission'].selection).get(o.zone_mission, '')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date de départ</strong></td>
+                                <td><t t-esc="o.date_depart"/></td>
+                                <td><strong>Date de retour</strong></td>
+                                <td><t t-esc="o.date_retour"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Durée</strong></td>
+                                <td><t t-esc="o.duree_jours"/> jour(s)</td>
+                                <td><strong>Nb participants (déplacement)</strong></td>
+                                <td><t t-esc="o.nb_participants"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ligne budgétaire</strong></td>
+                                <td colspan="3">
+                                    <t t-esc="o.analytic_account_id.name or '—'"/>
+                                    <t t-if="o.budget_line_info"> – <t t-esc="o.budget_line_info"/></t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Objet de la mission -->
+                    <table width="100%" border="1" cellpadding="5"
+                        style="border-collapse:collapse; margin-bottom:12px; font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50; color:white;">
+                                <th style="text-align:left; padding:6px;">📋 OBJET DE LA MISSION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="min-height:40px;">
+                                    <t t-esc="o.objet_mission"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Budget / Avance INDIVIDUELLE de ce missionnaire -->
+                    <table width="100%" border="1" cellpadding="5"
+                        style="border-collapse:collapse; margin-bottom:12px; font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50; color:white;">
+                                <th colspan="4" style="text-align:left; padding:6px;">
+                                    💰 AVANCE INDIVIDUELLE SUR FRAIS (RESADE-F-GMD-01-04)
+                                    — <t t-esc="membre.name"/>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.line_ids" t-as="line">
+                                <tr>
+                                    <td width="35%">
+                                        <t t-esc="dict(line._fields['type_frais'].selection).get(line.type_frais, '')"/>
+                                        – <t t-esc="line.description"/>
+                                    </td>
+                                    <td width="15%" style="text-align:center;">
+                                        <t t-esc="line.quantite"/> ×
+                                    </td>
+                                    <td width="20%" style="text-align:right;">
+                                        <t t-esc="'{:,.0f}'.format(line.taux_unitaire)"/> FCFA
+                                    </td>
+                                    <td width="30%" style="text-align:right; font-weight:bold;">
+                                        <t t-esc="'{:,.0f}'.format(line.montant_estime)"/> FCFA
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="background:#ecf0f1; font-weight:bold;">
+                                <td colspan="3"><strong>TOTAL AVANCE ESTIMÉE</strong></td>
+                                <td style="text-align:right;">
+                                    <t t-esc="'{:,.0f}'.format(o.montant_avance_demande)"/> FCFA
+                                </td>
+                            </tr>
+                            <t t-if="o.montant_avance_approuve">
+                                <tr style="background:#d5f5e3; font-weight:bold;">
+                                    <td colspan="3"><strong>✅ AVANCE APPROUVÉE PAR LE DE</strong></td>
+                                    <td style="text-align:right; color:#1a7a4a;">
+                                        <t t-esc="'{:,.0f}'.format(o.montant_avance_approuve)"/> FCFA
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="background:#fdebd0; font-weight:bold;">
+                                <td colspan="3">💳 Montant déjà décaissé à ce jour</td>
+                                <td style="text-align:right;">
+                                    <t t-esc="'{:,.0f}'.format(o.montant_deja_verse)"/> FCFA
+                                </td>
+                            </tr>
+                            <t t-if="o.montant_reste_a_payer &gt; 0">
+                                <tr style="background:#fadbd8; font-weight:bold;">
+                                    <td colspan="3">🔺 RESTE À PAYER (avant départ)</td>
+                                    <td style="text-align:right; color:#c0392b;">
+                                        <t t-esc="'{:,.0f}'.format(o.montant_reste_a_payer)"/> FCFA
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-else="">
+                                <tr style="background:#d5f5e3; font-weight:bold;">
+                                    <td colspan="4" style="text-align:center; color:#1a7a4a;">
+                                        ✅ AUCUN RESTE À PAYER — Avance intégralement versée
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- Signatures -->
+                    <table width="100%" border="1" cellpadding="8"
+                        style="border-collapse:collapse; margin-top:20px; font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50; color:white;">
+                                <th colspan="3" style="text-align:center; padding:6px;">
+                                    ✍️ SIGNATURES ET AUTORISATIONS
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="33%" style="text-align:center; padding:20px 8px 8px;">
+                                    <strong>Le Missionnaire</strong><br/>
+                                    <t t-esc="membre.name"/><br/><br/>
+                                    <div style="border-top:1px solid #333; margin-top:30px; padding-top:4px;">
+                                        Signature : _______________
+                                    </div>
+                                    <div style="font-size:9px; color:#666;">Date : _______________</div>
+                                </td>
+                                <td width="33%" style="text-align:center; padding:20px 8px 8px;">
+                                    <strong>Chef de Département</strong><br/>
+                                    <t t-esc="o.chef_dept_id.name or '_______________'"/><br/><br/>
+                                    <div style="border-top:1px solid #333; margin-top:30px; padding-top:4px;">
+                                        Signature : _______________
+                                    </div>
+                                    <div style="font-size:9px; color:#666;">Date : _______________</div>
+                                </td>
+                                <td width="33%" style="text-align:center; padding:20px 8px 8px; background:#fef9e7;">
+                                    <strong>Directeur Exécutif</strong><br/>
+                                    <t t-if="o.autorise_par_de_id">
+                                        <t t-esc="o.autorise_par_de_id.name"/>
+                                    </t>
+                                    <t t-else="">_______________</t><br/><br/>
+                                    <div style="border-top:1px solid #333; margin-top:30px; padding-top:4px;">
+                                        <strong>Signature et Cachet : _______________</strong>
+                                    </div>
+                                    <div style="font-size:9px; color:#666;">
+                                        Date :
+                                        <t t-if="o.autorise_de_date">
+                                            <t t-esc="o.autorise_de_date.strftime('%d/%m/%Y')"/>
+                                        </t>
+                                        <t t-else="">_______________</t>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Pied de page légal -->
+                    <div style="margin-top:15px; border-top:1px solid #bdc3c7; padding-top:6px; font-size:8px; color:#888; text-align:center;">
+                        RESADE – Ordre de Mission N° <t t-esc="o.name"/> — Exemplaire de <t t-esc="membre.name"/> |
+                        Émis le <t t-esc="o.date_demande"/> |
+                        Conforme au Manuel de Procédures RESADE v2.0 – 2026 (Carnet G – P-GMD-01) |
+                        RESADE-F-GMD-01-03
+                    </div>
+
+                </div>
+            </t>
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>
+

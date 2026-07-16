@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record id="mail_template_invitation_consultation" model="mail.template">
+            <field name="name">Invitation Consultation Restreinte - RESADE</field>
+            <field name="model_id" ref="model_resade_marche_liste_courte"/>
+            <field name="subject">Invitation à soumissionner - Marché RESADE</field>
+            <field name="body_html">
+                
+                <p>Madame, Monsieur,</p>
+                <p>Dans le cadre de la consultation restreinte <strong>${object.marche_id.name}</strong> : ${object.marche_id.objet}, nous vous invitons à déposer votre offre.</p>
+                <p><strong>Date limite :</strong> ${object.marche_id.date_limite_soumission}</p>
+                <p><a href="${ctx['invitation_url']}" style="background:#1a73e8;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">Déposer mon offre</a></p>
+                <p>Cordialement,<br/>Équipe RESADE</p>
+            </field>
+        </record>
+    </data>
+</odoo>

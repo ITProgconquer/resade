@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_treso_tdb_form" model="ir.ui.view">
+        <field name="name">resade.tresorerie.tdb.form</field>
+        <field name="model">resade.tresorerie.tdb</field>
+        <field name="arch" type="xml">
+            <form string="Tableau de bord trésorerie">
+                <header>
+                    <button name="action_generer" string="🔄 Générer / recalculer"
+                        type="object" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Soldes réels (comptabilité Odoo)">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="solde_total_fonds_propres" readonly="1"/>
+                            <field name="solde_total_fonds_restreints" readonly="1"/>
+                            <field name="solde_total_general" readonly="1"/>
+                        </group>
+                        <group string="Trésorerie disponible réelle">
+                            <field name="total_engagements_budget" readonly="1"/>
+                            <field name="tresorerie_disponible_nette" readonly="1"/>
+                            <field name="date_generation" readonly="1"/>
+                            <field name="genere_par" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Détail par compte"/>
+                    <field name="ligne_compte_ids" readonly="1">
+                        <list>
+                            <field name="journal_id"/>
+                            <field name="type_fonds"/>
+                            <field name="projet_bailleur_id"/>
+                            <field name="solde" sum="Total"/>
+                        </list>
+                    </field>
+                    <group string="KPI réglementaires (Carnet F – P-TB-01 B.12 / P-TB-02 B.12)">
+                        <group>
+                            <field name="kpi_taux_controle_hebdo" widget="percentage" readonly="1"/>
+                            <field name="kpi_taux_piece_justificative" widget="percentage" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="kpi_taux_rapprochement_delai" widget="percentage" readonly="1"/>
+                            <field name="kpi_ecart_net_rapprochement" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Analyse CAF">
+                        <field name="note_analyse" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_treso_tdb_list" model="ir.ui.view">
+        <field name="name">resade.tresorerie.tdb.list</field>
+        <field name="model">resade.tresorerie.tdb</field>
+        <field name="arch" type="xml">
+            <list string="Tableaux de bord trésorerie">
+                <field name="name"/>
+                <field name="date_generation"/>
+                <field name="solde_total_general"/>
+                <field name="total_engagements_budget"/>
+                <field name="tresorerie_disponible_nette"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_treso_tdb" model="ir.actions.act_window">
+        <field name="name">Tableau de bord trésorerie</field>
+        <field name="res_model">resade.tresorerie.tdb</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

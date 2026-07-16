@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_resade_tresorerie" model="ir.module.category">
+        <field name="name">RESADE - Trésorerie</field>
+        <field name="sequence">21</field>
+    </record>
+
+    <record id="group_resade_tresorerie_lecture" model="res.groups">
+        <field name="name">Trésorerie RESADE / Lecture</field>
+        <field name="category_id" ref="module_category_resade_tresorerie"/>
+    </record>
+
+    <record id="group_resade_tresorerie_caf" model="res.groups">
+        <field name="name">Trésorerie RESADE / CAF</field>
+        <field name="category_id" ref="module_category_resade_tresorerie"/>
+        <field name="implied_ids" eval="[(4, ref('group_resade_tresorerie_lecture'))]"/>
+    </record>
+
+    <record id="group_resade_tresorerie_de" model="res.groups">
+        <field name="name">Trésorerie RESADE / Directeur Exécutif</field>
+        <field name="category_id" ref="module_category_resade_tresorerie"/>
+        <field name="implied_ids" eval="[(4, ref('group_resade_tresorerie_caf'))]"/>
+    </record>
+
+    <record id="group_resade_tresorerie_admin" model="res.groups">
+        <field name="name">Trésorerie RESADE / Administrateur</field>
+        <field name="category_id" ref="module_category_resade_tresorerie"/>
+        <field name="implied_ids" eval="[(4, ref('group_resade_tresorerie_de'))]"/>
+    </record>
+</odoo>

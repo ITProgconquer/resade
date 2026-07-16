@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_resade_ethique_soumission" model="ir.sequence">
+            <field name="name">RESADE Éthique - Soumission éthique/réglementaire</field>
+            <field name="code">resade.ethique.soumission</field>
+            <field name="prefix">RESADE-ER-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_resade_ethique_consentement" model="ir.sequence">
+            <field name="name">RESADE Éthique - Consentement éclairé</field>
+            <field name="code">resade.ethique.consentement</field>
+            <field name="prefix">RESADE-CONS-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_resade_ethique_conflit" model="ir.sequence">
+            <field name="name">RESADE Éthique - Déclaration de conflit d'intérêts</field>
+            <field name="code">resade.ethique.conflit</field>
+            <field name="prefix">RESADE-DC-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_resade_ethique_signalement" model="ir.sequence">
+            <field name="name">RESADE Éthique - Signalement code de conduite</field>
+            <field name="code">resade.ethique.signalement</field>
+            <field name="prefix">RESADE-SIG-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_resade_ethique_traitement" model="ir.sequence">
+            <field name="name">RESADE Éthique - Registre des traitements de données</field>
+            <field name="code">resade.ethique.traitement</field>
+            <field name="prefix">RESADE-RGPD-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_resade_ethique_risque" model="ir.sequence">
+            <field name="name">RESADE Éthique - Registre des risques institutionnels</field>
+            <field name="code">resade.ethique.risque</field>
+            <field name="prefix">RESADE-RISK-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_resade_ethique_plan_continuite" model="ir.sequence">
+            <field name="name">RESADE Éthique - Plan de mitigation / continuité</field>
+            <field name="code">resade.ethique.plan.continuite</field>
+            <field name="prefix">RESADE-PLAN-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

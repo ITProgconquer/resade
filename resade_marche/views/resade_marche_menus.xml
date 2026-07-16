@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- MENU RACINE -->
+    <menuitem id="menu_resade_marche_root"
+        name="Marches RESADE"
+        sequence="30"
+        web_icon="resade_marche,static/description/icon.png"/>
+
+    <!-- ── Mes requisitions + FEB (tous demandeurs) ── -->
+    <menuitem id="menu_resade_marche_mes"
+        name="Mes requisitions"
+        parent="menu_resade_marche_root"
+        action="action_resade_marche_mine"
+        sequence="10"
+        groups="resade_marche.group_resade_demandeur"/>
+
+    <menuitem id="menu_resade_feb_mienne"
+        name="Mes FEB"
+        parent="menu_resade_marche_root"
+        action="action_resade_feb"
+        sequence="11"
+        groups="resade_marche.group_resade_demandeur"/>
+
+    <!-- ── Dossiers a traiter (chefs dept +) ── -->
+    <menuitem id="menu_resade_marche_traiter"
+        name="Dossiers a traiter"
+        parent="menu_resade_marche_root"
+        action="action_resade_marche_a_traiter"
+        sequence="20"
+        groups="resade_marche.group_resade_marche_resp"/>
+
+    <!-- ── Seances CAM ── -->
+    <menuitem id="menu_resade_cam"
+        name="Seances CAM"
+        parent="menu_resade_marche_root"
+        action="action_resade_marche_cam"
+        sequence="30"
+        groups="resade_marche.group_resade_marche_cam"/>
+
+    <!-- ── Tableau de bord suivi P-SCM-01 ── -->
+    <menuitem id="menu_resade_tdb"
+        name="Tableau de bord marches"
+        parent="menu_resade_marche_root"
+        action="action_resade_tableau_bord"
+        sequence="35"
+        groups="resade_marche.group_resade_marche_caf"/>
+
+    <!-- ── Tous les dossiers (CAF +) ── -->
+    <menuitem id="menu_resade_marche_tous"
+        name="Tous les dossiers"
+        parent="menu_resade_marche_root"
+        action="action_resade_marche"
+        sequence="40"
+        groups="resade_marche.group_resade_marche_caf"/>
+
+    <!-- ── Carnet D : Preparation ── -->
+    <menuitem id="menu_resade_carnet_d"
+        name="Carnet D - Passation"
+        parent="menu_resade_marche_root"
+        sequence="45"
+        groups="resade_marche.group_resade_marche_caf"/>
+
+    <menuitem id="menu_resade_feb_all"
+        name="Fiches Expression Besoins (FEB)"
+        parent="menu_resade_carnet_d"
+        action="action_resade_feb"
+        sequence="10"/>
+
+    <menuitem id="menu_resade_cam_all"
+        name="Seances CAM (P-CIP-01)"
+        parent="menu_resade_carnet_d"
+        action="action_resade_marche_cam"
+        sequence="20"/>
+
+    <!-- ── Carnet E : Execution ── -->
+    <menuitem id="menu_resade_carnet_e"
+        name="Carnet E - Execution"
+        parent="menu_resade_marche_root"
+        sequence="50"
+        groups="resade_marche.group_resade_marche_caf"/>
+
+    <menuitem id="menu_resade_pvr"
+        name="PV Reception P-RC-01"
+        parent="menu_resade_carnet_e"
+        action="action_resade_pvr"
+        sequence="10"/>
+
+    <menuitem id="menu_resade_asf"
+        name="Attestations Service Fait P-RC-03"
+        parent="menu_resade_carnet_e"
+        action="action_resade_asf"
+        sequence="20"/>
+
+    <menuitem id="menu_resade_factures"
+        name="Registre Factures P-RC-02"
+        parent="menu_resade_carnet_e"
+        action="action_resade_factures"
+        sequence="30"/>
+
+    <menuitem id="menu_resade_paiement_fourn"
+        name="Dossiers Paiement Fournisseur P-PL-01"
+        parent="menu_resade_carnet_e"
+        action="action_resade_paiement"
+        sequence="40"/>
+
+    <menuitem id="menu_resade_honoraires"
+        name="Paiements Honoraires Consultants P-PL-02"
+        parent="menu_resade_carnet_e"
+        action="action_resade_honoraires"
+        sequence="50"/>
+
+    <!-- ── KPI Tableau de bord P-SCM-01 ── -->
+    <menuitem id="menu_resade_kpi"
+        name="KPI Tableau de bord P-SCM-01"
+        parent="menu_resade_carnet_e"
+        action="action_resade_kpi"
+        sequence="60"/>
+
+    <!-- ── Configuration (admin) ── -->
+    <menuitem id="menu_resade_marche_config"
+        name="Configuration"
+        parent="menu_resade_marche_root"
+        sequence="90"
+        groups="resade_marche.group_resade_marche_admin"/>
+
+    <menuitem id="menu_resade_fournisseurs"
+        name="Fournisseurs / Prestataires"
+        parent="menu_resade_marche_config"
+        action="action_resade_fournisseur"
+        sequence="10"/>
+
+    <menuitem id="menu_resade_domaines"
+        name="Domaines de marche"
+        parent="menu_resade_marche_config"
+        action="action_resade_domaine"
+        sequence="20"/>
+
+    <menuitem id="menu_resade_seuils"
+        name="Referentiel seuils P-CIP-02"
+        parent="menu_resade_marche_config"
+        action="action_wizard_seuils_marche"
+        sequence="30"/>
+
+</odoo>

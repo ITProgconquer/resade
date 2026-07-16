@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="module_resade_projet" model="ir.module.category">
+            <field name="name">RESADE Projets</field>
+            <field name="description">Gestion du cycle des projets et partenariats – Carnet H</field>
+            <field name="sequence">91</field>
+        </record>
+
+        <!-- Chargé DPMR : veille et propositions -->
+        <record id="group_resade_dpmr" model="res.groups">
+            <field name="name">Chargé DPMR (Mobilisation des Ressources)</field>
+            <field name="category_id" ref="module_resade_projet"/>
+            <field name="comment">Assure la veille, rédige les propositions, suit les opportunités</field>
+        </record>
+
+        <!-- CDP : Chef Département Partenariat -->
+        <record id="group_resade_cdp" model="res.groups">
+            <field name="name">Chef Département Partenariat (CDP)</field>
+            <field name="category_id" ref="module_resade_projet"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_dpmr'))]"/>
+            <field name="comment">Supervise veille, GO/NO-GO, revue qualité, partenariats</field>
+        </record>
+
+        <!-- RP / CMPPE : Responsable de Projet -->
+        <record id="group_resade_rp" model="res.groups">
+            <field name="name">Responsable de Projet (RP / CMPPE)</field>
+            <field name="category_id" ref="module_resade_projet"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_cdp'))]"/>
+            <field name="comment">Pilote opérationnel du projet, suivi POA, rapports bailleurs</field>
+        </record>
+
+        <!-- CDO : Chef Département Opérations -->
+        <record id="group_resade_cdo" model="res.groups">
+            <field name="name">Chef Département Opérations (CDO)</field>
+            <field name="category_id" ref="module_resade_projet"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_rp'))]"/>
+            <field name="comment">Valide les rapports techniques, supervise exécution</field>
+        </record>
+
+        <!-- DE : Directeur Exécutif -->
+        <record id="group_resade_de_projet" model="res.groups">
+            <field name="name">Directeur Exécutif (DE) – Projets</field>
+            <field name="category_id" ref="module_resade_projet"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_cdo'))]"/>
+            <field name="comment">GO/NO-GO, signature conventions, approbation rapports bailleurs, clôture</field>
+        </record>
+
+        <!-- Admin module -->
+        <record id="group_resade_projet_admin" model="res.groups">
+            <field name="name">Administrateur Projets</field>
+            <field name="category_id" ref="module_resade_projet"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_de_projet'))]"/>
+        </record>
+
+    </data>
+</odoo>

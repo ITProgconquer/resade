@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FORMULAIRE PRINCIPAL – ORDRE DE MISSION (Odoo 18)
+         Conforme P-GMD-01 / P-GMD-02 / P-GMD-03
+    ═══════════════════════════════════════════════════════ -->
+    <record id="view_resade_mission_form" model="ir.ui.view">
+        <field name="name">resade.mission.form</field>
+        <field name="model">resade.mission</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Ordre de Mission – RESADE">
+                <header>
+                    <!-- P-GMD-01 : Brouillon → Validation chef -->
+                    <button name="action_valider_chef"
+                        string="✅ Valider (Chef Dépt)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'brouillon'"/>
+
+                    <!-- P-GMD-01 : → Approbation CAF + visa budgétaire -->
+                    <button name="action_approuver_caf"
+                        string="💰 Approuver + Visa Budgétaire"
+                        type="object" class="btn-primary"
+                        invisible="state != 'valide_chef'"/>
+
+                    <!-- P-GMD-01 : → Signature OM par DE -->
+                    <button name="action_autoriser_de"
+                        string="📋 Signer Ordre de Mission (DE)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'approuve_caf'"/>
+
+                    <!-- P-GMD-01 : → Décaissement avance -->
+                    <button name="action_decaisser_avance"
+                        string="💵 Décaisser l'Avance"
+                        type="object" class="btn-primary"
+                        invisible="state != 'autorise_de'"/>
+
+                    <!-- P-GMD-02 étape 1 : Départ -->
+                    <button name="action_partir_mission_et_registre"
+                        string="✈️ Marquer Départ en Mission"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'avance_decaisse'"/>
+
+                    <!-- P-GMD-02 étape 4 : Soumission rapport par missionnaire -->
+                    <button name="action_soumettre_rapport"
+                        string="📄 Soumettre le Rapport"
+                        type="object" class="btn-primary"
+                        invisible="state != 'en_mission'"/>
+
+                    <!-- P-GMD-02 étape 6 : Validation rapport par Chef Dépt -->
+                    <button name="action_valider_rapport_chef"
+                        string="✅ Valider le Rapport (Chef Dépt)"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'rapport_soumis'"/>
+
+                    <!-- P-GMD-02 étape 7 : Approbation rapport par DE -->
+                    <button name="action_approuver_rapport_de"
+                        string="✔️ Approuver le Rapport (DE)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'rapport_soumis' or not rapport_valide_chef"/>
+
+                    <!-- P-GMD-03 : Soumission justification -->
+                    <button name="action_soumettre_justification"
+                        string="🧾 Soumettre Justification Frais"
+                        type="object" class="btn-primary"
+                        invisible="state != 'rapport_approuve'"/>
+
+                    <!-- P-GMD-03 : Validation remboursement CAF -->
+                    <button name="action_valider_remboursement"
+                        string="💳 Valider Remboursement (CAF)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'justif_soumise'"/>
+
+                    <!-- Clôture finale -->
+                    <button name="action_cloturer"
+                        string="🏁 Clôturer la Mission"
+                        type="object" class="btn-success"
+                        invisible="state != 'remboursement_ok'"/>
+
+                    <!-- Impression OM -->
+                    <button name="action_imprimer_om"
+                        string="🖨️ Imprimer OM"
+                        type="object" class="btn-secondary"
+                        invisible="state in ['brouillon', 'valide_chef', 'refuse']"/>
+
+                    <!-- Refus -->
+                    <button name="action_refuser"
+                        string="❌ Refuser"
+                        type="object" class="btn-danger"
+                        invisible="state in ['cloture', 'refuse', 'brouillon', 'remboursement_ok']"/>
+
+                    <!-- Retour brouillon -->
+                    <button name="action_remettre_brouillon"
+                        string="🔄 Remettre en Brouillon"
+                        type="object"
+                        invisible="state not in ['valide_chef', 'approuve_caf', 'refuse']"/>
+
+                    <!-- RATTRAPAGE : mission décaissée avec une version du module
+                         antérieure à l'intégration comptable (pas de paiement créé) -->
+                    <button name="action_regulariser_paiement_manquant"
+                        string="🔧 Régulariser le paiement comptable manquant"
+                        type="object" class="btn-warning"
+                        invisible="not montant_avance_approuve or payment_avance_id or state not in ['avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise']"/>
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="brouillon,valide_chef,approuve_caf,autorise_de,avance_decaisse,en_mission,rapport_soumis,rapport_approuve,justif_soumise,remboursement_ok,cloture"/>
+                </header>
+
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_voir_paiements" type="object"
+                        class="oe_stat_button" icon="fa-money"
+                        invisible="not payment_avance_id and not payment_regularisation_id">
+                        <span>Paiements comptables</span>
+                    </button>
+                </div>
+
+                <sheet>
+                    <!-- Bannière refus -->
+                    <div class="alert alert-danger" role="alert"
+                        invisible="state != 'refuse'">
+                        <strong>❌ Mission refusée</strong> — Motif : <field name="motif_refus" readonly="1"/>
+                    </div>
+
+                    <!-- Alerte rapport hors délai -->
+                    <div class="alert alert-warning" role="alert"
+                        invisible="state not in ['rapport_soumis', 'rapport_approuve', 'justif_soumise', 'remboursement_ok', 'cloture'] or delai_rapport_ok">
+                        ⚠️ Rapport soumis hors délai —
+                        <field name="jours_retard_rapport" readonly="1"/> jour(s) de retard
+                        (délai max : 5 jours ouvrables après retour – P-GMD-02 B.3)
+                    </div>
+
+                    <!-- Alerte préavis insuffisant -->
+                    <div class="alert alert-warning" role="alert"
+                        invisible="delai_preavis_ok or state != 'brouillon'">
+                        ⚠️ Préavis insuffisant :
+                        <field name="nb_jours_preavis" readonly="1"/> jour(s) –
+                        minimum 5j (ordinaire) / 10j (stratégique) requis (P-GMD-01 B.7)
+                    </div>
+
+                    <!-- Alerte avis PCA requis -->
+                    <div class="alert alert-info" role="alert"
+                        invisible="not avis_pca_requis or avis_pca_date or state in ['brouillon', 'valide_chef']">
+                        ⭐ Mission stratégique : la consultation du PCA est obligatoire avant signature de l'OM (P-GMD-01 B.5)
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3><field name="type_mission" widget="radio" class="o_inline_radio"/></h3>
+                    </div>
+
+                    <!-- ── Missionnaire & Groupe ── -->
+                    <group string="👤 Missionnaire et Groupe (RESADE-F-GMD-01-04)">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="department_id" readonly="1"/>
+                            <field name="job_id" readonly="1"/>
+                            <field name="chef_dept_id"
+                                help="Chef hiérarchique – co-signe les TDR (P-GMD-01 B.5)"/>
+                        </group>
+                        <group>
+                            <field name="date_demande"/>
+                            <field name="nb_participants" readonly="1"/>
+                            <field name="delai_preavis_ok" readonly="1" widget="boolean_toggle"/>
+                            <field name="nb_jours_preavis" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Groupe de participants -->
+                    <group string="👥 Autres participants (composition du groupe)">
+                        <field name="participant_ids" widget="many2many_tags"
+                            nolabel="1"
+                            placeholder="Ajoutez les autres membres du groupe missionnaire..."/>
+                    </group>
+
+                    <!-- ── Mission ── -->
+                    <group string="🗺️ Mission (RESADE-F-GMD-01-03)">
+                        <group>
+                            <field name="destination"/>
+                            <field name="zone_mission"/>
+                            <field name="date_depart"/>
+                            <field name="date_retour"/>
+                            <field name="duree_jours" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="date_depart_effectif"
+                                invisible="state not in ['en_mission','rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"/>
+                            <field name="date_retour_effectif"
+                                invisible="state not in ['en_mission','rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"/>
+                            <field name="duree_reelle_jours" readonly="1"
+                                invisible="not date_retour_effectif"/>
+                            <field name="type_justification"/>
+                            <field name="analytic_account_id"/>
+                            <field name="ligne_budgetaire_id"/>
+                            <field name="montant_disponible_ligne" readonly="1"
+                                invisible="not ligne_budgetaire_id"/>
+                            <field name="budget_line_info" invisible="ligne_budgetaire_id"/>
+                        </group>
+                    </group>
+
+                    <!-- Avis PCA (missions stratégiques) -->
+                    <group string="⭐ Avis PCA – Missions stratégiques (P-GMD-01 B.5)"
+                        invisible="not avis_pca_requis">
+                        <group>
+                            <field name="avis_pca_requis" readonly="1"/>
+                            <field name="avis_pca_date"/>
+                        </group>
+                        <group>
+                            <field name="avis_pca_note"/>
+                        </group>
+                    </group>
+
+                    <!-- ── Objet et TDR ── -->
+                    <group string="📋 Objet et Justification (F-GMD-01-01 / F-GMD-01-02)">
+                        <field name="objet_mission" nolabel="1"
+                            placeholder="Décrivez l'objet de la mission, les objectifs, les résultats attendus..."/>
+                        <field name="tdr_note" nolabel="1" widget="html"
+                            placeholder="Contenu des TDR ou note de justification (canevas RESADE-F-GMD-01-01 / 01-02)..."/>
+                        <field name="tdr_attachment_ids" widget="many2many_binary"
+                            string="Fichiers TDR / Note de justification joints"/>
+                    </group>
+
+                    <notebook>
+
+                        <!-- ── PAGE : Frais estimés (P-GMD-01) ── -->
+                        <page string="💰 Frais Estimés (F-GMD-01-04 / F-GMD-01-05)">
+                            <group string="🏦 Paramètres comptables du décaissement">
+                                <field name="journal_id"/>
+                                <field name="compte_avance_id"/>
+                            </group>
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="type_frais"/>
+                                    <field name="description"/>
+                                    <field name="taux_perdiem_id"
+                                        domain="[('zone', '=', parent.zone_mission)]"/>
+                                    <field name="quantite" string="Qté prévue"/>
+                                    <field name="taux_unitaire"/>
+                                    <field name="montant_estime" sum="Total estimé"/>
+                                    <field name="est_forfaitaire" column_invisible="1"/>
+                                    <!-- Nuitées approuvées par le DE — uniquement pour le per diem
+                                         (forfaitaire, acquis dès décaissement, sans justificatif) -->
+                                    <field name="quantite_approuvee_de" string="Nuitées approuvées (DE)"
+                                        column_invisible="parent.state not in ['approuve_caf','autorise_de','avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"
+                                        invisible="not est_forfaitaire"/>
+                                    <field name="montant_forfaitaire_du" string="Per diem acquis (DE)" sum="Total acquis"
+                                        column_invisible="parent.state not in ['approuve_caf','autorise_de','avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"
+                                        invisible="not est_forfaitaire" readonly="1"/>
+                                    <!-- Colonnes réel – uniquement pour les frais annexes (non forfaitaires),
+                                         visibles en phase P-GMD-02/03. Le per diem n'a pas de "réel" à
+                                         justifier : il est acquis dès l'approbation des nuitées par le DE. -->
+                                    <field name="quantite_reelle" string="Qté réelle (frais annexes)"
+                                        column_invisible="parent.state not in ['rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"
+                                        invisible="est_forfaitaire"/>
+                                    <field name="montant_reel_manuel" string="Montant réel (manuel, sur justificatif)"
+                                        column_invisible="parent.state not in ['rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"
+                                        invisible="est_forfaitaire"/>
+                                    <field name="montant_reel" string="Montant réel" sum="Total réel"
+                                        column_invisible="parent.state not in ['rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"
+                                        readonly="1"/>
+                                    <field name="piece_justificative"
+                                        column_invisible="parent.state not in ['justif_soumise','remboursement_ok','cloture']"
+                                        invisible="est_forfaitaire"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+
+                            <group class="oe_subtotal_footer">
+                                <field name="montant_avance_demande" readonly="1"
+                                    string="Total frais estimés (demande initiale)"/>
+                                <field name="montant_perdiem_demande" readonly="1"
+                                    string="… dont per diem (forfaitaire)" invisible="montant_perdiem_demande == 0"/>
+                                <field name="montant_frais_annexes_demande" readonly="1"
+                                    string="… dont frais annexes (à justifier)" invisible="montant_frais_annexes_demande == 0"/>
+                                <field name="montant_avance_approuve"
+                                    readonly="state not in ['approuve_caf','autorise_de']"
+                                    string="✅ Avance totale approuvée par DE"/>
+                                <field name="montant_deja_verse" readonly="1"
+                                    string="💳 Montant déjà décaissé"
+                                    invisible="state not in ['autorise_de','avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"/>
+                                <field name="montant_reste_a_payer" readonly="1"
+                                    class="text-danger"
+                                    string="🔺 Reste à payer (avant départ)"
+                                    invisible="montant_reste_a_payer == 0 or state not in ['autorise_de','avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"/>
+                                <field name="montant_perdiem_approuve_de" readonly="1"
+                                    string="🔒 Per diem acquis (nuitées DE) — non remboursable"
+                                    invisible="state not in ['autorise_de','avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"/>
+                                <field name="montant_depense_reel" readonly="1"
+                                    string="Frais annexes réels (justifiés)"
+                                    invisible="state not in ['rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']"/>
+                                <field name="montant_a_rembourser" readonly="1"
+                                    class="text-danger"
+                                    string="↩ Trop-perçu sur frais annexes à reverser (hors per diem)"
+                                    invisible="montant_a_rembourser == 0"/>
+                                <field name="montant_complement" readonly="1"
+                                    class="text-success"
+                                    string="↪ Complément frais annexes à verser (hors per diem)"
+                                    invisible="montant_complement == 0"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+
+                            <!-- Visa budgétaire CAF -->
+                            <group string="✅ Visa Budgétaire CAF (P-GMD-01 étape 3)"
+                                invisible="state == 'brouillon'">
+                                <field name="credit_budgetaire_reserve" readonly="1"/>
+                                <field name="visa_budgetaire"/>
+                                <field name="note_visa" invisible="not visa_budgetaire"/>
+                            </group>
+                        </page>
+
+                        <!-- ── PAGE : Rapport de mission (P-GMD-02) ── -->
+                        <page string="📄 Rapport de Mission (P-GMD-02 – F-GMD-02-01)"
+                            invisible="state in ['brouillon','valide_chef','approuve_caf','autorise_de','avance_decaisse']">
+
+                            <group string="Informations rapport">
+                                <group>
+                                    <field name="date_soumission_rapport"/>
+                                    <field name="delai_rapport_ok" readonly="1" widget="boolean_toggle"/>
+                                    <field name="jours_retard_rapport" readonly="1"
+                                        invisible="delai_rapport_ok"/>
+                                    <field name="vehicule_resade"/>
+                                </group>
+                                <group>
+                                    <field name="rapport_valide_chef" readonly="1" widget="boolean_toggle"/>
+                                    <field name="rapport_valide_chef_id" readonly="1"
+                                        invisible="not rapport_valide_chef"/>
+                                    <field name="rapport_valide_chef_date" readonly="1"
+                                        invisible="not rapport_valide_chef"/>
+                                    <field name="rapport_approuve_de" readonly="1" widget="boolean_toggle"/>
+                                    <field name="rapport_approuve_de_id" readonly="1"
+                                        invisible="not rapport_approuve_de"/>
+                                </group>
+                            </group>
+
+                            <!-- Checklist conformité dossier retour (F-GMD-02-05) -->
+                            <group string="☑️ Checklist Conformité Dossier Retour (F-GMD-02-05)"
+                                invisible="state not in ['rapport_soumis','rapport_approuve','justif_soumise','remboursement_ok','cloture']">
+                                <field name="checklist_rapport_ok"
+                                    string="✅ Dossier complet et conforme (rapport + décompte + justificatifs + OM original)"/>
+                                <field name="checklist_note" invisible="checklist_rapport_ok"/>
+                            </group>
+
+                            <separator string="Rapport narratif (canevas RESADE-F-GMD-02-01)"/>
+                            <field name="rapport_mission" widget="html" nolabel="1"
+                                placeholder="Sections : Contexte – Objectifs – Activités réalisées – Résultats vs TDR – Difficultés – Recommandations – Plan de suivi – Annexes"/>
+
+                            <separator string="Documents joints"/>
+                            <field name="fiche_decompte_ids" widget="many2many_binary"
+                                string="Fiche décompte frais réels (RESADE-F-GMD-02-02) *obligatoire*"/>
+                            <field name="carnet_bord_ids" widget="many2many_binary"
+                                string="Carnet de bord véhicule (RESADE-F-GMD-02-03)"
+                                invisible="not vehicule_resade"/>
+                            <field name="pieces_jointes_rapport" widget="many2many_binary"
+                                string="Annexes du rapport (listes présence, photos, PV réunions...)"/>
+
+                            <!-- Capitalisation (P-GMD-02 étape 8) -->
+                            <group string="📚 Capitalisation et Restitution Interne (P-GMD-02 B.7 étape 8)"
+                                invisible="type_mission != 'strategique'">
+                                <field name="restitution_interne_faite"/>
+                                <field name="enseignements_capitalises"
+                                    placeholder="Enseignements clés, recommandations documentées pour RESADE..."/>
+                            </group>
+                        </page>
+
+                        <!-- ── PAGE : Justification & Remboursement (P-GMD-03) ── -->
+                        <page string="🧾 Justification &amp; Remboursement (P-GMD-03)"
+                            invisible="state in ['brouillon','valide_chef','approuve_caf','autorise_de','avance_decaisse','en_mission','rapport_soumis']">
+
+                            <group string="Solde de mission">
+                                <group string="🔒 Per diem (forfaitaire, acquis — aucun justificatif)">
+                                    <field name="montant_perdiem_approuve_de" readonly="1"
+                                        string="Per diem acquis (nuitées approuvées DE)"/>
+                                </group>
+                                <group string="🧾 Frais annexes (sur justificatif réel)">
+                                    <field name="montant_avance_frais_annexes_a_solder" readonly="1"
+                                        string="Avance sur frais annexes décaissée"/>
+                                    <field name="montant_depense_reel" readonly="1"
+                                        string="Frais annexes réels justifiés"/>
+                                    <field name="montant_a_rembourser" readonly="1"
+                                        class="text-danger"
+                                        string="↩ Trop-perçu à reverser"
+                                        invisible="montant_a_rembourser == 0"/>
+                                    <field name="montant_complement" readonly="1"
+                                        class="text-success"
+                                        string="↪ Complément à verser"
+                                        invisible="montant_complement == 0"/>
+                                </group>
+                                <group>
+                                    <field name="date_justification"/>
+                                    <field name="remboursement_valide_caf"/>
+                                    <field name="date_remboursement"
+                                        invisible="not remboursement_valide_caf"/>
+                                    <field name="note_remboursement"/>
+                                </group>
+                            </group>
+
+                            <field name="note_justification_frais"
+                                placeholder="Observations sur les justificatifs de dépenses..."/>
+                            <field name="pieces_jointes_justif" widget="many2many_binary"
+                                string="Pièces justificatives (factures hôtel, billets, reçus carburant...)"/>
+
+                            <separator string="🏦 Traçabilité comptable"/>
+                            <group>
+                                <field name="payment_avance_id" readonly="1"/>
+                                <field name="move_avance_id" readonly="1"/>
+                                <field name="payment_regularisation_id" readonly="1"
+                                    invisible="not payment_regularisation_id"/>
+                                <field name="move_regularisation_id" readonly="1"
+                                    invisible="not move_regularisation_id"/>
+                            </group>
+                        </page>
+
+                        <!-- ── PAGE : Traçabilité RACI ── -->
+                        <page string="🔍 Traçabilité RACI (P-GMD-01 B.8)">
+                        <!-- Registre F-GMD-02-04 -->
+                        <group string="📋 Registre des Missions (F-GMD-02-04)" invisible="not registre_id">
+                            <field name="registre_id" readonly="1"/>
+                            <button name="action_voir_registre" string="📋 Voir dans le Registre F-GMD-02-04" type="object" class="btn-secondary" invisible="not registre_id"/>
+                        </group>
+                            <group string="Validations successives">
+                                <group>
+                                    <field name="valide_par_chef_id" readonly="1"/>
+                                    <field name="valide_chef_date" readonly="1"/>
+                                    <field name="approuve_par_caf_id" readonly="1"/>
+                                    <field name="approuve_caf_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="autorise_par_de_id" readonly="1"/>
+                                    <field name="autorise_de_date" readonly="1"/>
+                                    <field name="refuse_par_id" readonly="1"
+                                        invisible="state != 'refuse'"/>
+                                    <field name="motif_refus"
+                                        invisible="state != 'refuse'"/>
+                                </group>
+                            </group>
+                            <group string="Écritures analytiques GFIC"
+                                invisible="analytic_line_count == 0">
+                                <field name="analytic_line_count" readonly="1"/>
+                                <button name="action_voir_ecritures"
+                                    string="📊 Voir écritures dans GFIC"
+                                    type="object" class="btn-secondary"
+                                    invisible="analytic_line_count == 0"/>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════
+         VUE LISTE – Registre des ordres de mission (F-GMD-01-06)
+    ═══════════════════════════════════════════════════════ -->
+    <record id="view_resade_mission_list" model="ir.ui.view">
+        <field name="name">resade.mission.list</field>
+        <field name="model">resade.mission</field>
+        <field name="arch" type="xml">
+            <list string="Ordres de Mission RESADE – F-GMD-01-06"
+                decoration-danger="state == 'refuse'"
+                decoration-success="state == 'cloture'"
+                decoration-warning="state == 'en_mission' and not delai_rapport_ok and date_retour_effectif"
+                decoration-info="state in ['rapport_soumis','rapport_approuve']">
+                <field name="name" string="N° OM"/>
+                <field name="type_mission" widget="badge"
+                    decoration-warning="type_mission == 'strategique'"/>
+                <field name="employee_id" string="Missionnaire"/>
+                <field name="destination"/>
+                <field name="zone_mission"/>
+                <field name="date_depart"/>
+                <field name="date_retour"/>
+                <field name="duree_jours"/>
+                <field name="analytic_account_id" string="Projet/Bailleur" optional="show"/>
+                <field name="montant_avance_approuve" widget="monetary" optional="show"/>
+                <field name="montant_depense_reel" widget="monetary" optional="hide"/>
+                <field name="montant_a_rembourser" widget="monetary" optional="hide"
+                    decoration-danger="montant_a_rembourser > 0"/>
+                <field name="delai_rapport_ok" widget="boolean" optional="show"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'cloture'"
+                    decoration-danger="state == 'refuse'"
+                    decoration-warning="state in ['en_mission','rapport_soumis']"
+                    decoration-info="state in ['rapport_approuve','justif_soumise','remboursement_ok']"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="date_retour_effectif" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════
+         VUE KANBAN
+    ═══════════════════════════════════════════════════════ -->
+    <record id="view_resade_mission_kanban" model="ir.ui.view">
+        <field name="name">resade.mission.kanban</field>
+        <field name="model">resade.mission</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="destination"/>
+                <field name="date_depart"/>
+                <field name="date_retour"/>
+                <field name="state"/>
+                <field name="type_mission"/>
+                <field name="montant_avance_approuve"/>
+                <field name="delai_rapport_ok"/>
+                <templates>
+                    <t t-name="kanban-card">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <span t-if="record.type_mission.raw_value == 'strategique'"
+                                    class="badge bg-danger ms-1">⭐</span>
+                                <span t-if="!record.delai_rapport_ok.raw_value and record.state.raw_value == 'en_mission'"
+                                    class="badge bg-warning ms-1">⏰</span>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>👤 <field name="employee_id"/></div>
+                                <div>📍 <field name="destination"/></div>
+                                <div>📅 <field name="date_depart"/> → <field name="date_retour"/></div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="montant_avance_approuve" widget="monetary"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════
+         RECHERCHE
+    ═══════════════════════════════════════════════════════ -->
+    <record id="view_resade_mission_search" model="ir.ui.view">
+        <field name="name">resade.mission.search</field>
+        <field name="model">resade.mission</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher missions">
+                <field name="name" string="N° OM"/>
+                <field name="employee_id" string="Missionnaire"/>
+                <field name="destination"/>
+                <field name="analytic_account_id" string="Projet/Bailleur"/>
+                <field name="chef_dept_id" string="Chef Dépt"/>
+                <filter string="Mes missions" name="my_missions"
+                    domain="[('employee_id.user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="En cours" name="en_mission"
+                    domain="[('state', '=', 'en_mission')]"/>
+                <filter string="Rapport à valider" name="rapport_attente"
+                    domain="[('state', '=', 'rapport_soumis')]"/>
+                <filter string="Rapport approuvé / À justifier" name="rapport_approuve"
+                    domain="[('state', 'in', ['rapport_approuve', 'justif_soumise'])]"/>
+                <filter string="Remboursement en attente" name="remboursement"
+                    domain="[('state', '=', 'remboursement_ok')]"/>
+                <filter string="Clôturées" name="cloturees"
+                    domain="[('state', '=', 'cloture')]"/>
+                <filter string="Refusées" name="refusees"
+                    domain="[('state', '=', 'refuse')]"/>
+                <separator/>
+                <filter string="Missions stratégiques" name="strategiques"
+                    domain="[('type_mission', '=', 'strategique')]"/>
+                <filter string="Rapport en retard" name="rapport_retard"
+                    domain="[('state', '=', 'en_mission'), ('delai_rapport_ok', '=', False), ('date_retour_effectif', '!=', False)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Missionnaire" name="group_employee"
+                        context="{'group_by': 'employee_id'}"/>
+                    <filter string="État" name="group_state"
+                        context="{'group_by': 'state'}"/>
+                    <filter string="Zone" name="group_zone"
+                        context="{'group_by': 'zone_mission'}"/>
+                    <filter string="Type de mission" name="group_type"
+                        context="{'group_by': 'type_mission'}"/>
+                    <filter string="Projet / Bailleur" name="group_analytic"
+                        context="{'group_by': 'analytic_account_id'}"/>
+                    <filter string="Mois de départ" name="group_month"
+                        context="{'group_by': 'date_depart:month'}"/>
+                    <filter string="Département" name="group_dept"
+                        context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ACTIONS
+    ═══════════════════════════════════════════════════════ -->
+    <record id="action_resade_mission" model="ir.actions.act_window">
+        <field name="name">Ordres de Mission – Registre F-GMD-01-06</field>
+        <field name="res_model">resade.mission</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_resade_mission_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créer un nouvel Ordre de Mission</p>
+            <p>Gérez vos missions conformément au Manuel de Procédures RESADE (Carnet G – Module 03, P-GMD-01/02/03).</p>
+        </field>
+    </record>
+
+    <record id="action_resade_mission_mine" model="ir.actions.act_window">
+        <field name="name">Mes Missions</field>
+        <field name="res_model">resade.mission</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="search_view_id" ref="view_resade_mission_search"/>
+    </record>
+
+    <record id="action_resade_mission_a_traiter" model="ir.actions.act_window">
+        <field name="name">⏳ Missions à Traiter</field>
+        <field name="res_model">resade.mission</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', 'not in', ['brouillon', 'cloture', 'refuse'])]</field>
+        <field name="search_view_id" ref="view_resade_mission_search"/>
+    </record>
+
+</odoo>

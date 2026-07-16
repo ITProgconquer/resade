@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_ethique_conflit_tree" model="ir.ui.view">
+        <field name="name">resade.ethique.conflit.tree</field>
+        <field name="model">resade.ethique.conflit</field>
+        <field name="arch" type="xml">
+            <list string="Déclarations de conflit d'intérêts">
+                <field name="name"/>
+                <field name="declarant_id"/>
+                <field name="contexte"/>
+                <field name="type_conflit"/>
+                <field name="date_declaration"/>
+                <field name="decision"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'en_analyse'"
+                       decoration-success="state == 'decision_rendue'"
+                       decoration-muted="state == 'cloturee'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_ethique_conflit_form" model="ir.ui.view">
+        <field name="name">resade.ethique.conflit.form</field>
+        <field name="model">resade.ethique.conflit</field>
+        <field name="arch" type="xml">
+            <form string="Déclaration de conflit d'intérêts">
+                <header>
+                    <button name="action_declarer" string="Déclarer" type="object"
+                            class="oe_highlight" invisible="state != 'brouillon'"/>
+                    <button name="action_mettre_en_analyse" string="Mettre en analyse" type="object"
+                            invisible="state != 'declaree'"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <button name="action_enregistrer_decision" string="Enregistrer la décision" type="object"
+                            class="oe_highlight" invisible="state != 'en_analyse'"
+                            groups="resade_ethique.group_resade_ethique_de"/>
+                    <button name="action_cloturer" string="Clôturer" type="object"
+                            invisible="state != 'decision_rendue'"
+                            groups="resade_ethique.group_resade_ethique_crsp"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="brouillon,declaree,en_analyse,decision_rendue,cloturee"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="declarant_id"/>
+                            <field name="date_declaration"/>
+                            <field name="contexte"/>
+                            <field name="type_conflit"/>
+                            <field name="reference_dossier_lie"/>
+                        </group>
+                        <group>
+                            <field name="analyste_id"/>
+                            <field name="date_analyse"/>
+                            <field name="decision"/>
+                            <field name="valideur_id"/>
+                            <field name="date_decision"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description_situation" placeholder="Description factuelle de la situation de conflit..."/>
+                        <field name="mesures_prises" placeholder="Mesures de mitigation, récusation, suivi..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_ethique_conflit_search" model="ir.ui.view">
+        <field name="name">resade.ethique.conflit.search</field>
+        <field name="model">resade.ethique.conflit</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher une déclaration de conflit">
+                <field name="name"/>
+                <field name="declarant_id"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Contexte" name="group_contexte" context="{'group_by': 'contexte'}"/>
+                    <filter string="Statut" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_resade_ethique_conflit" model="ir.actions.act_window">
+        <field name="name">Conflits d'intérêts (P-DC-02)</field>
+        <field name="res_model">resade.ethique.conflit</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Déclarez une situation de conflit d'intérêts</p>
+        </field>
+    </record>
+
+</odoo>

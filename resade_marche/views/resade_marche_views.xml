@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════
+         FORMULAIRE PRINCIPAL DOSSIER MARCHÉ
+    ═══════════════════════════════════════════════ -->
+    <record id="view_resade_marche_form" model="ir.ui.view">
+        <field name="name">resade.marche.form</field>
+        <field name="model">resade.marche</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Dossier de Marché – RESADE">
+                <header>
+                    <!-- ── Carnet D : Passation ── -->
+                    <button name="action_soumettre_validation"
+                        string="📤 Soumettre au chef dept"
+                        type="object" class="btn-primary"
+                        invisible="state != 'brouillon'"/>
+
+                    <button name="action_valider_responsable"
+                        string="✅ Valider (Chef dept)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'valide_resp'"
+                        groups="resade_marche.group_resade_marche_resp"/>
+
+                    <button name="action_valider_caf"
+                        string="✅ Valider CAF + FEB"
+                        type="object" class="btn-primary"
+                        invisible="state != 'valide_caf'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <button name="action_lancer_ao"
+                        string="📢 Lancer AO / Consultation"
+                        type="object" class="btn-primary"
+                        invisible="state != 'ao_lance'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <button name="action_depouiller"
+                        string="📋 Dépouiller les offres"
+                        type="object" class="btn-primary"
+                        invisible="state != 'depouillement'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <button name="action_convoquer_cam"
+                        string="🏛️ Convoquer la CAM"
+                        type="object" class="btn-primary"
+                        invisible="state != 'analyse' or cam_requise == False"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <button name="action_approuver_de"
+                        string="🖊️ Approuver attribution (DE)"
+                        type="object" class="btn-primary"
+                        invisible="state not in ['analyse', 'cam_convoquee']"
+                        groups="resade_marche.group_resade_marche_de"/>
+
+                    <!-- ── Carnet E : Exécution ── -->
+                    <button name="action_emettre_bc"
+                        string="📄 Émettre BC / Contrat"
+                        type="object" class="btn-primary"
+                        invisible="state != 'notifie'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <button name="action_demarrer_execution"
+                        string="▶️ Démarrer exécution"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'bon_commande'"/>
+
+                    <button name="action_reception"
+                        string="📦 Réception / Contrôle"
+                        type="object" class="btn-primary"
+                        invisible="state != 'en_cours'"/>
+
+                    <button name="action_certifier_facture"
+                        string="✔️ Certifier facture (ASF)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'reception'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <button name="action_payer"
+                        string="💰 Enregistrer paiement"
+                        type="object" class="btn-success"
+                        invisible="state != 'certifie'"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <button name="action_cloturer_dossier"
+                        string="🗂️ Clôturer et archiver"
+                        type="object"
+                        invisible="state not in ['paye', 'annule'] or dossier_cloture == True"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                    <!-- ── Annulation et remise en brouillon ── -->
+                    <button name="action_annuler"
+                        string="❌ Annuler"
+                        type="object" class="btn-danger"
+                        invisible="state in ['paye', 'annule']"
+                        groups="resade_marche.group_resade_marche_de"/>
+
+                    <button name="action_remettre_brouillon"
+                        string="🔄 Remettre en brouillon"
+                        type="object"
+                        invisible="state not in ['valide_resp', 'annule']"
+                        groups="resade_marche.group_resade_marche_admin"/>
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="brouillon,valide_resp,valide_caf,ao_lance,depouillement,analyse,approuve_de,notifie,bon_commande,en_cours,reception,certifie,paye"/>
+                </header>
+
+                <sheet>
+                    <!-- Alertes -->
+                    <div class="alert alert-danger" role="alert"
+                        invisible="state != 'annule'">
+                        <strong>⚠️ Dossier annulé</strong>
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="conflit_interet_declare == False">
+                        ⚠️ <strong>Conflit d'intérêt déclaré</strong> sur ce dossier — voir onglet Déontologie
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="alerte_seuil != 'attention'">
+                        ⚠️ <strong>Incohérence seuil/procédure</strong> : vérifiez le type de procédure au regard du montant (Manuel RESADE Carnet D)
+                    </div>
+                    <div class="alert alert-info" role="alert"
+                        invisible="ano_bailleur_requis == False or ano_bailleur_recu == True">
+                        📋 <strong>ANO bailleur requis</strong> pour ce marché (montant &gt; 50 000 000 FCFA)
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="alerte_delai_ao == False">
+                        ⏱️ <strong>Délai publication insuffisant</strong> : moins de 15 jours calendaires
+                        entre la date de publication et la date limite de soumission (P-PTM-03 – Manuel Carnet D).
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="type_procedure != 'consultant_individuel' or tor_valide == True">
+                        📄 <strong>TOR non validés DE</strong> : les Termes de Référence doivent être
+                        approuvés par le Directeur Exécutif avant tout lancement (P-PTM-04).
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3><field name="objet" placeholder="Objet du marché..."/></h3>
+                        <div>
+                            <field name="code_processus" readonly="1" widget="badge"/>
+                            <field name="alerte_seuil" widget="badge" readonly="1"
+                                decoration-success="alerte_seuil == 'ok'"
+                                decoration-warning="alerte_seuil == 'attention'"
+                                decoration-muted="alerte_seuil == 'non_defini'"/>
+                        </div>
+                    </div>
+
+                    <!-- ── Onglets ── -->
+                    <notebook>
+
+                        <!-- ── ONGLET 1 : Identification ── -->
+                        <page string="📋 Identification">
+                            <group>
+                                <group string="Procédure">
+                                    <field name="type_procedure"/>
+                                    <field name="type_marche"/>
+                                    <field name="date_requisition"/>
+                                    <field name="cam_requise" readonly="1"/>
+                                    <field name="ano_bailleur_requis" readonly="1"/>
+                                    <field name="ano_bailleur_recu"
+                                        invisible="ano_bailleur_requis == False"/>
+                                </group>
+                                <group string="Acteurs">
+                                    <field name="demandeur_id"/>
+                                    <field name="service_demandeur"/>
+                                    <field name="responsable_id"/>
+                                    <field name="caf_id"
+                                        groups="resade_marche.group_resade_marche_caf"/>
+                                    <field name="de_id"
+                                        groups="resade_marche.group_resade_marche_de"/>
+                                </group>
+                            </group>
+                            <group string="Justification">
+                                <field name="justification" nolabel="1" colspan="2"/>
+                            </group>
+                            <group string="Entente directe"
+                                invisible="type_procedure != 'entente_directe'">
+                                <field name="motif_entente_directe" nolabel="1" colspan="2"
+                                    placeholder="Justification obligatoire pour recours à l'entente directe (P-PTM-01)..."/>
+                            </group>
+                            <group string="ANO Bailleur"
+                                invisible="ano_bailleur_requis == False">
+                                <field name="pj_ano_bailleur" colspan="2"/>
+                            </group>
+                        </page>
+
+                        <!-- ── ONGLET 2 : Montants et budget ── -->
+                        <page string="💰 Montants et budget">
+                            <group>
+                                <group string="Montants">
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="montant_estime" readonly="1"/>
+                                    <field name="montant_final"/>
+                                    <field name="retenue_garantie_pct"/>
+                                    <field name="retenue_garantie_montant" readonly="1"/>
+                                    <field name="delai_garantie_jours"/>
+                                    <field name="montant_net_a_payer" readonly="1"/>
+                                    <field name="montant_paye"
+                                        invisible="state not in ['certifie', 'paye']"/>
+                                </group>
+                                <group string="Budget et analytique">
+                                    <field name="analytic_account_id"/>
+                                    <field name="ref_feb"/>
+                                    <field name="ligne_budgetaire_id"
+                                        groups="resade_marche.group_resade_marche_caf"/>
+                                    <field name="montant_disponible_ligne" readonly="1"
+                                        invisible="not ligne_budgetaire_id"/>
+                                    <field name="credit_budgetaire_reserve" readonly="1"/>
+                                    <field name="disponibilite_budgetaire_confirmee"
+                                        groups="resade_marche.group_resade_marche_caf"
+                                        invisible="ligne_budgetaire_id"/>
+                                </group>
+                            </group>
+                            <separator string="Lignes / Lots"/>
+                            <field name="line_ids" widget="one2many_list" nolabel="1"/>
+                        </page>
+
+                        <!-- ── ONGLET 3 : Procédure de passation ── -->
+                        <page string="📅 Procédure de passation">
+                            <group>
+                                <group string="Calendrier passation">
+                                    <field name="date_publication"/>
+                                    <field name="date_limite_offres"/>
+                                    <field name="date_depouillement"/>
+                                    <field name="date_cam"
+                                        invisible="cam_requise == False"/>
+                                    <field name="date_attribution"/>
+                                    <field name="date_notification"/>
+                                </group>
+                                <group string="Attribution">
+                                    <field name="fournisseur_id"/>
+                                    <field name="cam_id" readonly="1"
+                                        invisible="cam_requise == False"/>
+                                    <field name="nb_offres" readonly="1"/>
+                                </group>
+                            </group>
+
+                            <!-- Cotations P-PTM-01 (entente directe) -->
+                            <separator string="Cotations fournisseurs (P-PTM-01 – min. 3 cotations écrites)"
+                                invisible="type_procedure != 'entente_directe'"/>
+                            <div class="alert alert-info" role="alert"
+                                invisible="type_procedure != 'entente_directe'">
+                                📋 Entente directe : au moins <strong>3 cotations écrites</strong> requises
+                                avant soumission (P-PTM-01 B.5 étape 2).
+                                Nb cotations : <field name="nb_cotations" readonly="1"/>
+                            </div>
+                            <field name="cotation_ids" nolabel="1"
+                                invisible="type_procedure != 'entente_directe'"/>
+
+                            <separator string="Offres reçues (dépouillement AO / consultation)"
+                                invisible="type_procedure == 'entente_directe'"/>
+                            <field name="offre_ids" nolabel="1"
+                                invisible="type_procedure == 'entente_directe'"/>
+
+                            <separator string="Pièces jointes passation"/>
+                            <group>
+                                <field name="pj_dao" widget="many2many_binary"/>
+                                <field name="pj_offres" widget="many2many_binary"/>
+                                <field name="pj_rapport_analyse" widget="many2many_binary"/>
+                                <field name="pj_pv_cam" widget="many2many_binary"
+                                    invisible="cam_requise == False"/>
+                                <field name="pj_lettre_notification" widget="many2many_binary"/>
+                            </group>
+                        </page>
+
+                        <!-- ── ONGLET 3b : Consultation restreinte – liste courte (P-PTM-02) ── -->
+                        <page string="👥 Liste courte (P-PTM-02)"
+                            invisible="type_procedure != 'consultation'">
+                            <div class="alert alert-info" role="alert">
+                                <strong>P-PTM-02 – Consultation restreinte :</strong>
+                                inviter entre <strong>3 et 5 fournisseurs</strong> présélectionnés.
+                                La liste courte doit être constituée avant le lancement.
+                                Fournisseurs actuels : <field name="nb_liste_courte" readonly="1"/>
+                            </div>
+                            <field name="liste_courte_ids" nolabel="1">
+                                <list string="Liste courte – fournisseurs présélectionnés" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="fournisseur_id"/>
+                                    <field name="raison_selection"/>
+                                    <field name="lettre_invitation_envoyee"/>
+                                    <field name="date_invitation"/>
+                                    <field name="offre_recue"/>
+                                    <field name="date_reception_offre"/>
+                                    <field name="note_interne"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ── ONGLET 3c : AOO – délai publication (P-PTM-03) ── -->
+                        <page string="📢 Publication AOO (P-PTM-03)"
+                            invisible="type_procedure not in ['appel_offres', 'appel_offres_majeur']">
+                            <div class="alert alert-info" role="alert">
+                                <strong>P-PTM-03 – Appel d'offres ouvert :</strong>
+                                délai minimum <strong>15 jours calendaires</strong> entre la date de publication
+                                et la date limite de soumission (Manuel RESADE Carnet D étape 3).
+                            </div>
+                            <group>
+                                <group string="Calendrier de publication">
+                                    <field name="date_publication"/>
+                                    <field name="date_limite_soumission"/>
+                                    <field name="delai_publication_jours" readonly="1"
+                                        decoration-danger="alerte_delai_ao == True"
+                                        decoration-success="alerte_delai_ao == False and delai_publication_jours &gt; 0"/>
+                                    <field name="alerte_delai_ao" readonly="1" widget="boolean_toggle"
+                                        invisible="delai_publication_jours == 0"/>
+                                </group>
+                                <group string="Support de publication">
+                                    <field name="support_publication"/>
+                                    <field name="reference_publication"/>
+                                    <field name="ano_bailleur_recu"
+                                        invisible="ano_bailleur_requis == False"/>
+                                </group>
+                            </group>
+                            <group string="Pièces jointes AOO">
+                                <field name="pj_dao" widget="many2many_binary"
+                                    string="DAO / Dossier d'appel d'offres"/>
+                                <field name="pj_ano_bailleur" widget="many2many_binary"
+                                    invisible="ano_bailleur_requis == False"/>
+                            </group>
+                        </page>
+
+                        <!-- ── ONGLET 3d : Consultant individuel – TOR + grille (P-PTM-04) ── -->
+                        <page string="👤 TOR + Grille (P-PTM-04)"
+                            invisible="type_procedure not in ['consultant_individuel', 'services_specialises']">
+                            <div class="alert alert-info" role="alert"
+                                invisible="type_procedure != 'consultant_individuel'">
+                                <strong>P-PTM-04 – Consultant individuel :</strong>
+                                TOR validés DE obligatoires avant lancement.
+                                Grille d'évaluation : pondération <strong>80% technique / 20% financier</strong>
+                                (défaut Manuel RESADE).
+                            </div>
+                            <div class="alert alert-info" role="alert"
+                                invisible="type_procedure != 'services_specialises'">
+                                <strong>P-PTM-05 – Services spécialisés :</strong>
+                                protocole de recherche et comité de sélection requis avant lancement.
+                            </div>
+
+                            <!-- TOR – Consultant individuel -->
+                            <group string="Termes de Référence (TOR) – P-PTM-04"
+                                invisible="type_procedure != 'consultant_individuel'">
+                                <field name="tor_reference"/>
+                                <field name="tor_valide"/>
+                                <field name="pj_tor" widget="many2many_binary"/>
+                            </group>
+
+                            <!-- Protocole – Services spécialisés -->
+                            <group string="Protocole de recherche – P-PTM-05"
+                                invisible="type_procedure != 'services_specialises'">
+                                <field name="ref_protocole"/>
+                                <field name="comite_selection_constitue"/>
+                                <field name="pj_protocole" widget="many2many_binary"/>
+                            </group>
+
+                            <!-- Grille d'évaluation commune P-PTM-04 / P-PTM-05 -->
+                            <separator string="Grille d'évaluation des offres – Pondération technique / financier"/>
+                            <group>
+                                <group string="Pondération">
+                                    <field name="poids_technique_pct"/>
+                                    <field name="poids_financier_pct"/>
+                                </group>
+                                <group string="Offre retenue – scores">
+                                    <field name="score_technique_retenu"/>
+                                    <field name="score_financier_retenu"/>
+                                    <field name="score_global_retenu" readonly="1"
+                                        decoration-success="score_global_retenu &gt;= 70"
+                                        decoration-warning="score_global_retenu &gt;= 50 and score_global_retenu &lt; 70"
+                                        decoration-danger="score_global_retenu &lt; 50"/>
+                                </group>
+                            </group>
+                            <field name="grille_eval_ids" nolabel="1">
+                                <list string="Grille d'évaluation – tous soumissionnaires"
+                                    decoration-success="retenu == True"
+                                    editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="fournisseur_id"/>
+                                    <field name="score_experience"/>
+                                    <field name="score_competences"/>
+                                    <field name="score_methodologie"/>
+                                    <field name="score_references"/>
+                                    <field name="score_technique_total" readonly="1"/>
+                                    <field name="montant_offre"/>
+                                    <field name="score_financier"/>
+                                    <field name="score_global" readonly="1"/>
+                                    <field name="retenu"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ── ONGLET 4 : Réception fournitures (Carnet E P-RC-01) ── -->
+                        <page string="📦 Réception (P-RC-01)"
+                            invisible="type_marche not in ['fourniture','travaux']">
+                            <div class="alert alert-info" role="alert">
+                                PV de Réception (PVR) obligatoire avant toute certification de facture – P-RC-01.
+                                Grille de vérification : quantitatif + qualitatif + test équipements.
+                            </div>
+                            <group>
+                                <group string="Calendrier exécution">
+                                    <field name="date_debut"/>
+                                    <field name="date_fin_prevue"/>
+                                    <field name="date_reception_effective"/>
+                                    <field name="delai_execution" readonly="1"/>
+                                </group>
+                                <group string="Paiement (P-PL-01)">
+                                    <field name="mode_paiement"/>
+                                    <field name="reference_paiement"/>
+                                    <field name="date_paiement" readonly="1"/>
+                                    <field name="montant_paye"/>
+                                </group>
+                            </group>
+                            <separator string="PV de Réception (RESADE-F-RC-01-01)"/>
+                            <field name="pvr_ids" nolabel="1">
+                                <list string="PV de Réception" decoration-success="statut == 'conforme'"
+                                    decoration-danger="statut in ['rejet_partiel','rejet_total']">
+                                    <field name="name" readonly="1"/>
+                                    <field name="date_reception"/>
+                                    <field name="receptionnaire_id"/>
+                                    <field name="verif_quantitative"/>
+                                    <field name="verif_qualitative"/>
+                                    <field name="statut" widget="badge"/>
+                                    <field name="enregistre_inventaire"/>
+                                </list>
+                            </field>
+                            <separator string="Pièces jointes"/>
+                            <group>
+                                <field name="pj_contrat" widget="many2many_binary"/>
+                                <field name="pj_preuve_paiement" widget="many2many_binary"/>
+                            </group>
+                        </page>
+
+                        <!-- ── ONGLET 5 : Prestations intellectuelles (Carnet E P-RC-03) ── -->
+                        <page string="📄 ASF / Livrables (P-RC-03)"
+                            invisible="type_marche not in ['service','consultant','recherche']">
+                            <div class="alert alert-info" role="alert">
+                                ASF (Attestation de Service Fait) obligatoire avant tout paiement
+                                d'honoraires – P-RC-03. Valideur selon grille B.4 du Manuel Carnet E.
+                            </div>
+                            <group>
+                                <group string="Calendrier exécution">
+                                    <field name="date_debut"/>
+                                    <field name="date_fin_prevue"/>
+                                    <field name="date_reception_effective"/>
+                                    <field name="delai_execution" readonly="1"/>
+                                </group>
+                                <group string="Paiement honoraires (P-PL-02)">
+                                    <field name="mode_paiement"/>
+                                    <field name="reference_paiement"/>
+                                    <field name="date_paiement" readonly="1"/>
+                                    <field name="montant_paye"/>
+                                </group>
+                            </group>
+                            <separator string="Attestations de Service Fait (RESADE-F-RC-03-01)"/>
+                            <field name="asf_ids" nolabel="1">
+                                <list string="ASF" decoration-success="statut_validation == 'valide'"
+                                    decoration-warning="statut_validation == 'corrections'"
+                                    decoration-danger="statut_validation == 'rejete'">
+                                    <field name="name" readonly="1"/>
+                                    <field name="intitule_livrable"/>
+                                    <field name="type_livrable"/>
+                                    <field name="date_remise"/>
+                                    <field name="valideur_id"/>
+                                    <field name="nb_cycles_revision"/>
+                                    <field name="statut_validation" widget="badge"/>
+                                </list>
+                            </field>
+                            <separator string="Pièces jointes"/>
+                            <group>
+                                <field name="pj_contrat" widget="many2many_binary"/>
+                                <field name="pj_preuve_paiement" widget="many2many_binary"/>
+                            </group>
+                        </page>
+
+                        <!-- ── ONGLET 6 : Registre factures (Carnet E P-RC-02) ── -->
+                        <page string="🧾 Factures (P-RC-02)">
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Règle absolue :</strong> aucun paiement sans facture certifiée
+                                par le CAF + PVR ou ASF présent(e) – P-RC-02 B.5.
+                                Certifiées : <field name="nb_factures_certifiees" readonly="1"/>
+                            </div>
+                            <field name="facture_ids" nolabel="1">
+                                <list string="Registre factures"
+                                    decoration-success="statut == 'certifiee'"
+                                    decoration-warning="statut == 'incomplete'"
+                                    decoration-danger="statut == 'rejetee'">
+                                    <field name="name" readonly="1"/>
+                                    <field name="numero_facture"/>
+                                    <field name="date_reception"/>
+                                    <field name="montant_ttc"/>
+                                    <field name="mentions_legales_ok"/>
+                                    <field name="pvr_ou_asf_present"/>
+                                    <field name="statut" widget="badge"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <separator string="Pièces jointes factures"/>
+                            <group>
+                                <field name="pj_facture" widget="many2many_binary"/>
+                            </group>
+                        </page>
+
+                        <!-- ── ONGLET 7 : FEB (P-ESB-01) ── -->
+                        <page string="📋 FEB (P-ESB-01)">
+                            <div class="alert alert-warning" role="alert"
+                                invisible="feb_autorisee == True">
+                                ⚠️ FEB autorisee DE obligatoire dans le dossier de paiement – P-PL-01 B.4
+                            </div>
+                            <div class="alert alert-success" role="alert"
+                                invisible="feb_autorisee == False">
+                                ✅ FEB autorisee DE presente – piece justificative dossier paiement OK
+                            </div>
+                            <field name="feb_ids" nolabel="1">
+                                <list string="Fiches Expression des Besoins">
+                                    <field name="name" readonly="1"/>
+                                    <field name="titre_besoin"/>
+                                    <field name="type_besoin"/>
+                                    <field name="montant_estime"/>
+                                    <field name="statut" widget="badge"
+                                        decoration-success="statut == 'autorisee'"
+                                        decoration-warning="statut in ['soumise','visee_chef','visee_caf']"
+                                        decoration-danger="statut == 'rejetee'"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ── ONGLET 8 : Dossier paiement fournisseur (P-PL-01) ── -->
+                        <page string="💰 Paiement fournisseur (P-PL-01)"
+                            invisible="type_marche not in ['fourniture','travaux','service']">
+                            <div class="alert alert-danger" role="alert"
+                                invisible="type_marche not in ['fourniture','travaux','service']">
+                                Regle absolue : double signature DE + CAF obligatoire
+                                sur tout ordre de virement – P-PL-01 B.5 etape 4
+                            </div>
+                            <field name="paiement_ids" nolabel="1">
+                                <list string="Dossiers paiement fournisseur">
+                                    <field name="name" readonly="1"/>
+                                    <field name="date_creation"/>
+                                    <field name="montant"/>
+                                    <field name="dossier_complet"/>
+                                    <field name="signe_caf"/>
+                                    <field name="signe_de"/>
+                                    <field name="double_signature_ok"/>
+                                    <field name="statut" widget="badge"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ── ONGLET 9 : Honoraires consultants (P-PL-02) ── -->
+                        <page string="👤 Honoraires consultant (P-PL-02)"
+                            invisible="type_marche not in ['consultant','recherche']">
+                            <div class="alert alert-danger" role="alert">
+                                ASF obligatoire et inconditionnelle avant tout paiement – P-PL-02 B.3.
+                                Verifier retenue a la source pour consultants non-residents.
+                            </div>
+                            <field name="honoraire_ids" nolabel="1">
+                                <list string="Paiements honoraires">
+                                    <field name="name" readonly="1"/>
+                                    <field name="asf_id"/>
+                                    <field name="num_tranche"/>
+                                    <field name="type_tranche"/>
+                                    <field name="montant_brut"/>
+                                    <field name="montant_net"/>
+                                    <field name="double_signature_ok"/>
+                                    <field name="statut" widget="badge"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ── ONGLET 5 : Déontologie (Carnet D Module 03 – P-DA-01) ── -->
+                        <page string="⚖️ Déontologie">
+                            <group string="Gestion des conflits d'intérêts (P-DA-01)">
+                                <field name="conflit_interet_declare"/>
+                                <field name="acteur_concerne_conflit"
+                                    invisible="conflit_interet_declare == False"/>
+                                <field name="note_conflit"
+                                    invisible="conflit_interet_declare == False"/>
+                                <field name="recusation_effectuee"
+                                    invisible="conflit_interet_declare == False"/>
+                            </group>
+                            <group string="Archivage GED (P-DA-02)">
+                                <field name="ref_archivage"/>
+                                <field name="dossier_cloture" readonly="1"/>
+                                <field name="date_cloture" readonly="1"/>
+                                <field name="note_cloture"/>
+                            </group>
+                        </page>
+
+                        <!-- ── ONGLET 6 : Traçabilité ── -->
+                        <page string="🔍 Traçabilité"
+                            groups="resade_marche.group_resade_marche_caf">
+                            <group string="Validations">
+                                <field name="valide_resp_par" readonly="1"/>
+                                <field name="valide_resp_date" readonly="1"/>
+                                <field name="valide_caf_par" readonly="1"/>
+                                <field name="valide_caf_date" readonly="1"/>
+                                <field name="approuve_de_par" readonly="1"/>
+                                <field name="approuve_de_date" readonly="1"/>
+                                <field name="certifie_par" readonly="1"/>
+                                <field name="certifie_date" readonly="1"/>
+                                <field name="paye_par" readonly="1"/>
+                                <field name="paye_date" readonly="1"/>
+                                <field name="cloture_par" readonly="1"/>
+                                <field name="cloture_date" readonly="1"/>
+                            </group>
+                            <group string="Notes internes">
+                                <field name="note_interne" nolabel="1" colspan="2"/>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE LISTE
+    ═══════════════════════════════════════════════ -->
+    <record id="view_resade_marche_list" model="ir.ui.view">
+        <field name="name">resade.marche.list</field>
+        <field name="model">resade.marche</field>
+        <field name="arch" type="xml">
+            <list string="Dossiers de marchés" decoration-danger="state == 'annule'"
+                  decoration-success="state == 'paye'"
+                  decoration-warning="alerte_seuil == 'attention'">
+                <field name="name"/>
+                <field name="objet"/>
+                <field name="type_procedure"/>
+                <field name="type_marche" optional="show"/>
+                <field name="date_requisition"/>
+                <field name="demandeur_id"/>
+                <field name="fournisseur_id" optional="show"/>
+                <field name="montant_final" optional="show"/>
+                <field name="cam_requise" optional="show"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'paye'"
+                    decoration-warning="state in ['analyse', 'cam_convoquee']"
+                    decoration-info="state in ['ao_lance', 'depouillement']"
+                    decoration-danger="state == 'annule'"/>
+                <field name="alerte_seuil" column_invisible="True"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE KANBAN
+    ═══════════════════════════════════════════════ -->
+    <record id="view_resade_marche_kanban" model="ir.ui.view">
+        <field name="name">resade.marche.kanban</field>
+        <field name="model">resade.marche</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="objet"/>
+                <field name="state"/>
+                <field name="type_procedure"/>
+                <field name="montant_final"/>
+                <field name="fournisseur_id"/>
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_card_header">
+                            <strong><field name="name"/></strong>
+                        </div>
+                        <div><field name="objet"/></div>
+                        <div class="o_kanban_card_footer">
+                            <span class="badge bg-secondary">
+                                <field name="type_procedure"/>
+                            </span>
+                            <field name="montant_final" widget="monetary"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════
+         FILTRES ET REGROUPEMENTS
+    ═══════════════════════════════════════════════ -->
+    <record id="view_resade_marche_search" model="ir.ui.view">
+        <field name="name">resade.marche.search</field>
+        <field name="model">resade.marche</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un dossier marché">
+                <field name="name" string="Référence"/>
+                <field name="objet"/>
+                <field name="fournisseur_id"/>
+                <field name="demandeur_id"/>
+                <field name="analytic_account_id"/>
+
+                <filter name="brouillon" string="Brouillons" domain="[('state','=','brouillon')]"/>
+                <filter name="en_cours_passation" string="En cours de passation"
+                    domain="[('state','in',['valide_resp','valide_caf','ao_lance','depouillement','analyse','cam_convoquee'])]"/>
+                <filter name="en_execution" string="En exécution"
+                    domain="[('state','in',['bon_commande','en_cours','reception','certifie'])]"/>
+                <filter name="paye" string="Payés / Clôturés" domain="[('state','=','paye')]"/>
+                <filter name="annule" string="Annulés" domain="[('state','=','annule')]"/>
+                <separator/>
+                <filter name="cam_requise" string="CAM requise" domain="[('cam_requise','=',True)]"/>
+                <filter name="alerte_seuil" string="⚠️ Seuil incohérent" domain="[('alerte_seuil','=','attention')]"/>
+                <filter name="conflit_interet" string="Conflit d'intérêt déclaré"
+                    domain="[('conflit_interet_declare','=',True)]"/>
+                <separator/>
+                <filter name="mes_marches" string="Mes réquisitions"
+                    domain="[('demandeur_id.user_id','=',uid)]"/>
+                <filter name="non_clotures" string="Non clôturés"
+                    domain="[('dossier_cloture','=',False)]"/>
+
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                    <filter name="group_procedure" string="Type procédure"
+                        context="{'group_by': 'type_procedure'}"/>
+                    <filter name="group_marche" string="Type marché"
+                        context="{'group_by': 'type_marche'}"/>
+                    <filter name="group_demandeur" string="Demandeur"
+                        context="{'group_by': 'demandeur_id'}"/>
+                    <filter name="group_fournisseur" string="Fournisseur"
+                        context="{'group_by': 'fournisseur_id'}"/>
+                    <filter name="group_analytique" string="Compte analytique"
+                        context="{'group_by': 'analytic_account_id'}"/>
+                    <filter name="group_mois" string="Mois"
+                        context="{'group_by': 'date_requisition:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════
+         ACTIONS
+    ═══════════════════════════════════════════════ -->
+    <record id="action_resade_marche" model="ir.actions.act_window">
+        <field name="name">Tous les dossiers</field>
+        <field name="res_model">resade.marche</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier dossier de marché RESADE
+            </p>
+            <p>Conforme au Manuel de Procédures RESADE – Carnets D et E (Version 2.0 – 2026)</p>
+        </field>
+    </record>
+
+    <record id="action_resade_marche_mine" model="ir.actions.act_window">
+        <field name="name">Mes réquisitions</field>
+        <field name="res_model">resade.marche</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('demandeur_id.user_id', '=', uid)]</field>
+        <field name="context">{'default_demandeur_id': uid}</field>
+    </record>
+
+    <record id="action_resade_marche_a_traiter" model="ir.actions.act_window">
+        <field name="name">Dossiers à traiter</field>
+        <field name="res_model">resade.marche</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', 'not in', ['brouillon', 'paye', 'annule'])]</field>
+        <field name="context">{'search_default_en_cours_passation': 1}</field>
+    </record>
+
+    <record id="action_resade_marche_cam_required" model="ir.actions.act_window">
+        <field name="name">Dossiers CAM requis</field>
+        <field name="res_model">resade.marche</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('cam_requise', '=', True), ('state', 'in', ['analyse', 'cam_convoquee'])]</field>
+    </record>
+
+</odoo>

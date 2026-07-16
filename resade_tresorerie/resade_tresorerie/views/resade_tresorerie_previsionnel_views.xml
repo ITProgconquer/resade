@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_treso_previsionnel_form" model="ir.ui.view">
+        <field name="name">resade.tresorerie.previsionnel.form</field>
+        <field name="model">resade.tresorerie.previsionnel</field>
+        <field name="arch" type="xml">
+            <form string="Prévisionnel de trésorerie mensuel">
+                <header>
+                    <button name="action_calculer_solde_depart" string="🔄 Recalculer solde de départ"
+                        type="object" class="btn-secondary"/>
+                    <button name="action_charger_sorties_engagements" string="📥 Charger les engagements en cours"
+                        type="object" class="btn-secondary"/>
+                    <button name="action_valider_caf" string="✅ Valider (CAF)"
+                        type="object" class="btn-primary"
+                        invisible="valide_caf == True"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-danger" role="alert" invisible="alerte_tension == False">
+                        ⚠️ Tension de trésorerie prévue : le solde prévisionnel de fin de période
+                        est inférieur au seuil de sécurité.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <field name="code_document" readonly="1"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="periode"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="solde_depart"/>
+                            <field name="seuil_securite"/>
+                        </group>
+                        <group>
+                            <field name="total_entrees" readonly="1"/>
+                            <field name="total_sorties" readonly="1"/>
+                            <field name="solde_prevu_fin" readonly="1"/>
+                            <field name="valide_caf" readonly="1"/>
+                            <field name="date_validation" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Horizons réglementaires (Carnet F – P-TB-02 B.4 étape 3)">
+                        <field name="solde_j30"/>
+                        <field name="solde_j60"/>
+                        <field name="solde_j90"/>
+                    </group>
+                    <notebook>
+                        <page string="Entrées attendues">
+                            <field name="ligne_entree_ids" context="{'default_type_ligne': 'entree'}">
+                                <list editable="bottom">
+                                    <field name="libelle"/>
+                                    <field name="origine"/>
+                                    <field name="date_prevue"/>
+                                    <field name="projet_bailleur_id"/>
+                                    <field name="montant" sum="Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="type_ligne" column_invisible="1" force_save="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Sorties attendues">
+                            <field name="ligne_sortie_ids" context="{'default_type_ligne': 'sortie'}">
+                                <list editable="bottom">
+                                    <field name="libelle"/>
+                                    <field name="origine"/>
+                                    <field name="date_prevue"/>
+                                    <field name="ligne_budgetaire_id"/>
+                                    <field name="montant" sum="Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="type_ligne" column_invisible="1" force_save="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_treso_previsionnel_list" model="ir.ui.view">
+        <field name="name">resade.tresorerie.previsionnel.list</field>
+        <field name="model">resade.tresorerie.previsionnel</field>
+        <field name="arch" type="xml">
+            <list string="Prévisionnels de trésorerie">
+                <field name="name"/>
+                <field name="periode"/>
+                <field name="solde_depart"/>
+                <field name="total_entrees"/>
+                <field name="total_sorties"/>
+                <field name="solde_prevu_fin"/>
+                <field name="alerte_tension" widget="boolean_toggle"/>
+                <field name="valide_caf" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_treso_previsionnel" model="ir.actions.act_window">
+        <field name="name">Prévisionnel de trésorerie</field>
+        <field name="res_model">resade.tresorerie.previsionnel</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

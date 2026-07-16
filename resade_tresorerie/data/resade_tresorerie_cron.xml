@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cron_resade_treso_controle_caisse_manquant" model="ir.cron">
+        <field name="name">RESADE Trésorerie - Alerte contrôle hebdomadaire de caisse manquant</field>
+        <field name="model_id" ref="model_resade_tresorerie_controle_caisse"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_alerte_controle_manquant()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

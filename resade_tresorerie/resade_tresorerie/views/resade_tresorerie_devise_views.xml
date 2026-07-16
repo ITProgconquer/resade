@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_treso_devise_form" model="ir.ui.view">
+        <field name="name">resade.tresorerie.conversion.devise.form</field>
+        <field name="model">resade.tresorerie.conversion.devise</field>
+        <field name="arch" type="xml">
+            <form string="Décision de conversion de devise">
+                <header>
+                    <button name="action_acter_decision" string="✅ Acter la décision (CAF + DE)"
+                        type="object" class="btn-primary"
+                        invisible="statut != 'a_decider'"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <button name="action_marquer_converti" string="💱 Marquer converti"
+                        type="object" class="btn-success"
+                        invisible="statut != 'decide' or decision != 'conversion_immediate'"
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                    <field name="statut" widget="statusbar" statusbar_visible="a_decider,decide,converti"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="journal_id"/>
+                            <field name="devise_id"/>
+                            <field name="projet_bailleur_id"/>
+                            <field name="date_reception"/>
+                        </group>
+                        <group>
+                            <field name="montant_devise"/>
+                            <field name="taux_bceao_reference"/>
+                            <field name="currency_xof_id" invisible="1"/>
+                            <field name="montant_xof_estime" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Décision (CAF + DE) — P-TB-02 B.4 étape 4">
+                        <field name="decision"/>
+                        <field name="justification" colspan="2" nolabel="1"/>
+                        <field name="caf_id"/>
+                        <field name="de_id"/>
+                        <field name="date_decision" readonly="1"/>
+                    </group>
+                    <group string="Conversion effective" invisible="statut != 'converti'">
+                        <field name="date_conversion_effective" readonly="1"/>
+                        <field name="taux_conversion_effectif"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_treso_devise_list" model="ir.ui.view">
+        <field name="name">resade.tresorerie.conversion.devise.list</field>
+        <field name="model">resade.tresorerie.conversion.devise</field>
+        <field name="arch" type="xml">
+            <list string="Décisions de conversion de devise">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="devise_id"/>
+                <field name="montant_devise"/>
+                <field name="montant_xof_estime"/>
+                <field name="decision"/>
+                <field name="statut"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_treso_devise" model="ir.actions.act_window">
+        <field name="name">Conversion de devises</field>
+        <field name="res_model">resade.tresorerie.conversion.devise</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

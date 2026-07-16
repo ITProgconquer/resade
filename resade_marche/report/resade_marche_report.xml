@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Rapport Bon de Commande / Dossier Marché -->
+    <record id="action_report_resade_marche" model="ir.actions.report">
+        <field name="name">Bon de Commande RESADE</field>
+        <field name="model">resade.marche</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">resade_marche.report_resade_marche_template</field>
+        <field name="report_file">resade_marche.report_resade_marche_template</field>
+        <field name="binding_model_id" ref="model_resade_marche"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Rapport PV CAM -->
+    <record id="action_report_resade_cam" model="ir.actions.report">
+        <field name="name">PV Séance CAM</field>
+        <field name="model">resade.marche.cam</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">resade_marche.report_resade_cam_template</field>
+        <field name="report_file">resade_marche.report_resade_cam_template</field>
+        <field name="binding_model_id" ref="model_resade_marche_cam"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

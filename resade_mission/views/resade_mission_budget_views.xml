@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue héritée : onglet écritures analytiques GFIC dans la traçabilité -->
+    <!-- Les champs analytic_line_count et action_voir_ecritures sont déjà
+         dans la vue principale (view_resade_mission_views.xml).
+         Ce fichier est conservé pour d'éventuelles extensions futures. -->
+</odoo>

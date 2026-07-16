@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ══════════════════════════════════════
+     FICHE PROJET RESADE
+══════════════════════════════════════ -->
+<template id="report_resade_projet_template">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family:Arial,sans-serif;font-size:11px;">
+
+                    <div style="text-align:center;border-bottom:2px solid #2c3e50;margin-bottom:16px;padding-bottom:10px;">
+                        <h2 style="color:#2c3e50;margin:0;">RESADE</h2>
+                        <h3 style="color:#c0392b;margin:6px 0 0;font-size:14px;letter-spacing:1px;">
+                            FICHE PROJET – CARNET H
+                        </h3>
+                        <p style="font-size:8px;color:#888;margin:2px 0;">
+                            Manuel de Procédures RESADE Vol.3 – P-CD / P-EST / P-CC
+                        </p>
+                    </div>
+
+                    <table width="100%" style="margin-bottom:12px;">
+                        <tr>
+                            <td width="50%">
+                                <strong>Code projet :</strong>
+                                <span style="font-size:13px;color:#c0392b;font-weight:bold;">
+                                    <t t-esc="o.ref"/>
+                                </span>
+                            </td>
+                            <td width="50%" style="text-align:right;">
+                                <strong>Phase :</strong>
+                                <t t-esc="dict(o._fields['state'].selection).get(o.state,'')"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table width="100%" border="1" cellpadding="5"
+                        style="border-collapse:collapse;margin-bottom:12px;font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50;color:white;">
+                                <th colspan="4" style="text-align:left;padding:6px;">
+                                    📋 IDENTIFICATION DU PROJET
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="22%"><strong>Intitulé</strong></td>
+                                <td colspan="3"><t t-esc="o.name"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bailleur</strong></td>
+                                <td><t t-esc="o.bailleur"/></td>
+                                <td><strong>Type accord</strong></td>
+                                <td><t t-esc="dict(o._fields['type_accord'].selection).get(o.type_accord,'')"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>PI</strong></td>
+                                <td><t t-esc="o.pi_id.name or '—'"/></td>
+                                <td><strong>RP (CMPPE)</strong></td>
+                                <td><t t-esc="o.rp_id.name or '—'"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date début</strong></td>
+                                <td><t t-esc="o.date_debut"/></td>
+                                <td><strong>Date fin</strong></td>
+                                <td><t t-esc="o.date_fin"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Durée</strong></td>
+                                <td><t t-esc="o.duree_mois"/> mois</td>
+                                <td><strong>Code SAGE</strong></td>
+                                <td><t t-esc="o.code_analytique_sage or '—'"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table width="100%" border="1" cellpadding="5"
+                        style="border-collapse:collapse;margin-bottom:12px;font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50;color:white;">
+                                <th colspan="4" style="padding:6px;text-align:left;">💰 FINANCIER</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="30%"><strong>Montant convention</strong></td>
+                                <td><t t-esc="'{:,.0f}'.format(o.montant_convention)"/> FCFA</td>
+                                <td width="22%"><strong>Montant dépensé</strong></td>
+                                <td><t t-esc="'{:,.0f}'.format(o.montant_depense)"/> FCFA</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Taux exécution financier</strong></td>
+                                <td><t t-esc="'{:.1f}'.format(o.taux_execution_financier)"/>%</td>
+                                <td><strong>Taux exécution technique</strong></td>
+                                <td><t t-esc="'{:.1f}'.format(o.taux_execution_technique)"/>%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Overhead</strong></td>
+                                <td><t t-esc="o.taux_overhead_convention"/>% –
+                                    <t t-esc="'{:,.0f}'.format(o.montant_overhead_prevu)"/> FCFA</td>
+                                <td><strong>Panier commun</strong></td>
+                                <td><t t-esc="o.panier_commun_id.name or '—'"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table width="100%" border="1" cellpadding="5"
+                        style="border-collapse:collapse;margin-bottom:12px;font-size:10px;">
+                        <thead>
+                            <tr style="background:#2c3e50;color:white;">
+                                <th style="text-align:left;padding:6px;">⚙️ ACTIVITÉS POA</th>
+                                <th>Statut</th>
+                                <th>Responsable</th>
+                                <th>Réalisation (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.activite_ids" t-as="act">
+                                <tr>
+                                    <td><t t-esc="act.name"/></td>
+                                    <td style="text-align:center;">
+                                        <t t-esc="dict(act._fields['state'].selection).get(act.state,'')"/>
+                                    </td>
+                                    <td><t t-esc="act.responsable_id.name or '—'"/></td>
+                                    <td style="text-align:center;">
+                                        <t t-esc="act.taux_realisation"/>%
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-if="not o.activite_ids">
+                                <tr><td colspan="4" style="text-align:center;color:#888;">
+                                    Aucune activité enregistrée
+                                </td></tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top:15px;border-top:1px solid #bdc3c7;padding-top:6px;
+                                font-size:8px;color:#888;text-align:center;">
+                        RESADE – Fiche Projet <t t-esc="o.ref"/> |
+                        Généré le <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> |
+                        Carnet H – Manuel de Procédures RESADE v2.0 – 2026
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+<!-- ══════════════════════════════════════
+     FICHE SCORING OPPORTUNITÉ F-MRV-01-07
+══════════════════════════════════════ -->
+<template id="report_resade_opportunite_template">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family:Arial,sans-serif;font-size:11px;">
+
+                    <div style="text-align:center;border-bottom:2px solid #2c3e50;
+                                margin-bottom:16px;padding-bottom:10px;">
+                        <h2 style="color:#2c3e50;margin:0;">RESADE</h2>
+                        <h3 style="color:#c0392b;margin:6px 0 0;font-size:14px;">
+                            GRILLE DE SCORING – RESADE-F-MRV-01-07
+                        </h3>
+                        <p style="font-size:8px;color:#888;margin:2px 0;">
+                            P-MRV-01 : Veille sur les appels à projets – Score de qualification
+                        </p>
+                    </div>
+
+                    <table width="100%" border="1" cellpadding="6"
+                        style="border-collapse:collapse;font-size:10px;margin-bottom:16px;">
+                        <thead>
+                            <tr style="background:#2c3e50;color:white;">
+                                <th colspan="3" style="text-align:left;">
+                                    Opportunité : <t t-esc="o.name"/>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Bailleur</strong></td>
+                                <td colspan="2"><t t-esc="o.bailleur"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date limite</strong></td>
+                                <td><t t-esc="o.date_limite_soumission"/></td>
+                                <td><strong>Jours restants</strong> :
+                                    <t t-esc="o.jours_restants"/>j</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Montant estimé</strong></td>
+                                <td colspan="2">
+                                    <t t-esc="'{:,.0f}'.format(o.montant_estime)"/> FCFA –
+                                    <t t-esc="o.duree_projet_mois"/> mois
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table width="100%" border="1" cellpadding="6"
+                        style="border-collapse:collapse;font-size:10px;margin-bottom:16px;">
+                        <thead>
+                            <tr style="background:#5d6d7e;color:white;">
+                                <th style="text-align:left;">Critère</th>
+                                <th style="text-align:center;">Score (/5)</th>
+                                <th style="text-align:left;">Interprétation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Alignement stratégique (PS RESADE 2026-2030)</td>
+                                <td style="text-align:center;font-weight:bold;">
+                                    <t t-esc="o.score_alignement_strategique"/>/5
+                                </td>
+                                <td>Axes prioritaires RESADE + PNDS 2021-2030</td>
+                            </tr>
+                            <tr>
+                                <td>Capacité interne (RH, expertise, charge)</td>
+                                <td style="text-align:center;font-weight:bold;">
+                                    <t t-esc="o.score_capacite_interne"/>/5
+                                </td>
+                                <td>Disponibilité équipe, compétences techniques</td>
+                            </tr>
+                            <tr>
+                                <td>Potentiel financier (montant, durée, overhead)</td>
+                                <td style="text-align:center;font-weight:bold;">
+                                    <t t-esc="o.score_potentiel_financier"/>/5
+                                </td>
+                                <td>Soutenabilité, coûts indirects autorisés</td>
+                            </tr>
+                            <tr>
+                                <td>Faisabilité (délai, complexité, partenaires)</td>
+                                <td style="text-align:center;font-weight:bold;">
+                                    <t t-esc="o.score_faisabilite"/>/5
+                                </td>
+                                <td>Risques opérationnels, clauses contractuelles</td>
+                            </tr>
+                            <tr>
+                                <td>Visibilité / Réputation scientifique</td>
+                                <td style="text-align:center;font-weight:bold;">
+                                    <t t-esc="o.score_visibilite"/>/5
+                                </td>
+                                <td>Impact crédibilité et rayonnement RESADE</td>
+                            </tr>
+                            <tr style="background:#ecf0f1;font-weight:bold;">
+                                <td><strong>SCORE TOTAL</strong></td>
+                                <td style="text-align:center;font-size:14px;color:#c0392b;">
+                                    <t t-esc="o.score_total"/>/25
+                                </td>
+                                <td>
+                                    Seuil : <t t-esc="o.seuil_qualification"/>/25 —
+                                    <t t-if="o.qualifiee">
+                                        <span style="color:green;font-weight:bold;">✅ QUALIFIÉE → P-MRV-02</span>
+                                    </t>
+                                    <t t-else="">
+                                        <span style="color:red;font-weight:bold;">❌ Non qualifiée</span>
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <t t-if="o.note_qualification">
+                        <table width="100%" border="1" cellpadding="6"
+                            style="border-collapse:collapse;font-size:10px;">
+                            <tr style="background:#2c3e50;color:white;">
+                                <th style="text-align:left;">Décision RT + CAF</th>
+                            </tr>
+                            <tr>
+                                <td><t t-esc="o.note_qualification"/></td>
+                            </tr>
+                        </table>
+                    </t>
+
+                    <table width="100%" border="1" cellpadding="8"
+                        style="border-collapse:collapse;margin-top:24px;font-size:10px;">
+                        <tr style="background:#2c3e50;color:white;">
+                            <th colspan="2" style="text-align:center;">SIGNATURES</th>
+                        </tr>
+                        <tr>
+                            <td width="50%" style="padding:24px 8px 8px;text-align:center;">
+                                <strong>Chargé DPMR</strong><br/>
+                                <t t-esc="o.identifie_par_id.name or '—'"/><br/><br/>
+                                <div style="border-top:1px solid #333;margin-top:30px;padding-top:4px;">
+                                    Signature : _______________
+                                </div>
+                            </td>
+                            <td width="50%" style="padding:24px 8px 8px;text-align:center;">
+                                <strong>Chef Département Partenariat (CDP)</strong><br/>
+                                <t t-if="o.valide_par_cdp_id">
+                                    <t t-esc="o.valide_par_cdp_id.name"/>
+                                </t>
+                                <t t-else="">_______________</t><br/><br/>
+                                <div style="border-top:1px solid #333;margin-top:30px;padding-top:4px;">
+                                    Signature : _______________
+                                    <div style="font-size:9px;color:#666;">
+                                        Date : <t t-if="o.date_validation_cdp">
+                                            <t t-esc="o.date_validation_cdp.strftime('%d/%m/%Y')"/>
+                                        </t>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-top:15px;border-top:1px solid #bdc3c7;padding-top:6px;
+                                font-size:8px;color:#888;text-align:center;">
+                        RESADE – Grille de scoring F-MRV-01-07 |
+                        <t t-esc="o.ref"/> |
+                        Manuel de Procédures RESADE Vol.3 – Carnet H – P-MRV-01 – 2026
+                    </div>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+</odoo>

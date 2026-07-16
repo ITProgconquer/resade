@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_treso_controle_caisse_form" model="ir.ui.view">
+        <field name="name">resade.tresorerie.controle.caisse.form</field>
+        <field name="model">resade.tresorerie.controle.caisse</field>
+        <field name="arch" type="xml">
+            <form string="Contrôle hebdomadaire de caisse">
+                <sheet>
+                    <div class="alert alert-danger" role="alert" invisible="not ecart">
+                        ⚠️ Écart constaté entre les espèces physiques et le journal de caisse.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="journal_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="date_controle"/>
+                            <field name="caf_controleur_id"/>
+                        </group>
+                        <group>
+                            <field name="solde_journal" readonly="1"/>
+                            <field name="espece_physique_comptee"/>
+                            <field name="ecart" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Observations">
+                        <field name="observations" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_treso_controle_caisse_list" model="ir.ui.view">
+        <field name="name">resade.tresorerie.controle.caisse.list</field>
+        <field name="model">resade.tresorerie.controle.caisse</field>
+        <field name="arch" type="xml">
+            <list string="Contrôles hebdomadaires de caisse">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="date_controle"/>
+                <field name="caf_controleur_id"/>
+                <field name="solde_journal"/>
+                <field name="espece_physique_comptee"/>
+                <field name="ecart"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_treso_controle_caisse" model="ir.actions.act_window">
+        <field name="name">Contrôles hebdomadaires de caisse</field>
+        <field name="res_model">resade.tresorerie.controle.caisse</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

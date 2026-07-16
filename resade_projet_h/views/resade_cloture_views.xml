@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_cloture_projet_form" model="ir.ui.view">
+        <field name="name">resade.cloture.projet.form</field>
+        <field name="model">resade.cloture.projet</field>
+        <field name="arch" type="xml">
+            <form string="Dossier de Clôture – P-CC-01 / P-CC-02">
+                <header>
+                    <button name="action_lancer_rapports"
+                        string="📊 Lancer Production Rapports (J+15/J+20)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'planification'"
+                        groups="resade_projet_h.group_resade_rp"/>
+
+                    <!-- Passer en phase audit : RP, CDO (si audit contractuel) -->
+                    <button name="action_passer_audit"
+                        string="🔍 Passer en Phase Audit"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'rapports_tech_fin' or not audit_contractuel"
+                        groups="resade_projet_h.group_resade_rp,resade_projet_h.group_resade_cdo"/>
+
+                    <!-- Constituer le dossier complet : RP, CDO -->
+                    <button name="action_constituer_dossier"
+                        string="📁 Constituer Dossier Complet (J+30)"
+                        type="object" class="btn-primary"
+                        invisible="state not in ['rapports_tech_fin','audit']"
+                        groups="resade_projet_h.group_resade_rp,resade_projet_h.group_resade_cdo"/>
+
+                    <!-- Soumettre au bailleur : CDP, DE -->
+                    <button name="action_soumettre_bailleur"
+                        string="📤 Soumettre au Bailleur (J+35)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'dossier_complet'"
+                        groups="resade_projet_h.group_resade_cdp,resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- Quitus reçu : CDP, DE -->
+                    <button name="action_quitus_recu"
+                        string="✅ Quitus Reçu"
+                        type="object" class="btn-success"
+                        invisible="state != 'soumis_bailleur'"
+                        groups="resade_projet_h.group_resade_cdp,resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- Confirmer l'archivage : AA (Assistant Administratif) ou CDO -->
+                    <button name="action_confirmer_archivage"
+                        string="📦 Confirmer Archivage GED (J+48h)"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'quitus_recu'"
+                        groups="resade_projet_h.group_resade_cdo,resade_projet_h.group_resade_admin"/>
+
+                    <!-- Lancer les leçons apprises : RP -->
+                    <button name="action_lancer_lecons_apprises"
+                        string="🧠 Lancer Leçons Apprises (P-CC-02)"
+                        type="object" class="btn-secondary"
+                        invisible="state not in ['archive','quitus_recu']"
+                        groups="resade_projet_h.group_resade_rp"/>
+
+                    <!-- Valider les leçons apprises : DE -->
+                    <button name="action_valider_lecons_apprises"
+                        string="✅ Valider Capitalisation (P-CC-02)"
+                        type="object" class="btn-success"
+                        invisible="state != 'archive'"
+                        groups="resade_projet_h.group_resade_de_projet"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="planification,rapports_tech_fin,dossier_complet,soumis_bailleur,quitus_recu,archive,capitalise"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-success" role="alert"
+                        invisible="state != 'capitalise'">
+                        🧠 Cycle projet clôturé et capitalisé. Leçons apprises intégrées dans
+                        le dispositif MELA et la bibliothèque numérique RESADE.
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="projet_id" readonly="1"/>
+                            <field name="date_fin_activites"/>
+                        </group>
+                        <group>
+                            <field name="archivage_ged_confirme" widget="boolean_toggle"/>
+                            <field name="lien_ged_cloture" widget="url"/>
+                        </group>
+                    </group>
+
+                    <field name="calendrier_cloture" widget="html"
+                        string="Calendrier de clôture (J0)"
+                        placeholder="Dates limites : J+15 rapport technique, J+20 rapport financier, J+25 inventaire, J+30 dossier complet, J+35 bailleur, J+48h archivage GED..."/>
+
+                    <notebook>
+
+                        <!-- P-CC-01 Étape 2 : Rapport technique -->
+                        <page string="📄 Rapport Technique Final (J+15)">
+                            <group>
+                                <field name="date_rapport_technique"/>
+                                <field name="valide_rapport_technique"
+                                    widget="boolean_toggle"
+                                    string="✅ Validé par CDO"/>
+                            </group>
+                            <field name="rapport_technique_final" widget="html"
+                                placeholder="Synthèse : exécution activités, indicateurs cadre logique, difficultés, écarts, recommandations..."/>
+                            <field name="rapport_technique_ids" widget="many2many_binary"
+                                string="Rapport technique final (fichier)"/>
+                        </page>
+
+                        <!-- P-CC-01 Étape 3 : Rapport financier -->
+                        <page string="💰 Rapport Financier (F-CC-01-02 / J+20)">
+                            <group>
+                                <field name="date_rapport_financier"/>
+                                <field name="valide_rapport_financier"
+                                    widget="boolean_toggle"
+                                    string="✅ Validé CDO + CAF"/>
+                            </group>
+                            <field name="rapport_financier_cloture" widget="html"
+                                placeholder="Arrêté des comptes SAGE, liquidation avances, apurement codes analytiques, réconciliation budget vs réel..."/>
+                            <field name="rapport_financier_ids" widget="many2many_binary"
+                                string="Rapport financier (SAGE + états)"/>
+                        </page>
+
+                        <!-- P-CC-01 Étape 4 : Audit -->
+                        <page string="🔍 Audit Externe">
+                            <group>
+                                <field name="audit_contractuel" widget="boolean_toggle"/>
+                                <field name="audit_realise" widget="boolean_toggle"
+                                    invisible="not audit_contractuel"/>
+                                <field name="reserves_audit"
+                                    invisible="not audit_contractuel"/>
+                            </group>
+                            <field name="rapport_audit_ids" widget="many2many_binary"
+                                string="Rapport d'audit externe"
+                                invisible="not audit_contractuel"/>
+                        </page>
+
+                        <!-- P-CC-01 Étape 5 : Inventaire -->
+                        <page string="📦 Inventaire Actifs (F-CC-01-03 / J+25)">
+                            <field name="inventaire_actifs" widget="html"
+                                placeholder="Liste paraphée des équipements acquis, valeur résiduelle, destination (restitution/transfert/conservation)..."/>
+                            <field name="inventaire_ids" widget="many2many_binary"
+                                string="Bordereau d'inventaire (F-CC-01-03)"/>
+                        </page>
+
+                        <!-- P-CC-01 Étape 6-7-8 : Dossier / Bailleur / Archivage -->
+                        <page string="📁 Dossier Complet &amp; Quitus">
+                            <group>
+                                <group>
+                                    <field name="checklist_cloture_ok"
+                                        widget="boolean_toggle"
+                                        string="Checklist clôture (F-CC-01-01) ✓"/>
+                                    <field name="dossier_soumis_bailleur"
+                                        widget="boolean_toggle" readonly="1"/>
+                                    <field name="date_soumission_bailleur"/>
+                                </group>
+                                <group>
+                                    <field name="quitus_recu" widget="boolean_toggle" readonly="1"/>
+                                    <field name="date_quitus"/>
+                                    <field name="archivage_ged_confirme" widget="boolean_toggle"/>
+                                    <field name="lien_ged_cloture" widget="url"/>
+                                </group>
+                            </group>
+                            <field name="checklist_cloture_ids" widget="many2many_binary"
+                                string="Checklist signée (F-CC-01-01)"/>
+                            <field name="quitus_ids" widget="many2many_binary"
+                                string="Courrier de quitus bailleur"/>
+                        </page>
+
+                        <!-- P-CC-02 : Leçons apprises -->
+                        <page string="🧠 Leçons Apprises (P-CC-02 – F-CC-02-01/02)">
+                            <group string="Atelier bilan (After Action Review / SEPO)">
+                                <group>
+                                    <field name="date_atelier_bilan"/>
+                                    <field name="restitution_faite" widget="boolean_toggle"/>
+                                    <field name="date_restitution"
+                                        invisible="not restitution_faite"/>
+                                </group>
+                                <group>
+                                    <field name="integre_mela" readonly="1"
+                                        widget="boolean_toggle"/>
+                                    <field name="diffuse_bibliotheque" readonly="1"
+                                        widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                            <field name="participants_atelier"
+                                placeholder="Liste des participants à l'atelier bilan..."/>
+                            <field name="tdr_atelier_bilan" widget="html"
+                                string="TDR atelier bilan (AAR)"
+                                placeholder="Objectifs, méthodologie SEPO, facilitateur (CCGC), durée, participants attendus..."/>
+                            <field name="matrice_sepo" widget="html"
+                                string="Matrice SEPO (F-CC-02-02)"
+                                placeholder="Succès – Échecs – Potentialités – Obstacles..."/>
+                            <field name="rapport_lecons_apprises" widget="html"
+                                string="Rapport de leçons apprises (F-CC-02-01)"
+                                placeholder="Succès marquants, échecs documentés, innovations reproductibles, recommandations organisationnelles..."/>
+                            <field name="plan_amelioration_mela" widget="html"
+                                string="Plan d'amélioration MELA"
+                                placeholder="Recommandations réintégrées dans le dispositif MELA pour les futurs cycles..."/>
+                            <field name="cr_atelier_ids" widget="many2many_binary"
+                                string="CR de l'atelier bilan (F-CC-02-02)"/>
+                            <field name="rapport_lecons_ids" widget="many2many_binary"
+                                string="Rapport de leçons apprises (fichier)"/>
+                            <field name="note_politique_ids" widget="many2many_binary"
+                                string="Notes de politique / Policy Briefs (F-CGC-01)"/>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_cloture_projet_list" model="ir.ui.view">
+        <field name="name">resade.cloture.projet.list</field>
+        <field name="model">resade.cloture.projet</field>
+        <field name="arch" type="xml">
+            <list string="Dossiers de Clôture – P-CC-01/02"
+                decoration-success="state == 'capitalise'"
+                decoration-warning="state in ['soumis_bailleur','dossier_complet']">
+                <field name="name"/>
+                <field name="projet_id" string="Projet"/>
+                <field name="date_fin_activites"/>
+                <field name="valide_rapport_technique" widget="boolean"/>
+                <field name="valide_rapport_financier" widget="boolean"/>
+                <field name="checklist_cloture_ok" widget="boolean"/>
+                <field name="quitus_recu" widget="boolean"/>
+                <field name="archivage_ged_confirme" widget="boolean"/>
+                <field name="restitution_faite" widget="boolean"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'capitalise'"
+                    decoration-warning="state in ['soumis_bailleur','dossier_complet']"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_cloture_projet" model="ir.actions.act_window">
+        <field name="name">Dossiers de Clôture – P-CC-01/02</field>
+        <field name="res_model">resade.cloture.projet</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

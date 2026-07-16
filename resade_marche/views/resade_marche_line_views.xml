@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════
+         VUE LISTE LIGNES (inline tree)
+    ═══════════════════════════════ -->
+    <record id="view_resade_marche_line_tree" model="ir.ui.view">
+        <field name="name">resade.marche.line.tree</field>
+        <field name="model">resade.marche.line</field>
+        <field name="arch" type="xml">
+            <list string="Lignes / Lots" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="designation"/>
+                <field name="unite"/>
+                <field name="quantite"/>
+                <field name="prix_unitaire_estime" optional="show"/>
+                <field name="montant_estime" optional="show"/>
+                <field name="prix_unitaire_retenu" optional="show"/>
+                <field name="montant_retenu" optional="show"/>
+                <field name="note" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════
+         VUE LISTE OFFRES (inline tree)
+    ═══════════════════════════════ -->
+    <record id="view_resade_marche_offre_tree" model="ir.ui.view">
+        <field name="name">resade.marche.offre.tree</field>
+        <field name="model">resade.marche.offre</field>
+        <field name="arch" type="xml">
+            <list string="Offres reçues" editable="bottom">
+                <field name="rang_classement"/>
+                <field name="fournisseur_id"/>
+                <field name="date_reception"/>
+                <field name="note_technique" optional="show"/>
+                <field name="montant_financier"/>
+                <field name="conforme"/>
+                <field name="retenue" decoration-success="retenue == True"/>
+                <field name="conflict_interet" decoration-danger="conflict_interet == True" optional="show"/>
+                <field name="note_analyse" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

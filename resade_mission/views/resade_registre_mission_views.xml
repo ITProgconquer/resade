@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════
+         REGISTRE DES MISSIONS EXÉCUTÉES – RESADE-F-GMD-02-04
+         Journal chronologique tenu par l'AA (P-GMD-02 B.7 étape 7)
+    ═══════════════════════════════════════════════════════ -->
+
+    <!-- VUE LISTE (= le registre lui-même) -->
+    <record id="view_resade_registre_mission_list" model="ir.ui.view">
+        <field name="name">resade.registre.mission.list</field>
+        <field name="model">resade.registre.mission</field>
+        <field name="arch" type="xml">
+            <list string="Registre des Missions Exécutées – RESADE-F-GMD-02-04"
+                decoration-success="statut_registre == 'archive'"
+                decoration-warning="statut_registre in ['rapport_attente','en_cours']"
+                decoration-danger="statut_registre == 'rapport_attente' and date_retour_effectif"
+                decoration-info="statut_registre in ['rapport_soumis','rapport_valide','rapport_approuve']"
+                export_xlsx="1">
+
+                <field name="name" string="N° OM" optional="show"/>
+                <field name="employee_id" string="Missionnaire" optional="show"/>
+                <field name="department_id" string="Département" optional="show"/>
+                <field name="destination" optional="show"/>
+                <field name="zone_mission" optional="show"/>
+                <field name="date_depart" string="Départ prévu" optional="show"/>
+                <field name="date_retour" string="Retour prévu" optional="show"/>
+                <field name="date_depart_effectif" string="Départ effectif" optional="show"/>
+                <field name="date_retour_effectif" string="Retour effectif" optional="show"/>
+                <field name="analytic_account_id" string="Projet/Bailleur" optional="show"/>
+                <field name="montant_avance_approuve" widget="monetary"
+                    string="Avance" optional="show"/>
+                <field name="montant_depense_reel" widget="monetary"
+                    string="Frais réels" optional="hide"/>
+                <field name="date_soumission_rapport" string="Date rapport" optional="show"/>
+                <field name="delai_rapport_ok" widget="boolean"
+                    string="Délai OK" optional="show"/>
+                <field name="statut_registre" widget="badge"
+                    decoration-success="statut_registre == 'archive'"
+                    decoration-warning="statut_registre in ['rapport_attente','en_cours']"
+                    decoration-info="statut_registre in ['rapport_soumis','rapport_valide','rapport_approuve','justif_en_cours']"
+                    optional="show"/>
+                <field name="archivage_confirme" widget="boolean"
+                    string="GED ✓" optional="show"/>
+                <field name="date_archivage" string="Date archivage" optional="hide"/>
+                <field name="lien_ged" string="Lien GED" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="date_retour_effectif" column_invisible="1"/>
+                <button name="action_ouvrir_mission"
+                    string="📋 Voir OM"
+                    type="object"
+                    icon="fa-external-link"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- VUE FORMULAIRE du registre -->
+    <record id="view_resade_registre_mission_form" model="ir.ui.view">
+        <field name="name">resade.registre.mission.form</field>
+        <field name="model">resade.registre.mission</field>
+        <field name="arch" type="xml">
+            <form string="Registre Mission – RESADE-F-GMD-02-04">
+                <header>
+                    <button name="action_confirmer_archivage"
+                        string="📁 Confirmer Archivage GED"
+                        type="object"
+                        class="btn-primary"
+                        invisible="archivage_confirme"
+                        help="L'AA confirme le dépôt du dossier complet dans SharePoint (02_ADMIN/Archives_Missions)"/>
+                    <button name="action_ouvrir_mission"
+                        string="📋 Ouvrir l'Ordre de Mission"
+                        type="object"
+                        class="btn-secondary"/>
+                    <field name="statut_registre" widget="statusbar"
+                        statusbar_visible="en_cours,rapport_attente,rapport_soumis,rapport_valide,rapport_approuve,justif_en_cours,remboursement_ok,archive"/>
+                </header>
+                <sheet>
+                    <!-- Alerte archivage en attente -->
+                    <div class="alert alert-warning" role="alert"
+                        invisible="archivage_confirme or statut_registre not in ['rapport_approuve','justif_en_cours','remboursement_ok','archive']">
+                        ⚠️ L'archivage GED n'est pas encore confirmé par l'AA.
+                        Le déclenchement de P-GMD-03 est subordonné à cette confirmation
+                        (P-GMD-02 B.7 étape 7).
+                    </div>
+                    <div class="alert alert-success" role="alert"
+                        invisible="not archivage_confirme">
+                        ✅ Dossier archivé dans la GED SharePoint —
+                        <field name="lien_ged" readonly="1" class="d-inline"/>
+                    </div>
+
+                    <group string="📋 Identification (RESADE-F-GMD-02-04)">
+                        <group>
+                            <field name="mission_id" readonly="1"/>
+                            <field name="name" readonly="1" string="N° OM"/>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="department_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="destination" readonly="1"/>
+                            <field name="zone_mission" readonly="1"/>
+                            <field name="analytic_account_id" readonly="1"/>
+                            <field name="statut_registre" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="📅 Dates">
+                        <group>
+                            <field name="date_depart" readonly="1" string="Départ prévu"/>
+                            <field name="date_retour" readonly="1" string="Retour prévu"/>
+                        </group>
+                        <group>
+                            <field name="date_depart_effectif" readonly="1"/>
+                            <field name="date_retour_effectif" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="📊 Financier">
+                        <group>
+                            <field name="montant_avance_approuve" readonly="1"/>
+                            <field name="montant_depense_reel" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="date_soumission_rapport" readonly="1"/>
+                            <field name="delai_rapport_ok" readonly="1" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+
+                    <group string="📁 Archivage GED SharePoint (P-GMD-02 B.7 étape 7)">
+                        <group>
+                            <field name="archivage_confirme"/>
+                            <field name="date_archivage"
+                                readonly="not archivage_confirme"/>
+                            <field name="archivage_par_id" readonly="1"
+                                invisible="not archivage_confirme"/>
+                        </group>
+                        <group>
+                            <field name="lien_ged"
+                                placeholder="02_ADMINISTRATION/Archives_Missions/[N°OM]"/>
+                        </group>
+                    </group>
+
+                    <group string="📝 Observations / Écarts TDR / Capitalisation">
+                        <field name="note_registre" nolabel="1"
+                            placeholder="Modifications substantielles par rapport aux TDR, difficultés rencontrées, enseignements documentés pour capitalisation RESADE..."/>
+                    </group>
+
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- VUE RECHERCHE -->
+    <record id="view_resade_registre_mission_search" model="ir.ui.view">
+        <field name="name">resade.registre.mission.search</field>
+        <field name="model">resade.registre.mission</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher dans le registre">
+                <field name="name" string="N° OM"/>
+                <field name="employee_id" string="Missionnaire"/>
+                <field name="destination"/>
+                <field name="analytic_account_id" string="Projet/Bailleur"/>
+                <filter string="Rapport en attente" name="attente"
+                    domain="[('statut_registre', '=', 'rapport_attente')]"/>
+                <filter string="Rapport soumis / validé" name="rapport"
+                    domain="[('statut_registre', 'in', ['rapport_soumis','rapport_valide','rapport_approuve'])]"/>
+                <filter string="En justification" name="justif"
+                    domain="[('statut_registre', 'in', ['justif_en_cours','remboursement_ok'])]"/>
+                <filter string="Archivés" name="archive"
+                    domain="[('statut_registre', '=', 'archive')]"/>
+                <separator/>
+                <filter string="GED non confirmée" name="ged_manquant"
+                    domain="[('archivage_confirme', '=', False), ('statut_registre', 'in', ['rapport_approuve','justif_en_cours','remboursement_ok','archive'])]"/>
+                <filter string="Rapport hors délai" name="retard"
+                    domain="[('delai_rapport_ok', '=', False), ('date_soumission_rapport', '!=', False)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Missionnaire" name="group_employee"
+                        context="{'group_by': 'employee_id'}"/>
+                    <filter string="Statut" name="group_statut"
+                        context="{'group_by': 'statut_registre'}"/>
+                    <filter string="Projet / Bailleur" name="group_analytic"
+                        context="{'group_by': 'analytic_account_id'}"/>
+                    <filter string="Mois retour" name="group_month"
+                        context="{'group_by': 'date_retour_effectif:month'}"/>
+                    <filter string="Département" name="group_dept"
+                        context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTIONS -->
+    <record id="action_resade_registre_mission" model="ir.actions.act_window">
+        <field name="name">Registre des Missions Exécutées (F-GMD-02-04)</field>
+        <field name="res_model">resade.registre.mission</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_registre_mission_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune mission exécutée pour l'instant</p>
+            <p>
+                Ce registre <strong>RESADE-F-GMD-02-04</strong> est alimenté
+                <strong>automatiquement</strong> dès qu'un agent part en mission (bouton
+                "✈️ Marquer Départ en Mission"). L'AA complète le lien GED et confirme
+                l'archivage après approbation du rapport par le DE.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action missions avec GED non confirmée (dashboard AA) -->
+    <record id="action_registre_ged_a_confirmer" model="ir.actions.act_window">
+        <field name="name">⚠️ Archivages GED à Confirmer</field>
+        <field name="res_model">resade.registre.mission</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('archivage_confirme', '=', False), ('statut_registre', 'not in', ['en_cours', 'rapport_attente', 'rapport_soumis'])]</field>
+        <field name="search_view_id" ref="view_resade_registre_mission_search"/>
+    </record>
+
+</odoo>

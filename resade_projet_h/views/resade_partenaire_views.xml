@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_partenaire_projet_form" model="ir.ui.view">
+        <field name="name">resade.partenaire.projet.form</field>
+        <field name="model">resade.partenaire.projet</field>
+        <field name="arch" type="xml">
+            <form string="Partenaire / Sous-traitant – P-EST-03">
+                <header>
+                    <button name="action_lancer_due_diligence"
+                        string="🔬 Lancer Due Diligence"
+                        type="object" class="btn-primary"
+                        invisible="state != 'identification'"
+                        groups="resade_projet_h.group_resade_rp,resade_projet_h.group_resade_cdo,resade_projet_h.group_resade_cdp"/>
+
+                    <!-- Valider la due diligence : CDP, DE -->
+                    <button name="action_valider_due_diligence"
+                        string="✅ Valider Due Diligence → Négociation"
+                        type="object" class="btn-primary"
+                        invisible="state != 'due_diligence'"
+                        groups="resade_projet_h.group_resade_cdp,resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- Accord signé : DE -->
+                    <button name="action_accord_signe"
+                        string="📄 Accord Signé → Actif"
+                        type="object" class="btn-success"
+                        invisible="state != 'negociation'"
+                        groups="resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- Suspendre : DE -->
+                    <button name="action_suspendre"
+                        string="⚠️ Suspendre"
+                        type="object" class="btn-warning"
+                        invisible="state != 'actif'"
+                        groups="resade_projet_h.group_resade_de_projet"/>
+
+                    <!-- Résilier : DE -->
+                    <button name="action_resilier"
+                        string="❌ Résilier"
+                        type="object" class="btn-danger"
+                        invisible="state in ['resilie','cloture']"
+                        groups="resade_projet_h.group_resade_de_projet"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="identification,due_diligence,negociation,actif"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-danger" role="alert"
+                        invisible="due_diligence_concluante or state not in ['due_diligence','negociation']">
+                        ⚠️ Due diligence incomplète — tous les 4 volets sont requis
+                        avant toute signature (F-EST-03-01 / GFGP Module 1).
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group string="🔍 Identification">
+                        <group>
+                            <field name="projet_id"/>
+                            <field name="type_engagement"/>
+                            <field name="pays"/>
+                        </group>
+                        <group>
+                            <field name="contact_principal"/>
+                            <field name="email_contact" widget="email"/>
+                            <field name="telephone_contact" widget="phone"/>
+                            <field name="score_moyen_performance" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="🔬 Due Diligence (F-EST-03-01)">
+                            <div class="alert alert-info" role="alert">
+                                4 volets obligatoires avant toute signature (GFGP Module 1).
+                                Tous doivent être cochés.
+                            </div>
+                            <group>
+                                <group>
+                                    <field name="due_diligence_juridique" widget="boolean_toggle"/>
+                                    <field name="due_diligence_financiere" widget="boolean_toggle"/>
+                                </group>
+                                <group>
+                                    <field name="due_diligence_operationnelle" widget="boolean_toggle"/>
+                                    <field name="due_diligence_ethique" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                            <field name="due_diligence_concluante" readonly="1"
+                                widget="boolean_toggle" string="✅ Due diligence concluante"/>
+                            <field name="fiche_due_diligence_ids" widget="many2many_binary"
+                                string="Fiche due diligence (F-EST-03-01)"/>
+                        </page>
+
+                        <page string="📄 Accord (MoU / Subaward)">
+                            <group>
+                                <group>
+                                    <field name="type_accord"/>
+                                    <field name="date_signature_accord"/>
+                                    <field name="date_fin_accord"/>
+                                    <field name="montant_subaward"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </group>
+                                <group>
+                                    <field name="date_kickoff_partenaire"/>
+                                </group>
+                            </group>
+                            <field name="accord_signe_ids" widget="many2many_binary"
+                                string="Accord signé (MoU F-EST-03-02 / Subaward F-EST-03-03)"/>
+                            <field name="pv_kickoff_ids" widget="many2many_binary"
+                                string="PV de réunion de lancement"/>
+                        </page>
+
+                        <page string="⭐ Évaluations Performance (F-EST-03-04)">
+                            <field name="evaluation_ids">
+                                <list editable="bottom">
+                                    <field name="date_evaluation"/>
+                                    <field name="trimestre"/>
+                                    <field name="note_qualite_scientifique"/>
+                                    <field name="note_respect_delais"/>
+                                    <field name="note_conformite_financiere"/>
+                                    <field name="note_communication"/>
+                                    <field name="note_conformite_ethique"/>
+                                    <field name="score_global" readonly="1"/>
+                                    <field name="evalue_par_id"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="⚠️ Incidents / Plans de Correction (F-EST-03-07)">
+                            <field name="incident_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="type_incident" widget="badge"/>
+                                    <field name="date_detection"/>
+                                    <field name="date_echeance_correction"/>
+                                    <field name="state" widget="badge"
+                                        decoration-danger="state == 'ouvert'"
+                                        decoration-warning="state == 'en_cours'"
+                                        decoration-success="state == 'resolu'"/>
+                                    <field name="mesures_correctives"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="🏛️ COPIL (F-EST-03-06)">
+                            <field name="copil_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="date_copil"/>
+                                    <field name="participants"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_resade_partenaire_projet" model="ir.actions.act_window">
+        <field name="name">Partenaires et Sous-traitants – P-EST-03</field>
+        <field name="res_model">resade.partenaire.projet</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

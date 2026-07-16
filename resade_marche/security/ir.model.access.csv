@@ -1,0 +1,55 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_marche_demandeur,Marché demandeur,model_resade_marche,resade_marche.group_resade_demandeur,1,1,1,0
+access_marche_resp,Marché chef dept,model_resade_marche,resade_marche.group_resade_marche_resp,1,1,1,0
+access_marche_cam,Marché membre CAM,model_resade_marche,resade_marche.group_resade_marche_cam,1,1,0,0
+access_marche_caf,Marché CAF,model_resade_marche,resade_marche.group_resade_marche_caf,1,1,1,0
+access_marche_de,Marché DE,model_resade_marche,resade_marche.group_resade_marche_de,1,1,1,1
+access_marche_admin,Marché Admin,model_resade_marche,resade_marche.group_resade_marche_admin,1,1,1,1
+access_marche_line_demandeur,Ligne demandeur,model_resade_marche_line,resade_marche.group_resade_demandeur,1,1,1,0
+access_marche_line_caf,Ligne CAF,model_resade_marche_line,resade_marche.group_resade_marche_caf,1,1,1,1
+access_marche_offre_demandeur,Offre demandeur,model_resade_marche_offre,resade_marche.group_resade_demandeur,1,0,0,0
+access_marche_offre_cam,Offre membre CAM,model_resade_marche_offre,resade_marche.group_resade_marche_cam,1,1,1,0
+access_marche_offre_caf,Offre CAF,model_resade_marche_offre,resade_marche.group_resade_marche_caf,1,1,1,1
+access_cam_cam,CAM membre CAM,model_resade_marche_cam,resade_marche.group_resade_marche_cam,1,1,1,0
+access_cam_caf,CAM CAF,model_resade_marche_cam,resade_marche.group_resade_marche_caf,1,1,1,0
+access_cam_de,CAM DE,model_resade_marche_cam,resade_marche.group_resade_marche_de,1,1,1,1
+access_cam_admin,CAM Admin,model_resade_marche_cam,resade_marche.group_resade_marche_admin,1,1,1,1
+access_cam_membre_cam,Membre CAM séance,model_resade_marche_cam_membre,resade_marche.group_resade_marche_cam,1,1,1,0
+access_cam_membre_caf,Membre CAF séance,model_resade_marche_cam_membre,resade_marche.group_resade_marche_caf,1,1,1,1
+access_fournisseur_demandeur,Fournisseur demandeur,model_resade_fournisseur,resade_marche.group_resade_demandeur,1,0,0,0
+access_fournisseur_resp,Fournisseur chef dept,model_resade_fournisseur,resade_marche.group_resade_marche_resp,1,0,0,0
+access_fournisseur_caf,Fournisseur CAF,model_resade_fournisseur,resade_marche.group_resade_marche_caf,1,1,1,0
+access_fournisseur_admin,Fournisseur Admin,model_resade_fournisseur,resade_marche.group_resade_marche_admin,1,1,1,1
+access_domaine_marche_user,Domaine marché user,model_resade_domaine_marche,resade_marche.group_resade_demandeur,1,0,0,0
+access_domaine_marche_all,Domaine marché admin,model_resade_domaine_marche,resade_marche.group_resade_marche_admin,1,1,1,1
+access_wizard_cloture_all,Wizard clôture marché,model_wizard_cloture_marche,resade_marche.group_resade_marche_caf,1,1,1,1
+access_wizard_seuils_all,Wizard seuils marché,model_wizard_seuils_marche,resade_marche.group_resade_marche_admin,1,1,1,1
+access_cotation_demandeur,Cotation demandeur,model_resade_marche_cotation,resade_marche.group_resade_demandeur,1,1,1,0
+access_cotation_caf,Cotation CAF,model_resade_marche_cotation,resade_marche.group_resade_marche_caf,1,1,1,1
+access_pvr_demandeur,PVR demandeur,model_resade_marche_pvr,resade_marche.group_resade_demandeur,1,1,1,0
+access_pvr_caf,PVR CAF,model_resade_marche_pvr,resade_marche.group_resade_marche_caf,1,1,1,1
+access_asf_demandeur,ASF demandeur,model_resade_marche_asf,resade_marche.group_resade_demandeur,1,0,0,0
+access_asf_resp,ASF chef dept,model_resade_marche_asf,resade_marche.group_resade_marche_resp,1,1,1,0
+access_asf_caf,ASF CAF,model_resade_marche_asf,resade_marche.group_resade_marche_caf,1,1,1,1
+access_facture_demandeur,Facture demandeur,model_resade_marche_facture,resade_marche.group_resade_demandeur,1,0,0,0
+access_facture_caf,Facture CAF,model_resade_marche_facture,resade_marche.group_resade_marche_caf,1,1,1,1
+access_facture_admin,Facture admin,model_resade_marche_facture,resade_marche.group_resade_marche_admin,1,1,1,1
+access_feb_demandeur,FEB demandeur,model_resade_marche_feb,resade_marche.group_resade_demandeur,1,1,1,0
+access_feb_resp,FEB chef dept,model_resade_marche_feb,resade_marche.group_resade_marche_resp,1,1,0,0
+access_feb_caf,FEB CAF,model_resade_marche_feb,resade_marche.group_resade_marche_caf,1,1,1,0
+access_feb_de,FEB DE,model_resade_marche_feb,resade_marche.group_resade_marche_de,1,1,0,0
+access_feb_admin,FEB admin,model_resade_marche_feb,resade_marche.group_resade_marche_admin,1,1,1,1
+access_paiement_caf,Paiement fournisseur CAF,model_resade_marche_paiement,resade_marche.group_resade_marche_caf,1,1,1,0
+access_paiement_de,Paiement fournisseur DE,model_resade_marche_paiement,resade_marche.group_resade_marche_de,1,1,0,0
+access_paiement_admin,Paiement fournisseur admin,model_resade_marche_paiement,resade_marche.group_resade_marche_admin,1,1,1,1
+access_honoraires_caf,Honoraires CAF,model_resade_marche_honoraires,resade_marche.group_resade_marche_caf,1,1,1,0
+access_honoraires_de,Honoraires DE,model_resade_marche_honoraires,resade_marche.group_resade_marche_de,1,1,0,0
+access_honoraires_admin,Honoraires admin,model_resade_marche_honoraires,resade_marche.group_resade_marche_admin,1,1,1,1
+access_kpi_caf,KPI CAF,model_resade_marche_kpi,resade_marche.group_resade_marche_caf,1,1,1,0
+access_kpi_admin,KPI admin,model_resade_marche_kpi,resade_marche.group_resade_marche_admin,1,1,1,1
+access_liste_courte_user,Liste courte user,model_resade_marche_liste_courte,resade_marche.group_resade_demandeur,1,1,1,0
+access_liste_courte_caf,Liste courte caf,model_resade_marche_liste_courte,resade_marche.group_resade_marche_caf,1,1,1,1
+access_liste_courte_admin,Liste courte admin,model_resade_marche_liste_courte,resade_marche.group_resade_marche_admin,1,1,1,1
+access_grille_eval_user,Grille eval user,model_resade_marche_grille_eval,resade_marche.group_resade_demandeur,1,0,0,0
+access_grille_eval_caf,Grille eval caf,model_resade_marche_grille_eval,resade_marche.group_resade_marche_caf,1,1,1,1
+access_grille_eval_admin,Grille eval admin,model_resade_marche_grille_eval,resade_marche.group_resade_marche_admin,1,1,1,1
