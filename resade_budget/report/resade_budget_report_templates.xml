@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════
+         FICHE D'EXPRESSION DES BESOINS — RESADE-F-ESB-01-01
+         P-ESB-01
+    ═══════════════════════════════════════════ -->
+    <template id="report_resade_budget_feb_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+
+                        <div style="text-align:center; border-bottom: 2px solid #2c3e50; margin-bottom:16px; padding-bottom:10px;">
+                            <h2 style="color:#2c3e50; margin:0;">RESADE</h2>
+                            <p style="margin:2px; font-size:9px; color:#666;">
+                                Réseau de Recherche en Santé et Développement – Ouagadougou, Burkina Faso
+                            </p>
+                            <h3 style="color:#c0392b; margin:8px 0 0 0; letter-spacing:2px; font-size:14px;">
+                                FICHE D'EXPRESSION DES BESOINS (FEB)
+                            </h3>
+                            <p style="margin:2px; font-size:8px; color:#888;">
+                                Réf. : Manuel Procédures Carnet C – Module 02 – P-ESB-01 | RESADE-F-ESB-01-01
+                            </p>
+                        </div>
+
+                        <table width="100%" style="margin-bottom:12px;">
+                            <tr>
+                                <td width="50%">
+                                    <strong>N° FEB :</strong>
+                                    <span style="font-size:13px; color:#c0392b; font-weight:bold;">
+                                        <t t-esc="o.name"/>
+                                    </span>
+                                </td>
+                                <td width="50%" style="text-align:right;">
+                                    Date : <t t-esc="o.date_creation"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-sm" style="width:100%; border-collapse: collapse; margin-bottom:14px;">
+                            <tr>
+                                <td style="width:35%; font-weight:bold; padding:4px; border:1px solid #ccc;">Demandeur</td>
+                                <td style="padding:4px; border:1px solid #ccc;">
+                                    <t t-esc="o.demandeur_id.name"/> — <t t-esc="o.departement or ''"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Nature du besoin</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.nature_besoin"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Justification</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.justification"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Quantité / spécifications</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.quantite_specifications or '—'"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Montant estimé</td>
+                                <td style="padding:4px; border:1px solid #ccc;">
+                                    <t t-esc="'{:,.0f}'.format(o.montant_estime)"/> <t t-esc="o.currency_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Imputation budgétaire</td>
+                                <td style="padding:4px; border:1px solid #ccc;">
+                                    <t t-esc="o.ligne_budgetaire_id.name"/>
+                                    <span t-if="o.ligne_budgetaire_id.code_analytique">
+                                        (Code analytique : <t t-esc="o.ligne_budgetaire_id.code_analytique"/>)
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Date de besoin</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.date_besoin or '—'"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Fournisseur(s) suggéré(s)</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.fournisseur_suggere or '—'"/></td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" style="margin-top:30px;">
+                            <tr>
+                                <td style="width:33%; text-align:center;">
+                                    <p>Demandeur</p>
+                                    <p>Nom : <t t-esc="o.demandeur_id.name"/></p>
+                                    <p>Date : __________ Signature :</p>
+                                </td>
+                                <td style="width:33%; text-align:center;">
+                                    <p>Visa budgétaire (CAF)</p>
+                                    <p>Nom : <t t-esc="o.caf_valideur_id.name or '____________________'"/></p>
+                                    <p>Date : <t t-esc="o.date_visa_caf or '__________'"/> Signature :</p>
+                                </td>
+                                <td style="width:33%; text-align:center;">
+                                    <p>Autorisation (DE)</p>
+                                    <p>Nom : <t t-esc="o.autorise_par_id.name or '____________________'"/></p>
+                                    <p>Date : <t t-esc="o.date_autorisation or '__________'"/> Signature :</p>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ═══════════════════════════════════════════
+         REGISTRE DES FEB — RESADE-F-ESB-01-02
+    ═══════════════════════════════════════════ -->
+    <template id="report_resade_budget_feb_registre_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family: Arial, sans-serif; font-size: 9px;">
+
+                    <div style="text-align:center; border-bottom: 2px solid #2c3e50; margin-bottom:16px; padding-bottom:10px;">
+                        <h2 style="color:#2c3e50; margin:0;">RESADE</h2>
+                        <h3 style="color:#c0392b; margin:8px 0 0 0; letter-spacing:2px; font-size:14px;">
+                            REGISTRE DES FEB ET ENGAGEMENTS BUDGÉTAIRES
+                        </h3>
+                        <p style="margin:2px; font-size:8px; color:#888;">
+                            Réf. : RESADE-F-ESB-01-02
+                        </p>
+                    </div>
+
+                    <table width="100%" style="border-collapse: collapse;">
+                        <tr style="background:#2c3e50; color:white;">
+                            <th style="padding:4px; border:1px solid #ccc;">N° FEB</th>
+                            <th style="padding:4px; border:1px solid #ccc;">Date</th>
+                            <th style="padding:4px; border:1px solid #ccc;">Demandeur</th>
+                            <th style="padding:4px; border:1px solid #ccc;">Objet</th>
+                            <th style="padding:4px; border:1px solid #ccc;">Ligne budgétaire</th>
+                            <th style="padding:4px; border:1px solid #ccc;">Montant</th>
+                            <th style="padding:4px; border:1px solid #ccc;">Statut</th>
+                        </tr>
+                        <t t-foreach="docs" t-as="o">
+                            <tr>
+                                <td style="padding:3px; border:1px solid #ccc;"><t t-esc="o.name"/></td>
+                                <td style="padding:3px; border:1px solid #ccc;"><t t-esc="o.date_creation"/></td>
+                                <td style="padding:3px; border:1px solid #ccc;"><t t-esc="o.demandeur_id.name"/></td>
+                                <td style="padding:3px; border:1px solid #ccc;"><t t-esc="o.nature_besoin"/></td>
+                                <td style="padding:3px; border:1px solid #ccc;"><t t-esc="o.ligne_budgetaire_id.name"/></td>
+                                <td style="padding:3px; border:1px solid #ccc; text-align:right;">
+                                    <t t-esc="'{:,.0f}'.format(o.montant_estime)"/>
+                                </td>
+                                <td style="padding:3px; border:1px solid #ccc;"><t t-esc="o.state"/></td>
+                            </tr>
+                        </t>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════
+         FICHE D'AFFECTATION — RESADE-F-GC-01-02
+         Courrier Entrant (P-GC-01)
+    ═══════════════════════════════════════════ -->
+    <template id="report_resade_courrier_entrant_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+
+                        <div style="text-align:center; border-bottom: 2px solid #2c3e50; margin-bottom:16px; padding-bottom:10px;">
+                            <h2 style="color:#2c3e50; margin:0;">RESADE</h2>
+                            <p style="margin:2px; font-size:9px; color:#666;">
+                                Réseau de Recherche en Santé et Développement – Ouagadougou, Burkina Faso
+                            </p>
+                            <h3 style="color:#c0392b; margin:8px 0 0 0; letter-spacing:2px; font-size:14px;">
+                                FICHE D'AFFECTATION DE COURRIER
+                            </h3>
+                            <p style="margin:2px; font-size:8px; color:#888;">
+                                Réf. : Manuel Procédures Carnet G – Module 01 – P-GC-01 | RESADE-F-GC-01-02
+                            </p>
+                        </div>
+
+                        <table width="100%" style="margin-bottom:12px;">
+                            <tr>
+                                <td width="50%">
+                                    <strong>N° d'arrivée :</strong>
+                                    <span style="font-size:13px; color:#c0392b; font-weight:bold;">
+                                        <t t-esc="o.numero"/>
+                                    </span>
+                                </td>
+                                <td width="50%" style="text-align:right;">
+                                    <t t-if="o.confidentiel">
+                                        <span style="color:red; font-weight:bold;">🔒 CONFIDENTIEL</span>
+                                    </t>
+                                    <t t-if="o.urgent">
+                                        <span style="color:#e67e22; font-weight:bold;"> ⚠ URGENT</span>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-sm" style="width:100%; border-collapse: collapse; margin-bottom:14px;">
+                            <tr>
+                                <td style="width:35%; font-weight:bold; padding:4px; border:1px solid #ccc;">Date de réception</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.date_reception"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Type de courrier</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="dict(o._fields['type_courrier'].selection).get(o.type_courrier)"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Expéditeur</td>
+                                <td style="padding:4px; border:1px solid #ccc;">
+                                    <t t-if="o.tiers_emetteur_id" t-esc="o.tiers_emetteur_id.name"/>
+                                    <t t-else="" t-esc="o.nom_emetteur_libre"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Objet</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.objet_libre"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Service / destinataire(s) désigné(s)</td>
+                                <td style="padding:4px; border:1px solid #ccc;">
+                                    <t t-esc="o.service_destinataire_id.name or ''"/>
+                                    <span t-if="o.destinataire_ids">
+                                        — <t t-esc="', '.join(o.destinataire_ids.mapped('name'))"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold; padding:4px; border:1px solid #ccc;">Délai de traitement souhaité</td>
+                                <td style="padding:4px; border:1px solid #ccc;"><t t-esc="o.delai_traitement or '—'"/></td>
+                            </tr>
+                        </table>
+
+                        <div style="margin-bottom:14px; padding:8px; border:1px dashed #999;">
+                            <strong>Annotation et instructions de dispatch du Directeur Exécutif :</strong>
+                            <p style="min-height:50px; margin-top:6px;"><t t-esc="o.annotation_de or ''"/></p>
+                        </div>
+
+                        <table width="100%" style="margin-top:30px;">
+                            <tr>
+                                <td style="width:50%; text-align:center;">
+                                    <p>Assistant(e) Administratif(ve)</p>
+                                    <p>Nom : ____________________</p>
+                                    <p>Date : __________ Signature :</p>
+                                </td>
+                                <td style="width:50%; text-align:center;">
+                                    <p>Directeur Exécutif</p>
+                                    <p>Nom : ____________________</p>
+                                    <p>Date : __________ Signature :</p>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ═══════════════════════════════════════════
+         COURRIER OFFICIEL SORTANT — RESADE-F-GC-02-01
+         Courrier Sortant (P-GC-02)
+    ═══════════════════════════════════════════ -->
+    <template id="report_resade_courrier_sortant_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+
+                        <div style="text-align:center; border-bottom: 2px solid #2c3e50; margin-bottom:16px; padding-bottom:10px;">
+                            <h2 style="color:#2c3e50; margin:0;">RESADE</h2>
+                            <p style="margin:2px; font-size:9px; color:#666;">
+                                Réseau de Recherche en Santé et Développement – Ouagadougou, Burkina Faso
+                            </p>
+                            <h3 style="color:#c0392b; margin:8px 0 0 0; letter-spacing:2px; font-size:14px;">
+                                COURRIER OFFICIEL
+                            </h3>
+                            <p style="margin:2px; font-size:8px; color:#888;">
+                                Réf. : Manuel Procédures Carnet G – Module 01 – P-GC-02 | RESADE-F-GC-02-01
+                            </p>
+                        </div>
+
+                        <table width="100%" style="margin-bottom:18px;">
+                            <tr>
+                                <td width="50%">
+                                    <strong>N° :</strong>
+                                    <span style="font-size:13px; color:#c0392b; font-weight:bold;">
+                                        <t t-esc="o.numero or '(en attente de numérotation)'"/>
+                                    </span>
+                                </td>
+                                <td width="50%" style="text-align:right;">
+                                    Ouagadougou, le <t t-esc="o.date_signature or o.create_date"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" style="margin-bottom:18px;">
+                            <tr>
+                                <td style="width:50%; vertical-align:top;">
+                                    <strong>Destinataire :</strong><br/>
+                                    <t t-if="o.tiers_destinataire_id" t-esc="o.tiers_destinataire_id.name"/>
+                                    <t t-else="" t-esc="o.nom_destinataire_libre"/>
+                                    <br/>
+                                    <t t-if="o.contact_destinataire_id" t-esc="o.contact_destinataire_id.name"/>
+                                </td>
+                                <td style="width:50%; vertical-align:top; text-align:right;">
+                                    <strong>Objet :</strong> <t t-esc="o.objet_libre"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div style="min-height:250px; border-top:1px solid #ddd; border-bottom:1px solid #ddd; padding:10px 0;">
+                            <p><em>[Corps du courrier — voir document joint / projet de lettre]</em></p>
+                        </div>
+
+                        <table width="100%" style="margin-top:40px;">
+                            <tr>
+                                <td style="width:60%;"></td>
+                                <td style="width:40%; text-align:center;">
+                                    <p>
+                                        <t t-if="o.type_signataire == 'pca'">Le Président du Conseil d'Administration</t>
+                                        <t t-elif="o.type_signataire == 'sg'">Le Secrétaire Général</t>
+                                        <t t-else="">Le Directeur Exécutif</t>
+                                    </p>
+                                    <p><t t-esc="o.signataire_id.name or ''"/></p>
+                                    <p style="margin-top:30px;">Signature :</p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div style="margin-top:30px; font-size:8px; color:#888; border-top:1px solid #ccc; padding-top:4px;">
+                            Visé AA : <t t-esc="o.vise_aa_par.name or '—'"/> le <t t-esc="o.date_visa_aa or '—'"/>
+                            &#160;|&#160; Visé CAF : <t t-esc="o.vise_caf_par.name or '—'"/> le <t t-esc="o.date_visa_caf or '—'"/>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

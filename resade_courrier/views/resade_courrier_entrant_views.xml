@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ LISTE ═══════════════ -->
+    <record id="view_resade_courrier_entrant_list" model="ir.ui.view">
+        <field name="name">resade.courrier.entrant.list</field>
+        <field name="model">resade.courrier.entrant</field>
+        <field name="arch" type="xml">
+            <list string="Courrier Entrant" decoration-danger="depassement_archivage" decoration-muted="state=='archive'">
+                <field name="numero"/>
+                <field name="date_reception"/>
+                <field name="type_courrier"/>
+                <field name="objet_libre"/>
+                <field name="nom_emetteur_libre"/>
+                <field name="tiers_emetteur_id"/>
+                <field name="service_destinataire_id"/>
+                <field name="urgent" widget="boolean_toggle"/>
+                <field name="confidentiel" widget="boolean_toggle"/>
+                <field name="state" widget="badge"/>
+                <field name="depassement_archivage" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ FORMULAIRE ═══════════════ -->
+    <record id="view_resade_courrier_entrant_form" model="ir.ui.view">
+        <field name="name">resade.courrier.entrant.form</field>
+        <field name="model">resade.courrier.entrant</field>
+        <field name="arch" type="xml">
+            <form string="Courrier Entrant (P-GC-01)">
+                <header>
+                    <button name="action_enregistrer" string="Enregistrer / Numériser" type="object"
+                            invisible="state != 'recu'" class="btn-primary"/>
+                    <button name="action_transmettre_de" string="Transmettre au DE" type="object"
+                            invisible="state != 'enregistre'" class="btn-primary"/>
+                    <button name="action_affecter" string="Affecter (instructions DE)" type="object"
+                            invisible="state != 'transmis_de'" class="btn-primary"
+                            groups="resade_courrier.group_resade_courrier_de"/>
+                    <button name="action_dispatcher" string="Dispatcher" type="object"
+                            invisible="state != 'affecte'" class="btn-primary"/>
+                    <button name="action_archiver" string="Archiver / Clôturer" type="object"
+                            invisible="state != 'dispatche'" class="btn-primary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="recu,enregistre,transmis_de,affecte,dispatche,archive"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Confidentiel" bg_color="text-bg-danger"
+                            invisible="not confidentiel"/>
+                    <div class="oe_title">
+                        <h1><field name="numero" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="type_courrier"/>
+                            <field name="objet_id"/>
+                            <field name="objet_libre"/>
+                            <field name="confidentiel"/>
+                            <field name="urgent"/>
+                        </group>
+                        <group string="Émetteur">
+                            <field name="tiers_emetteur_id"/>
+                            <field name="contact_emetteur_id"/>
+                            <field name="nom_emetteur_libre"/>
+                            <field name="date_emission"/>
+                            <field name="date_reception"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Réception / Enregistrement" name="reception">
+                            <group>
+                                <group>
+                                    <field name="receptionne_par_id" readonly="1"/>
+                                    <field name="porteur_decharge"/>
+                                    <field name="cachet_appose"
+                                           invisible="type_courrier != 'physique'"/>
+                                </group>
+                                <group>
+                                    <field name="date_numerisation"/>
+                                    <field name="document_numerise" widget="many2many_binary"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Affectation (DE)" name="affectation">
+                            <group>
+                                <group>
+                                    <field name="date_transmission_de"/>
+                                    <field name="de_id"/>
+                                    <field name="annotation_de"/>
+                                </group>
+                                <group>
+                                    <field name="service_destinataire_id"/>
+                                    <field name="destinataire_ids" widget="many2many_tags"/>
+                                    <field name="delai_traitement"/>
+                                    <field name="transmission_financiere_caf"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="date_instruction_de" readonly="1"/>
+                                <field name="instruction_de_par" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Dispatch / Émargement" name="emargement">
+                            <field name="emargement_ids">
+                                <list editable="bottom">
+                                    <field name="destinataire_id"/>
+                                    <field name="date_remise"/>
+                                    <field name="emarge"/>
+                                    <field name="date_emargement"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Archivage GED" name="archivage">
+                            <group>
+                                <group>
+                                    <field name="archive_chrono_physique"/>
+                                    <field name="archive_ged"/>
+                                    <field name="date_archivage_ged"/>
+                                    <field name="reference_ged"/>
+                                </group>
+                                <group>
+                                    <field name="delai_transmission_de_h" readonly="1"/>
+                                    <field name="delai_archivage_ged_h" readonly="1"/>
+                                    <field name="depassement_archivage" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Note interne" name="note">
+                            <field name="note_interne"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ RECHERCHE ═══════════════ -->
+    <record id="view_resade_courrier_entrant_search" model="ir.ui.view">
+        <field name="name">resade.courrier.entrant.search</field>
+        <field name="model">resade.courrier.entrant</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Courrier Entrant">
+                <field name="numero"/>
+                <field name="objet_libre"/>
+                <field name="tiers_emetteur_id"/>
+                <field name="service_destinataire_id"/>
+                <filter string="Urgents" name="urgent" domain="[('urgent', '=', True)]"/>
+                <filter string="Confidentiels" name="confidentiel" domain="[('confidentiel', '=', True)]"/>
+                <filter string="Archivage dépassé (&gt; 48h)" name="depasse"
+                        domain="[('depassement_archivage', '=', True)]"/>
+                <separator/>
+                <filter string="Reçus" name="recu" domain="[('state', '=', 'recu')]"/>
+                <filter string="En cours" name="en_cours"
+                        domain="[('state', 'in', ['enregistre','transmis_de','affecte','dispatche'])]"/>
+                <filter string="Archivés" name="archive" domain="[('state', '=', 'archive')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Service destinataire" name="group_service" context="{'group_by': 'service_destinataire_id'}"/>
+                    <filter string="Type" name="group_type" context="{'group_by': 'type_courrier'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

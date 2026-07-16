@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_budget_tdb_list" model="ir.ui.view">
+        <field name="name">resade.budget.tdb.list</field>
+        <field name="model">resade.budget.tdb</field>
+        <field name="arch" type="xml">
+            <list string="Tableaux de Bord Budgétaires Mensuels">
+                <field name="name"/>
+                <field name="budget_annuel_id"/>
+                <field name="nb_ecarts_significatifs"/>
+                <field name="valide_par_de" widget="boolean_toggle"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_budget_tdb_form" model="ir.ui.view">
+        <field name="name">resade.budget.tdb.form</field>
+        <field name="model">resade.budget.tdb</field>
+        <field name="arch" type="xml">
+            <form string="Tableau de Bord Budgétaire Mensuel (P-ESB-02)">
+                <header>
+                    <button name="action_generer_lignes" string="Générer les lignes d'analyse" type="object"
+                            invisible="state != 'extraction'" class="btn-primary"/>
+                    <button name="action_marquer_analyse" string="Marquer en analyse" type="object"
+                            invisible="state != 'production'" class="btn-primary"/>
+                    <button name="action_valider_de" string="Valider (DE)" type="object"
+                            invisible="state != 'analyse'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_de"/>
+                    <button name="action_diffuser" string="Diffuser aux départements" type="object"
+                            invisible="state != 'valide'" class="btn-primary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="extraction,production,analyse,valide,diffuse"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="mois"/>
+                            <field name="budget_annuel_id"/>
+                            <field name="date_extraction_sage"/>
+                            <field name="sage_complet"/>
+                        </group>
+                        <group string="Synthèse">
+                            <field name="nb_ecarts_significatifs" readonly="1"/>
+                            <field name="rapport_trimestriel"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lignes d'analyse (F-ESB-02-01)" name="lignes">
+                            <field name="ligne_analyse_ids">
+                                <list editable="bottom" decoration-danger="abs(ecart_pct) > 10">
+                                    <field name="ligne_budgetaire_id"/>
+                                    <field name="rubrique"/>
+                                    <field name="montant_prevu"/>
+                                    <field name="montant_realise_cumul"/>
+                                    <field name="ecart_montant"/>
+                                    <field name="ecart_pct" widget="percentage"/>
+                                    <field name="commentaire"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Analyse et validation" name="analyse">
+                            <field name="commentaire_analyse"/>
+                            <field name="instructions_de"/>
+                            <group>
+                                <field name="valide_par_de" readonly="1"/>
+                                <field name="date_validation_de"/>
+                                <field name="date_diffusion_departements"/>
+                            </group>
+                            <field name="document_tdb" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ RAPPORT TRIMESTRIEL ═══════════════ -->
+    <record id="view_resade_budget_rapport_trimestriel_list" model="ir.ui.view">
+        <field name="name">resade.budget.rapport.trimestriel.list</field>
+        <field name="model">resade.budget.rapport.trimestriel</field>
+        <field name="arch" type="xml">
+            <list string="Rapports Trimestriels au CA">
+                <field name="annee"/>
+                <field name="trimestre"/>
+                <field name="budget_annuel_id"/>
+                <field name="soumis_au_ca" widget="boolean_toggle"/>
+                <field name="date_soumission_ca"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_budget_rapport_trimestriel_form" model="ir.ui.view">
+        <field name="name">resade.budget.rapport.trimestriel.form</field>
+        <field name="model">resade.budget.rapport.trimestriel</field>
+        <field name="arch" type="xml">
+            <form string="Rapport de Performance Budgétaire Trimestriel (RESADE-F-ESB-02-02)">
+                <header>
+                    <button name="action_soumettre_ca" string="Soumettre au CA" type="object"
+                            invisible="soumis_au_ca == True" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="budget_annuel_id"/>
+                        <field name="trimestre"/>
+                        <field name="tdb_mensuel_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Contenu du rapport">
+                        <field name="synthese_execution"/>
+                        <field name="alertes_risques"/>
+                        <field name="previsions_fin_exercice"/>
+                        <field name="recommandations"/>
+                    </group>
+                    <group string="Soumission au CA">
+                        <field name="soumis_au_ca" readonly="1"/>
+                        <field name="date_soumission_ca"/>
+                        <field name="document_rapport" widget="many2many_binary"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ ACTIONS ═══════════════ -->
+
+    <record id="action_resade_budget_annuel" model="ir.actions.act_window">
+        <field name="name">Budget Annuel (POA)</field>
+        <field name="res_model">resade.budget.annuel</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_budget_annuel_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun budget annuel. Cliquez pour lancer le cycle d'élaboration du budget (P-EAB-01).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_resade_budget_ligne" model="ir.actions.act_window">
+        <field name="name">Lignes Budgétaires</field>
+        <field name="res_model">resade.budget.ligne</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_budget_ligne_search"/>
+    </record>
+
+    <record id="action_resade_budget_ligne_alerte" model="ir.actions.act_window">
+        <field name="name">Lignes en alerte (≥ 80%)</field>
+        <field name="res_model">resade.budget.ligne</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('alerte_seuil', '!=', 'ok')]</field>
+    </record>
+
+    <record id="action_resade_budget_projet_bailleur" model="ir.actions.act_window">
+        <field name="name">Budgets de Projets Bailleurs</field>
+        <field name="res_model">resade.budget.projet.bailleur</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun budget projet. Cliquez pour construire le budget d'un nouveau projet bailleur (P-EAB-02).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_resade_budget_feb" model="ir.actions.act_window">
+        <field name="name">Fiches d'Expression des Besoins (FEB)</field>
+        <field name="res_model">resade.budget.feb</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_budget_feb_search"/>
+        <field name="context">{'search_default_mine': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune FEB. Cliquez pour exprimer un nouveau besoin de dépense (P-ESB-01).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_resade_budget_feb_a_traiter" model="ir.actions.act_window">
+        <field name="name">FEB à viser / autoriser</field>
+        <field name="res_model">resade.budget.feb</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['soumise','visee_caf'])]</field>
+    </record>
+
+    <record id="action_resade_budget_tdb" model="ir.actions.act_window">
+        <field name="name">Tableaux de Bord Mensuels</field>
+        <field name="res_model">resade.budget.tdb</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun tableau de bord. Cliquez pour produire le suivi budgétaire mensuel (P-ESB-02).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_resade_budget_rapport_trimestriel" model="ir.actions.act_window">
+        <field name="name">Rapports Trimestriels (CA)</field>
+        <field name="res_model">resade.budget.rapport.trimestriel</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_resade_budget_revision" model="ir.actions.act_window">
+        <field name="name">Révisions Budgétaires</field>
+        <field name="res_model">resade.budget.revision</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_budget_revision_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune révision en cours. Cliquez pour initier une révision/réajustement budgétaire (P-ESB-03).
+            </p>
+        </field>
+    </record>
+
+    <!-- ═══════════════ MENU RACINE ═══════════════ -->
+    <menuitem id="menu_resade_budget_root"
+        name="Budget RESADE"
+        sequence="84"
+        web_icon="resade_budget,static/description/icon.png"/>
+
+    <!-- ÉLABORATION ET ADOPTION (P-EAB-01/02) -->
+    <menuitem id="menu_resade_budget_elaboration"
+        name="Élaboration et Adoption (Module 01)"
+        parent="menu_resade_budget_root"
+        sequence="10"
+        groups="resade_budget.group_resade_budget_chef_dept"/>
+
+    <menuitem id="menu_resade_budget_annuel"
+        name="Budget Annuel (POA) — F-EAB-01-03"
+        parent="menu_resade_budget_elaboration"
+        action="action_resade_budget_annuel"
+        sequence="10"
+        groups="resade_budget.group_resade_budget_chef_dept"/>
+
+    <menuitem id="menu_resade_budget_ligne"
+        name="Lignes Budgétaires"
+        parent="menu_resade_budget_elaboration"
+        action="action_resade_budget_ligne"
+        sequence="20"
+        groups="resade_budget.group_resade_budget_caf"/>
+
+    <menuitem id="menu_resade_budget_projet_bailleur"
+        name="Budgets Projets Bailleurs — F-EAB-02-01"
+        parent="menu_resade_budget_elaboration"
+        action="action_resade_budget_projet_bailleur"
+        sequence="30"
+        groups="resade_budget.group_resade_budget_caf"/>
+
+    <!-- EXÉCUTION ET SUIVI (P-ESB-01/02/03) -->
+    <menuitem id="menu_resade_budget_execution"
+        name="Exécution et Suivi (Module 02)"
+        parent="menu_resade_budget_root"
+        sequence="20"/>
+
+    <menuitem id="menu_resade_budget_feb"
+        name="Mes FEB — F-ESB-01-01"
+        parent="menu_resade_budget_execution"
+        action="action_resade_budget_feb"
+        sequence="10"
+        groups="resade_budget.group_resade_budget_demandeur"/>
+
+    <menuitem id="menu_resade_budget_feb_a_traiter"
+        name="FEB à viser / autoriser"
+        parent="menu_resade_budget_execution"
+        action="action_resade_budget_feb_a_traiter"
+        sequence="20"
+        groups="resade_budget.group_resade_budget_caf"/>
+
+    <menuitem id="menu_resade_budget_ligne_alerte"
+        name="Lignes en alerte (≥ 80%)"
+        parent="menu_resade_budget_execution"
+        action="action_resade_budget_ligne_alerte"
+        sequence="30"
+        groups="resade_budget.group_resade_budget_caf"/>
+
+    <menuitem id="menu_resade_budget_tdb"
+        name="Tableaux de Bord Mensuels — F-ESB-02-01"
+        parent="menu_resade_budget_execution"
+        action="action_resade_budget_tdb"
+        sequence="40"
+        groups="resade_budget.group_resade_budget_caf"/>
+
+    <menuitem id="menu_resade_budget_rapport_trimestriel"
+        name="Rapports Trimestriels (CA) — F-ESB-02-02"
+        parent="menu_resade_budget_execution"
+        action="action_resade_budget_rapport_trimestriel"
+        sequence="50"
+        groups="resade_budget.group_resade_budget_caf"/>
+
+    <menuitem id="menu_resade_budget_revision"
+        name="Révisions Budgétaires — F-ESB-03-01"
+        parent="menu_resade_budget_execution"
+        action="action_resade_budget_revision"
+        sequence="60"
+        groups="resade_budget.group_resade_budget_chef_dept"/>
+
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!--
+            Ce fichier est intentionnellement vide de données métier.
+            Le budget annuel, les lignes budgétaires et les projets bailleurs
+            doivent être créés directement par les utilisateurs RESADE
+            (CAF / DE) via l'interface, conformément au Manuel P-EAB-01/02 ;
+            insérer ici un budget fictif risquerait d'être confondu avec un
+            budget réel par un utilisateur final.
+        -->
+    </data>
+</odoo>

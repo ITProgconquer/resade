@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_budget_revision_list" model="ir.ui.view">
+        <field name="name">resade.budget.revision.list</field>
+        <field name="model">resade.budget.revision</field>
+        <field name="arch" type="xml">
+            <list string="Révisions Budgétaires">
+                <field name="name"/>
+                <field name="budget_annuel_id"/>
+                <field name="type_modification"/>
+                <field name="demandeur_id"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_budget_revision_form" model="ir.ui.view">
+        <field name="name">resade.budget.revision.form</field>
+        <field name="model">resade.budget.revision</field>
+        <field name="arch" type="xml">
+            <form string="Révision / Réajustement Budgétaire (P-ESB-03)">
+                <header>
+                    <button name="action_qualifier" string="Qualifier" type="object"
+                            invisible="state != 'identifie'" class="btn-primary"/>
+                    <button name="action_preparer_tableau" string="Préparer le tableau" type="object"
+                            invisible="state != 'qualifie'" class="btn-primary"/>
+                    <button name="action_approuver" string="Approuver" type="object"
+                            invisible="state != 'tableau_prepare'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_de"/>
+                    <button name="action_notifier_bailleur" string="Notifier le bailleur" type="object"
+                            invisible="state != 'approuve' or not notification_bailleur_requise"
+                            class="btn-primary"/>
+                    <button name="action_mettre_a_jour" string="Mettre à jour le budget" type="object"
+                            invisible="state not in ('approuve','notifie')" class="btn-primary"/>
+                    <button name="action_diffuser" string="Diffuser / archiver" type="object"
+                            invisible="state != 'mis_a_jour'" class="btn-primary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="identifie,qualifie,tableau_prepare,approuve,notifie,mis_a_jour,diffuse"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="budget_annuel_id"/>
+                            <field name="type_modification"/>
+                            <field name="demandeur_id"/>
+                            <field name="evenement_declencheur"/>
+                        </group>
+                        <group string="Niveau d'approbation">
+                            <field name="niveau_approbation_requis" readonly="1"/>
+                            <field name="notification_bailleur_requise" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="motif"/>
+                    <notebook>
+                        <page string="Tableau de modification (F-ESB-03-01)" name="lignes">
+                            <field name="ligne_ids">
+                                <list editable="bottom">
+                                    <field name="ligne_origine_id"/>
+                                    <field name="ligne_destination_id"/>
+                                    <field name="montant_virement"/>
+                                    <field name="justification"/>
+                                </list>
+                            </field>
+                            <field name="document_tableau_modification" widget="many2many_binary"/>
+                        </page>
+                        <page string="Approbation (F-ESB-03-02)" name="approbation">
+                            <group>
+                                <field name="approuve_par_de_id" readonly="1"/>
+                                <field name="date_approbation_de" readonly="1"/>
+                                <field name="approuve_par_ca"/>
+                                <field name="date_approbation_ca"/>
+                                <field name="reference_decision"/>
+                                <field name="document_decision" widget="many2many_binary"/>
+                            </group>
+                        </page>
+                        <page string="Notification bailleur" name="notification"
+                              invisible="not notification_bailleur_requise">
+                            <group>
+                                <field name="date_notification_bailleur"/>
+                                <field name="accuse_reception_bailleur"/>
+                            </group>
+                        </page>
+                        <page string="Mise à jour / diffusion" name="diffusion">
+                            <group>
+                                <field name="date_mise_a_jour_sage"/>
+                                <field name="date_diffusion"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_budget_revision_search" model="ir.ui.view">
+        <field name="name">resade.budget.revision.search</field>
+        <field name="model">resade.budget.revision</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Révisions">
+                <field name="name"/>
+                <field name="demandeur_id"/>
+                <filter string="En cours" name="en_cours" domain="[('state', 'not in', ['diffuse'])]"/>
+                <filter string="Nécessitant approbation CA" name="ca_requis"
+                        domain="[('type_modification', 'in', ['revision_institutionnelle','avenant_bailleur'])]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Type" name="group_type" context="{'group_by': 'type_modification'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

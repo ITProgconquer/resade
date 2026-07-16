@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Catégories d'objet courantes (facilitent le tri / les statistiques) -->
+        <record id="objet_administratif" model="resade.courrier.objet">
+            <field name="name">Administratif</field>
+        </record>
+        <record id="objet_financier" model="resade.courrier.objet">
+            <field name="name">Financier / Comptable</field>
+        </record>
+        <record id="objet_partenariat" model="resade.courrier.objet">
+            <field name="name">Partenariat / Bailleur</field>
+        </record>
+        <record id="objet_rh" model="resade.courrier.objet">
+            <field name="name">Ressources Humaines</field>
+        </record>
+        <record id="objet_scientifique" model="resade.courrier.objet">
+            <field name="name">Scientifique / Recherche</field>
+        </record>
+        <record id="objet_juridique" model="resade.courrier.objet">
+            <field name="name">Juridique / Réglementaire</field>
+        </record>
+        <record id="objet_autre" model="resade.courrier.objet">
+            <field name="name">Autre</field>
+        </record>
+
+        <!-- Étiquettes -->
+        <record id="tag_urgent" model="resade.courrier.tag">
+            <field name="name">Urgent</field>
+            <field name="color">1</field>
+        </record>
+        <record id="tag_confidentiel" model="resade.courrier.tag">
+            <field name="name">Confidentiel</field>
+            <field name="color">2</field>
+        </record>
+        <record id="tag_a_relancer" model="resade.courrier.tag">
+            <field name="name">À relancer</field>
+            <field name="color">3</field>
+        </record>
+
+    </data>
+</odoo>

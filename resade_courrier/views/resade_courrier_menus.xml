@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ ACTIONS ═══════════════ -->
+
+    <record id="action_resade_courrier_entrant" model="ir.actions.act_window">
+        <field name="name">Courrier Entrant</field>
+        <field name="res_model">resade.courrier.entrant</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_courrier_entrant_search"/>
+        <field name="context">{'search_default_en_cours': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun courrier entrant enregistré. Cliquez pour enregistrer la réception d'un courrier (P-GC-01).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_resade_courrier_entrant_mes" model="ir.actions.act_window">
+        <field name="name">Courrier qui m'est affecté</field>
+        <field name="res_model">resade.courrier.entrant</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_courrier_entrant_search"/>
+        <field name="domain">[('destinataire_ids.user_id', '=', uid)]</field>
+    </record>
+
+    <record id="action_resade_courrier_sortant" model="ir.actions.act_window">
+        <field name="name">Courrier Sortant</field>
+        <field name="res_model">resade.courrier.sortant</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_courrier_sortant_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun courrier sortant. Cliquez pour initier un projet de courrier officiel (P-GC-02).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_resade_courrier_sortant_a_viser" model="ir.actions.act_window">
+        <field name="name">Courriers en attente de visa / signature</field>
+        <field name="res_model">resade.courrier.sortant</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['brouillon','vise_aa','vise_caf'])]</field>
+    </record>
+
+    <record id="action_resade_courriel_institutionnel" model="ir.actions.act_window">
+        <field name="name">Courriels Institutionnels</field>
+        <field name="res_model">resade.courriel.institutionnel</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_resade_courriel_institutionnel_search"/>
+        <field name="context">{'search_default_mine': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun courriel suivi. Cliquez pour enregistrer un courriel à valeur institutionnelle (P-GC-03).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_resade_courriel_a_archiver" model="ir.actions.act_window">
+        <field name="name">Courriels VPIA à archiver</field>
+        <field name="res_model">resade.courriel.institutionnel</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('classification_vpia', 'in', ['probante','institutionnelle','administrative']), ('archive_ged','=',False)]</field>
+    </record>
+
+    <record id="action_resade_rapport_boite_mail" model="ir.actions.act_window">
+        <field name="name">Rapport mensuel des boîtes @resade</field>
+        <field name="res_model">resade.rapport.boite.mail</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_resade_courrier_tiers" model="ir.actions.act_window">
+        <field name="name">Structures externes</field>
+        <field name="res_model">resade.courrier.tiers</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_resade_courrier_contact" model="ir.actions.act_window">
+        <field name="name">Contacts externes</field>
+        <field name="res_model">resade.courrier.contact</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_resade_courrier_service" model="ir.actions.act_window">
+        <field name="name">Services / Départements</field>
+        <field name="res_model">resade.courrier.service</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="action_resade_courrier_objet" model="ir.actions.act_window">
+        <field name="name">Catégories d'objet</field>
+        <field name="res_model">resade.courrier.objet</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ═══════════════ MENU RACINE ═══════════════ -->
+    <menuitem id="menu_resade_courrier_root"
+        name="Courrier RESADE"
+        sequence="86"
+        web_icon="resade_courrier,static/description/icon.png"/>
+
+    <!-- COURRIER ENTRANT (P-GC-01) -->
+    <menuitem id="menu_resade_courrier_entrant_racine"
+        name="Courrier Entrant"
+        parent="menu_resade_courrier_root"
+        sequence="10"/>
+
+    <menuitem id="menu_resade_courrier_entrant_tous"
+        name="Tous les courriers entrants (F-GC-01-01)"
+        parent="menu_resade_courrier_entrant_racine"
+        action="action_resade_courrier_entrant"
+        sequence="10"
+        groups="resade_courrier.group_resade_courrier_aa"/>
+
+    <menuitem id="menu_resade_courrier_entrant_mes"
+        name="Courrier qui m'est affecté"
+        parent="menu_resade_courrier_entrant_racine"
+        action="action_resade_courrier_entrant_mes"
+        sequence="20"
+        groups="resade_courrier.group_resade_courrier_agent"/>
+
+    <!-- COURRIER SORTANT (P-GC-02) -->
+    <menuitem id="menu_resade_courrier_sortant_racine"
+        name="Courrier Sortant"
+        parent="menu_resade_courrier_root"
+        sequence="20"/>
+
+    <menuitem id="menu_resade_courrier_sortant_tous"
+        name="Tous les courriers sortants (F-GC-02-02)"
+        parent="menu_resade_courrier_sortant_racine"
+        action="action_resade_courrier_sortant"
+        sequence="10"
+        groups="resade_courrier.group_resade_courrier_agent"/>
+
+    <menuitem id="menu_resade_courrier_sortant_a_viser"
+        name="⏳ En attente de visa / signature"
+        parent="menu_resade_courrier_sortant_racine"
+        action="action_resade_courrier_sortant_a_viser"
+        sequence="20"
+        groups="resade_courrier.group_resade_courrier_caf"/>
+
+    <!-- COURRIELS INSTITUTIONNELS (P-GC-03) -->
+    <menuitem id="menu_resade_courriel_racine"
+        name="Courriels Institutionnels"
+        parent="menu_resade_courrier_root"
+        sequence="30"/>
+
+    <menuitem id="menu_resade_courriel_mes"
+        name="Mes courriels suivis"
+        parent="menu_resade_courriel_racine"
+        action="action_resade_courriel_institutionnel"
+        sequence="10"
+        groups="resade_courrier.group_resade_courrier_agent"/>
+
+    <menuitem id="menu_resade_courriel_a_archiver"
+        name="⚠️ Courriels VPIA à archiver"
+        parent="menu_resade_courriel_racine"
+        action="action_resade_courriel_a_archiver"
+        sequence="20"
+        groups="resade_courrier.group_resade_courrier_aa"/>
+
+    <menuitem id="menu_resade_rapport_boite_mail"
+        name="📊 Rapport mensuel des boîtes @resade (F-GC-03-03)"
+        parent="menu_resade_courriel_racine"
+        action="action_resade_rapport_boite_mail"
+        sequence="30"
+        groups="resade_courrier.group_resade_courrier_aa"/>
+
+    <!-- ═══════════════ MODULE 02 : CLASSEMENT ET ARCHIVAGE ═══════════════ -->
+    <menuitem id="menu_resade_classement_racine"
+        name="Classement et Archivage"
+        parent="menu_resade_courrier_root"
+        sequence="40"/>
+
+    <!-- P-CA-01 : Plan de classement et archivage physique -->
+    <menuitem id="menu_resade_classeur"
+        name="Classeurs physiques (P-CA-01)"
+        parent="menu_resade_classement_racine"
+        action="action_resade_classeur"
+        sequence="10"
+        groups="resade_courrier.group_resade_courrier_agent"/>
+
+    <!-- P-CA-02 : Archivage numérique et GED -->
+    <menuitem id="menu_resade_ged_document"
+        name="Tableau de bord GED (P-CA-02)"
+        parent="menu_resade_classement_racine"
+        action="action_resade_ged_document"
+        sequence="20"
+        groups="resade_courrier.group_resade_courrier_agent"/>
+
+    <menuitem id="menu_resade_ged_audit_mensuel"
+        name="📊 Audit mensuel GED (F-CA-02-04)"
+        parent="menu_resade_classement_racine"
+        action="action_resade_ged_audit_mensuel"
+        sequence="30"
+        groups="resade_courrier.group_resade_courrier_csi"/>
+
+    <!-- P-CA-03 : Numérisation des documents physiques stratégiques -->
+    <menuitem id="menu_resade_numerisation"
+        name="Numérisation (P-CA-03)"
+        parent="menu_resade_classement_racine"
+        action="action_resade_numerisation"
+        sequence="40"
+        groups="resade_courrier.group_resade_courrier_chef_service"/>
+
+    <!-- CONFIGURATION -->
+    <menuitem id="menu_resade_courrier_config"
+        name="⚙️ Configuration"
+        parent="menu_resade_courrier_root"
+        sequence="90"
+        groups="resade_courrier.group_resade_courrier_aa"/>
+
+    <menuitem id="menu_resade_courrier_tiers"
+        name="Structures externes (partenaires, bailleurs...)"
+        parent="menu_resade_courrier_config"
+        action="action_resade_courrier_tiers"
+        sequence="10"
+        groups="resade_courrier.group_resade_courrier_aa"/>
+
+    <menuitem id="menu_resade_courrier_contact"
+        name="Contacts externes"
+        parent="menu_resade_courrier_config"
+        action="action_resade_courrier_contact"
+        sequence="20"
+        groups="resade_courrier.group_resade_courrier_aa"/>
+
+    <menuitem id="menu_resade_courrier_service"
+        name="Services / Départements"
+        parent="menu_resade_courrier_config"
+        action="action_resade_courrier_service"
+        sequence="30"
+        groups="resade_courrier.group_resade_courrier_admin"/>
+
+    <menuitem id="menu_resade_courrier_objet"
+        name="Catégories d'objet"
+        parent="menu_resade_courrier_config"
+        action="action_resade_courrier_objet"
+        sequence="40"
+        groups="resade_courrier.group_resade_courrier_admin"/>
+
+</odoo>

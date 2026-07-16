@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ LISTE ═══════════════ -->
+    <record id="view_resade_courrier_sortant_list" model="ir.ui.view">
+        <field name="name">resade.courrier.sortant.list</field>
+        <field name="model">resade.courrier.sortant</field>
+        <field name="arch" type="xml">
+            <list string="Courrier Sortant" decoration-danger="depassement_validation" decoration-muted="state=='archive'">
+                <field name="numero"/>
+                <field name="create_date" string="Date initiation"/>
+                <field name="objet_libre"/>
+                <field name="initiateur_id"/>
+                <field name="tiers_destinataire_id"/>
+                <field name="nom_destinataire_libre"/>
+                <field name="urgent" widget="boolean_toggle"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ FORMULAIRE ═══════════════ -->
+    <record id="view_resade_courrier_sortant_form" model="ir.ui.view">
+        <field name="name">resade.courrier.sortant.form</field>
+        <field name="model">resade.courrier.sortant</field>
+        <field name="arch" type="xml">
+            <form string="Courrier Sortant (P-GC-02)">
+                <header>
+                    <button name="action_viser_aa" string="Viser (AA)" type="object"
+                            invisible="state != 'brouillon'" class="btn-primary"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
+                    <button name="action_viser_caf" string="Viser (CAF)" type="object"
+                            invisible="state != 'vise_aa'" class="btn-primary"
+                            groups="resade_courrier.group_resade_courrier_caf"/>
+                    <button name="action_signer" string="Signer (DE/PCA)" type="object"
+                            invisible="state != 'vise_caf'" class="btn-primary"
+                            groups="resade_courrier.group_resade_courrier_de"/>
+                    <button name="action_retourner_initiateur" string="Retourner à l'initiateur" type="object"
+                            invisible="state not in ('vise_aa','vise_caf')"
+                            groups="resade_courrier.group_resade_courrier_caf"/>
+                    <button name="action_numeroter" string="Numéroter" type="object"
+                            invisible="state != 'signe'" class="btn-primary"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
+                    <button name="action_envoyer" string="Confirmer l'envoi" type="object"
+                            invisible="state != 'numerote'" class="btn-primary"/>
+                    <button name="action_archiver" string="Archiver / Clôturer" type="object"
+                            invisible="state != 'envoye'" class="btn-primary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="brouillon,vise_aa,vise_caf,signe,numerote,envoye,archive"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Confidentiel" bg_color="text-bg-danger"
+                            invisible="not confidentiel"/>
+                    <widget name="web_ribbon" title="Retourné" bg_color="text-bg-warning"
+                            invisible="state != 'refuse'"/>
+                    <div class="oe_title">
+                        <h1><field name="numero" readonly="1" placeholder="(attribué à la signature)"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="objet_id"/>
+                            <field name="objet_libre"/>
+                            <field name="code_projet"/>
+                            <field name="confidentiel"/>
+                            <field name="urgent"/>
+                        </group>
+                        <group string="Initiateur / Destinataire">
+                            <field name="initiateur_id"/>
+                            <field name="service_initiateur_id"/>
+                            <field name="tiers_destinataire_id"/>
+                            <field name="contact_destinataire_id"/>
+                            <field name="nom_destinataire_libre"/>
+                            <field name="type_envoi"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Projet de courrier" name="projet">
+                            <field name="document_projet" widget="many2many_binary"/>
+                        </page>
+                        <page string="Visas et signature" name="visas">
+                            <group>
+                                <group string="Visa AA">
+                                    <field name="vise_aa_par" readonly="1"/>
+                                    <field name="date_visa_aa" readonly="1"/>
+                                </group>
+                                <group string="Visa CAF">
+                                    <field name="vise_caf_par" readonly="1"/>
+                                    <field name="date_visa_caf" readonly="1"/>
+                                    <field name="commentaire_caf"/>
+                                </group>
+                            </group>
+                            <group string="Signature">
+                                <field name="signataire_id"/>
+                                <field name="type_signataire"/>
+                                <field name="date_signature" readonly="1"/>
+                                <field name="document_signe" widget="many2many_binary"/>
+                                <field name="annotation_retour"/>
+                            </group>
+                        </page>
+                        <page string="Envoi" name="envoi">
+                            <group>
+                                <field name="date_envoi" readonly="1"/>
+                                <field name="preuve_envoi" widget="many2many_binary"/>
+                                <field name="reference_suivi_postal"
+                                       invisible="type_envoi != 'postal'"/>
+                                <field name="copie_initiateur_remise"/>
+                            </group>
+                        </page>
+                        <page string="Archivage GED" name="archivage">
+                            <group>
+                                <group>
+                                    <field name="archive_chrono_physique"/>
+                                    <field name="archive_ged"/>
+                                    <field name="date_archivage_ged"/>
+                                    <field name="reference_ged"/>
+                                </group>
+                                <group>
+                                    <field name="delai_validation_h" readonly="1"/>
+                                    <field name="depassement_validation" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Note interne" name="note">
+                            <field name="note_interne"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ RECHERCHE ═══════════════ -->
+    <record id="view_resade_courrier_sortant_search" model="ir.ui.view">
+        <field name="name">resade.courrier.sortant.search</field>
+        <field name="model">resade.courrier.sortant</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Courrier Sortant">
+                <field name="numero"/>
+                <field name="objet_libre"/>
+                <field name="initiateur_id"/>
+                <field name="tiers_destinataire_id"/>
+                <filter string="Urgents" name="urgent" domain="[('urgent', '=', True)]"/>
+                <filter string="Mes courriers" name="mine" domain="[('initiateur_id.user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="En attente de visa/signature" name="en_attente"
+                        domain="[('state', 'in', ['brouillon','vise_aa','vise_caf'])]"/>
+                <filter string="Délai dépassé" name="depasse" domain="[('depassement_validation', '=', True)]"/>
+                <filter string="Archivés" name="archive" domain="[('state', '=', 'archive')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Initiateur" name="group_init" context="{'group_by': 'initiateur_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

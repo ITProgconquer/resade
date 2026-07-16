@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ IMPORT : VUE ═══════════════ -->
+    <record id="view_resade_budget_ligne_import_form" model="ir.ui.view">
+        <field name="name">resade.budget.ligne.import.form</field>
+        <field name="model">resade.budget.ligne</field>
+        <field name="arch" type="xml">
+            <form string="Importer une ligne budgétaire">
+                <group>
+                    <field name="budget_annuel_id" invisible="1"/>
+                    <field name="name" required="1" placeholder="Intitulé de la ligne"/>
+                    <field name="code_sycebnl" placeholder="Code SYCEBNL (ex: 641)"/>
+                    <field name="rubrique" required="1" placeholder="Rubrique budgétaire"/>
+                    <field name="sous_rubrique" placeholder="Sous-rubrique"/>
+                    <field name="departement" placeholder="Département responsable"/>
+                    <field name="code_analytique" placeholder="Code analytique SAGE"/>
+                    <field name="montant_prevu" required="1" placeholder="Montant prévu"/>
+                    <field name="note" placeholder="Justification / note"/>
+                    <field name="ressource_confirmee" invisible="1"/>
+                </group>
+                <footer>
+                    <button string="Créer la ligne" class="btn-primary" type="object" name="action_import_lignes"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ ACTION IMPORT LIGNES ═══════════════ -->
+    <record id="action_resade_budget_ligne_import" model="ir.actions.act_window">
+        <field name="name">Importer des lignes budgétaires</field>
+        <field name="res_model">resade.budget.ligne</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_resade_budget_ligne_import_form"/>
+        <field name="help" type="html">
+            <p>Importez des lignes budgétaires depuis un fichier Excel (CSV).</p>
+        </field>
+    </record>
+
+    <!-- ═══════════════ LISTE ═══════════════ -->
+    <record id="view_resade_budget_annuel_list" model="ir.ui.view">
+        <field name="name">resade.budget.annuel.list</field>
+        <field name="model">resade.budget.annuel</field>
+        <field name="arch" type="xml">
+            <list string="Budget Annuel RESADE" 
+                  decoration-info="state == 'arbitrage'"
+                  decoration-success="state in ('valide_de','approuve_ca','diffuse')">
+                <field name="name"/>
+                <field name="annee"/>
+                <field name="total_prevu" sum="Total"/>
+                <field name="total_engage" sum="Total"/>
+                <field name="total_realise" sum="Total"/>
+                <field name="total_disponible_hors_reserve" sum="Total" string="Disponible (hors réserve/provision)"/>
+                <field name="taux_execution" widget="percentage" decoration-danger="taux_execution > 100"/>
+                <field name="budget_equilibre" widget="boolean_toggle"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ RECHERCHE ═══════════════ -->
+    <record id="view_resade_budget_annuel_search" model="ir.ui.view">
+        <field name="name">resade.budget.annuel.search</field>
+        <field name="model">resade.budget.annuel</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Budget Annuel">
+                <field name="annee"/>
+                <field name="name"/>
+                <filter string="✅ Approuvés / Diffusés" name="approuve"
+                        domain="[('state', 'in', ['approuve_ca','diffuse'])]"/>
+                <filter string="📝 En préparation" name="en_prep"
+                        domain="[('state', 'in', ['cadrage','soumission','integration','consolidation','arbitrage'])]"/>
+                <filter string="⚖️ En arbitrage" name="en_arbitrage"
+                        domain="[('state', '=', 'arbitrage')]"/>
+                <filter string="🔴 Déséquilibré" name="desequilibre"
+                        domain="[('budget_equilibre', '=', False), ('state', '!=', 'cadrage')]"/>
+                <filter string="⚠️ Lignes en alerte (≥80%)" name="lignes_alerte"
+                        domain="[('ligne_ids.alerte_seuil', 'in', ['alerte_80','alerte_95','depasse'])]"/>
+                <filter string="📊 Taux d'exécution &lt; 50%" name="taux_faible"
+                        domain="[('taux_execution', '&lt;', 50), ('state', '=', 'diffuse')]"/>
+                <separator/>
+                <filter string="Par état" name="group_state" context="{'group_by': 'state'}"/>
+                <filter string="Par année" name="group_annee" context="{'group_by': 'annee'}"/>
+                <filter string="Par équilibre" name="group_equilibre" context="{'group_by': 'budget_equilibre'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══════════════ FORMULAIRE ═══════════════ -->
+    <record id="view_resade_budget_annuel_form" model="ir.ui.view">
+        <field name="name">resade.budget.annuel.form</field>
+        <field name="model">resade.budget.annuel</field>
+        <field name="arch" type="xml">
+            <form string="Budget Annuel (P-EAB-01)">
+                <header>
+                    <!-- Étape 1 : Cadrage -->
+                    <button name="action_lancer_cadrage" string="📋 Lancer le cadrage" type="object"
+                            invisible="state != 'cadrage'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+                    
+                    <!-- Étape 2 : Soumissions -->
+                    <button name="action_confirmer_soumissions" string="📥 Confirmer soumissions" type="object"
+                            invisible="state != 'soumission'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+                    
+                    <!-- Étape 3 : Projets bailleurs -->
+                    <button name="action_integrer_projets" string="🔗 Intégrer projets bailleurs" type="object"
+                            invisible="state != 'integration'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+                    
+                    <!-- Étape 4 : Consolidation -->
+                    <button name="action_consolider" string="🧮 Consolider" type="object"
+                            invisible="state != 'consolidation'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+                    
+                    <!-- Étape 5 : Arbitrage -->
+                    <button name="action_arbitrer" string="⚖️ Arbitrer / équilibrer" type="object"
+                            invisible="state != 'arbitrage'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_de"/>
+                    
+                    <!-- Étape 6 : Validation DE (visible SEULEMENT après arbitrage) -->
+                    <button name="action_valider_de" string="✅ Valider (DE)" type="object"
+                            invisible="state != 'arbitrage' or not date_arbitrage" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_de"/>
+                    
+                    <!-- Étape 7 : Approbation CA -->
+                    <button name="action_approuver_ca" string="🏛️ Approuver (CA)" type="object"
+                            invisible="state != 'valide_de'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_admin"/>
+                    
+                    <!-- Étape 8 : Diffusion / Clôture -->
+                    <button name="action_diffuser" string="📤 Diffuser / clôturer" type="object"
+                            invisible="state != 'approuve_ca'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+                    
+                    <!-- État -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="cadrage,soumission,integration,consolidation,arbitrage,valide_de,approuve_ca,diffuse"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                            <span class="o_stat_info" invisible="state != 'diffuse'">
+                                <field name="date_diffusion" widget="date"/>
+                            </span>
+                        </h1>
+                    </div>
+                    
+                    <!-- Alerte budget déséquilibré -->
+                    <div class="alert alert-danger" role="alert"
+                         invisible="budget_equilibre or state == 'cadrage'">
+                        <i class="fa fa-exclamation-triangle"/> ⚠️ Budget déséquilibré.
+                        <strong>Veuillez ajuster les lignes ou l'arbitrage.</strong>
+                    </div>
+                    
+                    <!-- Alerte budget verrouillé -->
+                    <div class="alert alert-warning" role="alert" invisible="state != 'diffuse'">
+                        <i class="fa fa-lock"/> <strong>Ce budget est diffusé et verrouillé.</strong><br/>
+                        Toute modification des lignes budgétaires doit passer par une 
+                        <strong>Révision Budgétaire</strong> (F-ESB-03-01).
+                    </div>
+                    
+                    <group>
+                        <group string="📋 Exercice">
+                            <field name="annee" readonly="state != 'cadrage'"/>
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                            <field name="currency_id" groups="base.group_no_one"/>
+                        </group>
+                        <group string="📊 Synthèse financière">
+                            <field name="total_recettes" readonly="1"/>
+                            <field name="total_charges" readonly="1"/>
+                            <field name="total_prevu"/>
+                            <field name="total_engage"/>
+                            <field name="total_realise"/>
+                            <field name="total_disponible_hors_reserve" string="Disponible (hors réserve/provision)"/>
+                            <field name="taux_execution" widget="percentage" decoration-danger="taux_execution > 100"/>
+                            <field name="nb_lignes"/>
+                            <field name="budget_equilibre" widget="boolean_toggle" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <!-- PAGE 1 : CADRAGE -->
+                        <page string="📋 Cadrage (F-EAB-01-01)" name="cadrage">
+                            <group>
+                                <group string="Dates et orientations">
+                                    <field name="date_cadrage"/>
+                                    <field name="delai_soumission"/>
+                                    <field name="orientations_strategiques" nolabel="1" placeholder="Orientations stratégiques (Plan Stratégique 2026-2030)..."/>
+                                </group>
+                                <group string="Contraintes et documents">
+                                    <field name="contraintes_financieres" nolabel="1" placeholder="Contraintes financières..."/>
+                                    <field name="document_cadrage" widget="many2many_binary"
+                                           help="Note de cadrage budgétaire (RESADE-F-EAB-01-01)"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert" invisible="state != 'cadrage'">
+                                <i class="fa fa-info-circle"/> La note de cadrage est obligatoire avant de lancer le processus.
+                            </div>
+                        </page>
+                        
+                        <!-- PAGE 2 : LIGNES BUDGÉTAIRES -->
+                        <page string="💰 Lignes budgétaires" name="lignes">
+
+                            <!-- ================= UNE SEULE LISTE ================= -->
+                            <field name="ligne_ids"
+                                context="{'default_budget_annuel_id': id}"
+                                readonly="not can_edit_lines">
+
+                                <list 
+                                    decoration-muted="parent.state == 'diffuse'"
+                                    decoration-danger="alerte_seuil in ('alerte_95','depasse')"
+                                    decoration-warning="alerte_seuil == 'alerte_80'"
+                                    decoration-info="alerte_seuil == 'ok'">
+
+                                    <field name="code_sycebnl"/>
+                                    <field name="name"/>
+                                    <field name="rubrique"/>
+                                    <field name="department_id"/>
+                                    <field name="montant_prevu" sum="Total"/>
+                                    <field name="montant_engage" sum="Total"/>
+                                    <field name="montant_realise" sum="Total"/>
+                                    <field name="montant_disponible" sum="Total"/>
+                                    <field name="alerte_seuil" widget="badge" optional="show"/>
+
+                                </list>
+                            </field>
+
+                            <!-- ================= BOUTONS ================= -->
+                            <div class="oe_button_box" 
+                                invisible="state == 'diffuse' or not is_chef_only">
+
+                                <button name="%(action_resade_budget_ligne_create)d"
+                                        type="action"
+                                        string="➕ Ajouter une ligne"
+                                        class="btn-secondary"/>
+
+                            </div>
+
+                            <!-- ================= ALERTE ================= -->
+                            <div class="alert alert-warning"
+                                role="alert"
+                                invisible="state != 'diffuse'">
+
+                                <i class="fa fa-lock"/>
+                                <strong>Ce budget est diffusé et verrouillé.</strong>
+
+                                Toute modification doit passer par une
+                                <strong>Révision Budgétaire (F-ESB-03-01).</strong>
+
+                            </div>
+
+                        </page>
+                        
+                        <page string="🤝 Projets bailleurs (P-EAB-02)" name="projets">
+                            <field name="projet_bailleur_ids" >
+                                <list decoration-success="state == 'integre'"
+                                    decoration-warning="state == 'negociation'"
+                                    decoration-danger="state == 'rejete'">
+                                    <field name="name"/>
+                                    <field name="bailleur_name"/>
+                                    <field name="montant_total" sum="Total"/>
+                                    <field name="taux_overhead_pct" widget="percentage"/>
+                                    <field name="montant_overhead" sum="Total"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                            <div class="alert alert-info" role="alert">
+                                <i class="fa fa-info-circle"/> Les budgets de projets bailleurs doivent être intégrés
+                                avant la consolidation (étape 3 du workflow).
+                            </div>
+                        </page>
+                        
+                        <!-- PAGE 4 : ARBITRAGE / RÉSERVE -->
+                        <page string="⚖️ Arbitrage / Réserve" name="arbitrage">
+                            <group>
+                                <group string="📊 Recettes et charges">
+                                    <field name="total_recettes"/>
+                                    <field name="total_charges_fixes"/>
+                                </group>
+                                <group string="🏦 Réserve et provision (calculées)">
+                                    <field name="reserve_fonctionnement" readonly="1"/>
+                                    <field name="provision_imprevus_pct"/>
+                                    <field name="provision_imprevus_montant" readonly="1"/>
+                                    <field name="budget_equilibre" readonly="1" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Détail de l'équilibre" invisible="state != 'arbitrage'">
+                                <group string="Recettes">
+                                    <field name="total_recettes"/>
+                                </group>
+                                <group string="Charges + réserves">
+                                    <field name="total_prevu" string="Total Général"/>
+                                    <field name="reserve_fonctionnement"/>
+                                    <field name="provision_imprevus_montant"/>
+                                    <div class="o_row">
+                                        <field name="total_recettes" readonly="1" decoration-danger="not budget_equilibre"/>
+                                    </div>
+                                </group>
+                            </group>
+                            
+                            <div class="alert alert-danger" role="alert"
+                                 invisible="budget_equilibre or state == 'cadrage'">
+                                <i class="fa fa-exclamation-triangle"/> ⚠️ Budget déséquilibré.
+                            </div>
+                            <div class="alert alert-success" role="alert"
+                                 invisible="not budget_equilibre or state == 'cadrage'">
+                                <i class="fa fa-check-circle"/> ✅ Budget équilibré.
+                            </div>
+                            
+                            <group string="Traçabilité de l'arbitrage" invisible="state != 'arbitrage'">
+                                <field name="date_arbitrage"/>
+                                <field name="arbitre_par_id"/>
+                            </group>
+                        </page>
+                        
+                        <!-- PAGE 5 : APPROBATION -->
+                        <page string="🏛️ Approbation (F-EAB-01-03)" name="approbation">
+                            <group>
+                                <group string="✅ Validation DE (étape 6)">
+                                    <field name="valide_par_de_id" readonly="1"/>
+                                    <field name="date_validation_de" readonly="1"/>
+                                    <div class="alert alert-info" role="alert"
+                                         invisible="state in ('valide_de','approuve_ca','diffuse')">
+                                        <i class="fa fa-hourglass-half"/> En attente de validation par le Directeur Exécutif.
+                                    </div>
+                                </group>
+                                <group string="🏛️ Approbation CA (étape 7)">
+                                    <field name="approuve_par_ca" readonly="1"/>
+                                    <field name="date_approbation_ca" readonly="state not in ('valide_de','approuve_ca','diffuse')"/>
+                                    <field name="reference_resolution_ca" readonly="state not in ('valide_de','approuve_ca','diffuse')"/>
+                                    <field name="document_resolution_ca" widget="many2many_binary"
+                                           readonly="state not in ('valide_de','approuve_ca','diffuse')"/>
+                                </group>
+                            </group>
+                            
+                            <group string="📤 Présentation AG et diffusion (étape 8)">
+                                <field name="date_presentation_ag" readonly="state not in ('approuve_ca','diffuse')"/>
+                                <field name="valide_ag" readonly="state not in ('approuve_ca','diffuse')"/>
+                                <field name="date_diffusion" readonly="1"/>
+                                <field name="document_budget_consolide" widget="many2many_binary"
+                                       readonly="state not in ('approuve_ca','diffuse')"/>
+                            </group>
+                            
+                            <div class="alert alert-success" role="alert" invisible="state != 'diffuse'">
+                                <i class="fa fa-check-circle"/> ✅ Budget diffusé et clôturé le <field name="date_diffusion" readonly="1"/>.
+                            </div>
+                        </page>
+                        
+                        <!-- PAGE 6 : NOTE INTERNE -->
+                        <page string="📝 Note interne" name="note">
+                            <field name="note_interne" nolabel="1" placeholder="Note interne (usage RESADE)..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ ACTION MENU ═══════════════ -->
+    <record id="action_resade_budget_annuel" model="ir.actions.act_window">
+        <field name="name">Budgets Annuels (POA)</field>
+        <field name="res_model">resade.budget.annuel</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez et gérez les budgets annuels (POA) de RESADE.
+            </p>
+            <p>
+                Le budget annuel est l'outil central de pilotage stratégique et financier.
+                Il couvre les ressources et les charges, avec une réserve de fonctionnement
+                (3 mois de charges fixes) et une provision pour imprévus (5%).
+            </p>
+            <p>
+                <b>Processus :</b> Cadrage → Soumissions → Intégration bailleurs → Consolidation
+                → Arbitrage → Validation DE → Approbation CA → Diffusion.
+            </p>
+        </field>
+    </record>
+
+</odoo>

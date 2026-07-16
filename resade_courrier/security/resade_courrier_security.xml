@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════
+             CATÉGORIE
+        ═══════════════════════════════════════════ -->
+        <record id="module_resade_courrier" model="ir.module.category">
+            <field name="name">RESADE Courrier</field>
+            <field name="description">Gestion du courrier RESADE – Carnet G Modules 01 et 02 (P-GC-01/02/03, P-CA-01/02/03)</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             GROUPES (hiérarchie implicite, conforme RACI Manuel)
+        ═══════════════════════════════════════════ -->
+
+        <!-- Agent : tout collaborateur RESADE, initiateur de courrier sortant,
+             titulaire d'une boîte @resade, destinataire de courrier entrant -->
+        <record id="group_resade_courrier_agent" model="res.groups">
+            <field name="name">Agent RESADE</field>
+            <field name="category_id" ref="module_resade_courrier"/>
+            <field name="comment">Tout agent : initie un courrier sortant, gère sa boîte @resade, reçoit du courrier affecté</field>
+        </record>
+
+        <!-- Chef de Département / Pool : visibilité élargie à son service -->
+        <record id="group_resade_courrier_chef_service" model="res.groups">
+            <field name="name">Chef de Département / Pool</field>
+            <field name="category_id" ref="module_resade_courrier"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_courrier_agent'))]"/>
+            <field name="comment">Chef de département (Opérations, Partenariat...) : destinataire désigné, visibilité de son service</field>
+        </record>
+
+        <!-- AA : Assistant(e) Administratif(ve) — propriétaire opérationnel des 3 processus -->
+        <record id="group_resade_courrier_aa" model="res.groups">
+            <field name="name">Assistant(e) Administratif(ve) (AA)</field>
+            <field name="category_id" ref="module_resade_courrier"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_courrier_chef_service'))]"/>
+            <field name="comment">Propriétaire opérationnel : réception, enregistrement, numérotation, dispatch, archivage GED (P-GC-01/02/03), classement physique et numérisation (P-CA-01/02/03)</field>
+        </record>
+
+        <!-- CSI : Chargé(e) des Systèmes d'Information — administration GED, droits d'accès, sauvegardes -->
+        <record id="group_resade_courrier_csi" model="res.groups">
+            <field name="name">Chargé(e) des Systèmes d'Information (CSI)</field>
+            <field name="category_id" ref="module_resade_courrier"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_courrier_aa'))]"/>
+            <field name="comment">Administre la plateforme GED : paramétrage des droits d'accès, sauvegardes, plan de continuité, contrôle qualité technique des numérisations (P-CA-02/03)</field>
+        </record>
+
+        <!-- CAF : visa cohérence administrative et financière -->
+        <record id="group_resade_courrier_caf" model="res.groups">
+            <field name="name">CAF (Administration &amp; Finances)</field>
+            <field name="category_id" ref="module_resade_courrier"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_courrier_csi'))]"/>
+            <field name="comment">Visa des courriers sortants à incidence financière ; validation de la liste prioritaire de numérisation ; audit mensuel GED</field>
+        </record>
+
+        <!-- DE : annotation/dispatch courrier entrant, signature courrier sortant -->
+        <record id="group_resade_courrier_de" model="res.groups">
+            <field name="name">Directeur Exécutif (DE)</field>
+            <field name="category_id" ref="module_resade_courrier"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_courrier_caf'))]"/>
+            <field name="comment">Annotation et instructions de dispatch (P-GC-01) ; signature des courriers officiels (P-GC-02) ; supervision GCI</field>
+        </record>
+
+        <!-- Administrateur du module -->
+        <record id="group_resade_courrier_admin" model="res.groups">
+            <field name="name">Administrateur Courrier</field>
+            <field name="category_id" ref="module_resade_courrier"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_courrier_de'))]"/>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             RÈGLES D'ACCÈS PAR ENREGISTREMENT
+        ═══════════════════════════════════════════ -->
+
+        <!-- Courrier ENTRANT : un agent ne voit que les courriers qui lui sont
+             affectés en destinataire, ou ceux de son service -->
+        <record id="rule_courrier_entrant_agent" model="ir.rule">
+            <field name="name">Agent : voir le courrier entrant qui lui est affecté</field>
+            <field name="model_id" ref="model_resade_courrier_entrant"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_agent'))]"/>
+            <field name="domain_force">
+                ['|', ('destinataire_ids.user_id', '=', user.id),
+                      ('service_destinataire_id.responsable_id.user_id', '=', user.id)]
+            </field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- AA et au-dessus : voient tout le courrier entrant -->
+        <record id="rule_courrier_entrant_aa_all" model="ir.rule">
+            <field name="name">AA / CAF / DE / Admin : voir tout le courrier entrant</field>
+            <field name="model_id" ref="model_resade_courrier_entrant"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_aa'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Courrier SORTANT : un agent voit ses propres courriers initiés -->
+        <record id="rule_courrier_sortant_agent_own" model="ir.rule">
+            <field name="name">Agent : voir ses propres courriers sortants initiés</field>
+            <field name="model_id" ref="model_resade_courrier_sortant"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_agent'))]"/>
+            <field name="domain_force">[('initiateur_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- AA et au-dessus : voient tout le courrier sortant -->
+        <record id="rule_courrier_sortant_aa_all" model="ir.rule">
+            <field name="name">AA / CAF / DE / Admin : voir tout le courrier sortant</field>
+            <field name="model_id" ref="model_resade_courrier_sortant"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_aa'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Courriels institutionnels : chaque agent gère sa propre boîte -->
+        <record id="rule_courriel_agent_own" model="ir.rule">
+            <field name="name">Agent : voir les courriels de sa propre boîte</field>
+            <field name="model_id" ref="model_resade_courriel_institutionnel"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_agent'))]"/>
+            <field name="domain_force">[('agent_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- AA / CAF / DE / Admin : coordination archivage GCI -> voient tout -->
+        <record id="rule_courriel_aa_all" model="ir.rule">
+            <field name="name">AA / CAF / DE / Admin : voir tous les courriels institutionnels (coordination GCI)</field>
+            <field name="model_id" ref="model_resade_courriel_institutionnel"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_aa'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- P-CA-01 : Classeurs — visibilité élargie à AA et au-dessus -->
+        <record id="rule_classeur_aa_all" model="ir.rule">
+            <field name="name">AA / CSI / CAF / DE / Admin : voir tous les classeurs</field>
+            <field name="model_id" ref="model_resade_classeur"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_aa'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Chef de service : voit les classeurs dont il est responsable -->
+        <record id="rule_classeur_chef_service_own" model="ir.rule">
+            <field name="name">Chef de service : voir les classeurs dont il est responsable</field>
+            <field name="model_id" ref="model_resade_classeur"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_chef_service'))]"/>
+            <field name="domain_force">[('responsable_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- P-CA-02 : Documents GED — visibilité élargie à AA et au-dessus -->
+        <record id="rule_ged_document_aa_all" model="ir.rule">
+            <field name="name">AA / CSI / CAF / DE / Admin : voir tous les documents GED</field>
+            <field name="model_id" ref="model_resade_ged_document"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_aa'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Agent : voit les documents GED dont il est le responsable déclencheur -->
+        <record id="rule_ged_document_agent_own" model="ir.rule">
+            <field name="name">Agent : voir ses propres documents GED</field>
+            <field name="model_id" ref="model_resade_ged_document"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_agent'))]"/>
+            <field name="domain_force">[('responsable_document_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- P-CA-03 : Numérisation — visibilité élargie à AA et au-dessus -->
+        <record id="rule_numerisation_aa_all" model="ir.rule">
+            <field name="name">AA / CSI / CAF / DE / Admin : voir toutes les numérisations</field>
+            <field name="model_id" ref="model_resade_numerisation"/>
+            <field name="groups" eval="[(4, ref('group_resade_courrier_aa'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

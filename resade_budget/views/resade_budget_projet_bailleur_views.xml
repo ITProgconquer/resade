@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_budget_projet_bailleur_list" model="ir.ui.view">
+        <field name="name">resade.budget.projet.bailleur.list</field>
+        <field name="model">resade.budget.projet.bailleur</field>
+        <field name="arch" type="xml">
+            <list string="Budgets de Projets Bailleurs">
+                <field name="name"/>
+                <field name="bailleur_name"/>
+                <field name="currency_id"/>
+                <field name="montant_total"/>
+                <field name="taux_overhead_pct"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_budget_projet_bailleur_form" model="ir.ui.view">
+        <field name="name">resade.budget.projet.bailleur.form</field>
+        <field name="model">resade.budget.projet.bailleur</field>
+        <field name="arch" type="xml">
+            <form string="Budget de Projet Bailleur (P-EAB-02)">
+                <header>
+                    <!-- ÉTAPE 1 : ANALYSE DU CANEVAS BAILLEUR -->
+                    <button name="action_analyser"
+                        string="🔍 Analyser canevas bailleur"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'analyse'"
+                        groups="resade_budget.group_resade_budget_caf"/>
+
+                    <!-- ÉTAPE 2 : CADRAGE INTERNE -->
+                    <button name="action_cadrer"
+                        string="📐 Valider cadrage interne"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'cadrage'"
+                        groups="resade_budget.group_resade_budget_de,resade_budget.group_resade_budget_caf"/>
+
+                    <!-- ÉTAPE 3 : CONSTRUCTION DU BUDGET -->
+                    <button name="action_construire"
+                        string="🧮 Construire le budget"
+                        type="object" class="btn-primary"
+                        invisible="state != 'construction'"
+                        groups="resade_budget.group_resade_budget_caf"/>
+
+                    <!-- ÉTAPE 4 : VALIDATION DE -->
+                    <button name="action_valider_de"
+                        string="✅ Valider (DE)"
+                        type="object" class="btn-primary"
+                        invisible="state != 'valide'"
+                        groups="resade_budget.group_resade_budget_de"/>
+
+                    <!-- ÉTAPE 5 : SOUMISSION AU BAILLEUR -->
+                    <button name="action_soumettre"
+                        string="📤 Soumettre au bailleur"
+                        type="object" class="btn-primary"
+                        invisible="state != 'soumis'"
+                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_de"/>
+
+                    <!-- ÉTAPE 6 : NÉGOCIATION -->
+                    <button name="action_negocier"
+                        string="🤝 Marquer en négociation"
+                        type="object" class="btn-secondary"
+                        invisible="state != 'negociation'"
+                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_de"/>
+
+                    <!-- ÉTAPE 7 : INTÉGRATION -->
+                    <button name="action_integrer"
+                        string="🔗 Intégrer (ouvrir code analytique)"
+                        type="object" class="btn-success"
+                        invisible="state not in ('soumis','negociation')"
+                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_de"/>
+
+                    <!-- STATUS BAR -->
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="analyse,cadrage,construction,valide,soumis,negociation,integre"/>
+
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="bailleur_name"/>
+                            <field name="budget_annuel_id"/>
+                            <field name="chef_departement_id"/>
+                            <field name="currency_id"/>
+                            <field name="taux_change_bceao"/>
+                        </group>
+                        <group string="Synthèse">
+                            <field name="montant_couts_directs" readonly="1"/>
+                            <field name="montant_overhead" readonly="1"/>
+                            <field name="montant_imprevus" readonly="1"/>
+                            <field name="montant_total" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Structure du budget (B.5)" name="structure">
+                            <group>
+                                <field name="montant_personnel"/>
+                                <field name="montant_terrain"/>
+                                <field name="montant_publication"/>
+                                <field name="montant_equipements"/>
+                                <field name="taux_overhead_pct"/>
+                                <field name="taux_imprevus_pct"/>
+                                <field name="montant_audit"/>
+                            </group>
+                        </page>
+                        <page string="Soumission / négociation" name="soumission">
+                            <group>
+                                <field name="date_soumission"/>
+                                <field name="document_budget_devise" widget="many2many_binary"/>
+                                <field name="commentaire_negociation"/>
+                            </group>
+                        </page>
+                        <page string="Intégration analytique (F-EAB-02-02)" name="integration">
+                            <group>
+                                <field name="code_analytique"/>
+                                <field name="analytic_account_id"/>
+                                <field name="date_ouverture_code"/>
+                                <field name="date_signature_convention"/>
+                                <field name="document_repartition_panier" widget="many2many_binary"/>
+                                <field name="ligne_budgetaire_id" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Note interne" name="note">
+                            <field name="note_interne"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+</odoo>

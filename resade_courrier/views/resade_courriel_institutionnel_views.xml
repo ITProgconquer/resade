@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ LISTE COURRIELS ═══════════════ -->
+    <record id="view_resade_courriel_institutionnel_list" model="ir.ui.view">
+        <field name="name">resade.courriel.institutionnel.list</field>
+        <field name="model">resade.courriel.institutionnel</field>
+        <field name="arch" type="xml">
+            <list string="Courriels Institutionnels" decoration-danger="delai_depasse" decoration-muted="statut_traitement=='archive'">
+                <field name="date_courriel"/>
+                <field name="sens"/>
+                <field name="agent_id"/>
+                <field name="objet"/>
+                <field name="tiers_id"/>
+                <field name="categorie_tri"/>
+                <field name="niveau_urgence"/>
+                <field name="classification_vpia"/>
+                <field name="statut_traitement" widget="badge"/>
+                <field name="delai_depasse" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ FORMULAIRE COURRIELS ═══════════════ -->
+    <record id="view_resade_courriel_institutionnel_form" model="ir.ui.view">
+        <field name="name">resade.courriel.institutionnel.form</field>
+        <field name="model">resade.courriel.institutionnel</field>
+        <field name="arch" type="xml">
+            <form string="Courriel Institutionnel (P-GC-03)">
+                <header>
+                    <button name="action_envoyer_ar" string="Envoyer AR" type="object"
+                            invisible="accuse_reception_envoye or sens != 'recu'"/>
+                    <button name="action_marquer_traite" string="Marquer Traité" type="object"
+                            invisible="statut_traitement != 'en_cours'" class="btn-primary"/>
+                    <button name="action_archiver" string="Archiver GED" type="object"
+                            invisible="statut_traitement == 'archive'" class="btn-primary"/>
+                    <field name="statut_traitement" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="objet" placeholder="Objet du courriel"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="sens"/>
+                            <field name="agent_id"/>
+                            <field name="boite_resade"/>
+                            <field name="date_courriel"/>
+                            <field name="tiers_id"/>
+                        </group>
+                        <group string="Destinataires">
+                            <field name="expediteur"/>
+                            <field name="destinataire"/>
+                            <field name="copie"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tri (A / I / T / E)" name="tri">
+                            <group>
+                                <field name="categorie_tri" widget="radio"/>
+                                <field name="service_transmission_id"
+                                       invisible="categorie_tri != 't'"/>
+                                <field name="agent_transmission_id"
+                                       invisible="categorie_tri != 't'"/>
+                            </group>
+                        </page>
+                        <page string="Délais et accusé de réception" name="delais">
+                            <group>
+                                <group>
+                                    <field name="niveau_urgence"/>
+                                    <field name="accuse_reception_envoye"/>
+                                    <field name="date_accuse_reception"/>
+                                </group>
+                                <group>
+                                    <field name="date_reponse"/>
+                                    <field name="delai_reponse_h" readonly="1"/>
+                                    <field name="delai_depasse" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Classification VPIA et archivage" name="vpia">
+                            <group>
+                                <field name="classification_vpia" widget="radio"/>
+                                <field name="document_archive" widget="many2many_binary"/>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="archive_ged"/>
+                                    <field name="date_archivage_ged"/>
+                                    <field name="reference_ged"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Note" name="note">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ RECHERCHE COURRIELS ═══════════════ -->
+    <record id="view_resade_courriel_institutionnel_search" model="ir.ui.view">
+        <field name="name">resade.courriel.institutionnel.search</field>
+        <field name="model">resade.courriel.institutionnel</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Courriels">
+                <field name="objet"/>
+                <field name="agent_id"/>
+                <field name="tiers_id"/>
+                <filter string="Mes courriels" name="mine" domain="[('agent_id.user_id', '=', uid)]"/>
+                <filter string="Urgents" name="urgent" domain="[('niveau_urgence', '=', 'urgent')]"/>
+                <filter string="Délai dépassé" name="depasse" domain="[('delai_depasse', '=', True)]"/>
+                <separator/>
+                <filter string="À archiver (VPIA)" name="a_archiver"
+                        domain="[('classification_vpia', 'in', ['probante','institutionnelle','administrative']), ('archive_ged','=',False)]"/>
+                <filter string="Archivés" name="archives" domain="[('statut_traitement', '=', 'archive')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Statut" name="group_statut" context="{'group_by': 'statut_traitement'}"/>
+                    <filter string="Catégorie de tri" name="group_tri" context="{'group_by': 'categorie_tri'}"/>
+                    <filter string="Classification VPIA" name="group_vpia" context="{'group_by': 'classification_vpia'}"/>
+                    <filter string="Agent" name="group_agent" context="{'group_by': 'agent_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══════════════ RAPPORT MENSUEL BOÎTES @resade ═══════════════ -->
+    <record id="view_resade_rapport_boite_mail_list" model="ir.ui.view">
+        <field name="name">resade.rapport.boite.mail.list</field>
+        <field name="model">resade.rapport.boite.mail</field>
+        <field name="arch" type="xml">
+            <list string="Rapport mensuel des boîtes @resade" decoration-danger="quota_alerte">
+                <field name="mois"/>
+                <field name="agent_id"/>
+                <field name="quota_pct"/>
+                <field name="nb_courriels_archives"/>
+                <field name="nb_courriels_elimines"/>
+                <field name="conforme" widget="boolean_toggle"/>
+                <field name="quota_alerte" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_rapport_boite_mail_form" model="ir.ui.view">
+        <field name="name">resade.rapport.boite.mail.form</field>
+        <field name="model">resade.rapport.boite.mail</field>
+        <field name="arch" type="xml">
+            <form string="Rapport mensuel boîte @resade (RESADE-F-GC-03-03)">
+                <sheet>
+                    <group>
+                        <field name="mois"/>
+                        <field name="agent_id"/>
+                        <field name="quota_pct"/>
+                        <field name="quota_alerte" readonly="1"/>
+                        <field name="nb_courriels_archives"/>
+                        <field name="nb_courriels_elimines"/>
+                        <field name="conforme"/>
+                    </group>
+                    <field name="observations"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

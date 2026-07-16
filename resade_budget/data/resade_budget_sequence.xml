@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- P-ESB-01 : Fiche d'Expression des Besoins (FEB) -->
+        <record id="seq_resade_budget_feb" model="ir.sequence">
+            <field name="name">FEB RESADE</field>
+            <field name="code">resade.budget.feb</field>
+            <field name="prefix">FEB-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+        <!-- P-ESB-03 : Révision budgétaire -->
+        <record id="seq_resade_budget_revision" model="ir.sequence">
+            <field name="name">Révision Budgétaire RESADE</field>
+            <field name="code">resade.budget.revision</field>
+            <field name="prefix">REV-BUD-%(year)s-</field>
+            <field name="padding">3</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+    </data>
+</odoo>

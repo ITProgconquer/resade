@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ TIERS (structures externes) ═══════════════ -->
+    <record id="view_resade_courrier_tiers_list" model="ir.ui.view">
+        <field name="name">resade.courrier.tiers.list</field>
+        <field name="model">resade.courrier.tiers</field>
+        <field name="arch" type="xml">
+            <list string="Structures externes">
+                <field name="name"/>
+                <field name="type_tiers"/>
+                <field name="email"/>
+                <field name="telephone"/>
+                <field name="actif" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_courrier_tiers_form" model="ir.ui.view">
+        <field name="name">resade.courrier.tiers.form</field>
+        <field name="model">resade.courrier.tiers</field>
+        <field name="arch" type="xml">
+            <form string="Structure externe">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="type_tiers"/>
+                        <field name="email"/>
+                        <field name="telephone"/>
+                        <field name="actif"/>
+                    </group>
+                    <field name="adresse"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ CONTACTS ═══════════════ -->
+    <record id="view_resade_courrier_contact_list" model="ir.ui.view">
+        <field name="name">resade.courrier.contact.list</field>
+        <field name="model">resade.courrier.contact</field>
+        <field name="arch" type="xml">
+            <list string="Contacts externes">
+                <field name="name"/>
+                <field name="fonction"/>
+                <field name="tiers_id"/>
+                <field name="email"/>
+                <field name="telephone"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_courrier_contact_form" model="ir.ui.view">
+        <field name="name">resade.courrier.contact.form</field>
+        <field name="model">resade.courrier.contact</field>
+        <field name="arch" type="xml">
+            <form string="Contact externe">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="fonction"/>
+                        <field name="tiers_id"/>
+                        <field name="email"/>
+                        <field name="telephone"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ SERVICES ═══════════════ -->
+    <record id="view_resade_courrier_service_list" model="ir.ui.view">
+        <field name="name">resade.courrier.service.list</field>
+        <field name="model">resade.courrier.service</field>
+        <field name="arch" type="xml">
+            <list string="Services / Départements" editable="bottom">
+                <field name="name"/>
+                <field name="responsable_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ OBJETS / CATÉGORIES ═══════════════ -->
+    <record id="view_resade_courrier_objet_list" model="ir.ui.view">
+        <field name="name">resade.courrier.objet.list</field>
+        <field name="model">resade.courrier.objet</field>
+        <field name="arch" type="xml">
+            <list string="Catégories d'objet" editable="bottom">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

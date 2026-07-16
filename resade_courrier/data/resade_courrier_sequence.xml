@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- P-GC-01 : Registre Courrier Arrivée — RESADE-F-GC-01-01-NUM -->
+        <record id="seq_resade_courrier_entrant" model="ir.sequence">
+            <field name="name">Courrier Entrant RESADE</field>
+            <field name="code">resade.courrier.entrant</field>
+            <field name="prefix">CE-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+        <!-- P-GC-02 : numéro d'ordre institutionnel — convention [N°ordre]-[AAAA]/[Projet]/[Init]/[Sign] -->
+        <record id="seq_resade_courrier_sortant" model="ir.sequence">
+            <field name="name">Courrier Sortant RESADE (n° d'ordre)</field>
+            <field name="code">resade.courrier.sortant</field>
+            <field name="prefix"></field>
+            <field name="padding">3</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+        <!-- P-CA-02 : Tableau de bord GED — RESADE-F-CA-02-01 -->
+        <record id="seq_resade_ged_document" model="ir.sequence">
+            <field name="name">Document GED RESADE</field>
+            <field name="code">resade.ged.document</field>
+            <field name="prefix">GED-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+        <!-- P-CA-03 : Registre de numérisation — RESADE-F-CA-03-03 -->
+        <record id="seq_resade_numerisation" model="ir.sequence">
+            <field name="name">Registre de Numérisation RESADE</field>
+            <field name="code">resade.numerisation</field>
+            <field name="prefix">NUM-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+        </record>
+
+    </data>
+</odoo>

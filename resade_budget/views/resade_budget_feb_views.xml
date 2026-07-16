@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_resade_budget_feb_list" model="ir.ui.view">
+        <field name="name">resade.budget.feb.list</field>
+        <field name="model">resade.budget.feb</field>
+        <field name="arch" type="xml">
+            <list string="Fiches d'Expression des Besoins (FEB)" decoration-danger="delai_depasse">
+                <field name="name"/>
+                <field name="date_creation"/>
+                <field name="demandeur_id"/>
+                <field name="nature_besoin"/>
+                <field name="ligne_budgetaire_id"/>
+                <field name="montant_estime" sum="Total"/>
+                <field name="state" widget="badge"/>
+                <field name="delai_depasse" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_budget_feb_form" model="ir.ui.view">
+        <field name="name">resade.budget.feb.form</field>
+        <field name="model">resade.budget.feb</field>
+        <field name="arch" type="xml">
+            <form string="Fiche d'Expression des Besoins (P-ESB-01)">
+                <header>
+                    <button name="action_soumettre" string="Soumettre" type="object"
+                            invisible="state != 'brouillon'" class="btn-primary"/>
+                    <button name="action_viser_caf" string="Viser (CAF) — vérifier disponibilité" type="object"
+                            invisible="state != 'soumise'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+                    <button name="action_autoriser" string="Autoriser (DE)" type="object"
+                            invisible="state != 'visee_caf'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_de"/>
+                    <button name="action_lancer_achat" string="Lancer la procédure d'achat" type="object"
+                            invisible="state != 'autorisee'" class="btn-primary"/>
+                    <button name="action_receptionner" string="Réceptionner / certifier" type="object"
+                            invisible="state != 'en_cours'" class="btn-primary"/>
+                    <button name="action_constituer_dossier" string="Constituer le dossier" type="object"
+                            invisible="state != 'receptionnee'" class="btn-primary"/>
+                    <button name="action_payer" string="Payer (double signature)" type="object"
+                            invisible="state != 'dossier_complet'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+                    <button name="action_rejeter" string="Rejeter" type="object"
+                            invisible="state in ('payee','rejetee')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="brouillon,soumise,visee_caf,autorisee,en_cours,receptionnee,dossier_complet,payee"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Rejetée" bg_color="text-bg-danger"
+                            invisible="state != 'rejetee'"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Demandeur">
+                            <field name="demandeur_id"/>
+                            <field name="departement"/>
+                            <field name="date_creation"/>
+                            <field name="date_besoin"/>
+                        </group>
+                        <group string="Imputation budgétaire">
+                            <field name="ligne_budgetaire_id"/>
+                            <field name="montant_disponible_ligne" readonly="1"/>
+                            <field name="montant_estime"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Expression du besoin" name="besoin">
+                            <group>
+                                <field name="nature_besoin"/>
+                                <field name="justification"/>
+                                <field name="quantite_specifications"/>
+                                <field name="source_estimation"/>
+                                <field name="fournisseur_suggere"/>
+                            </group>
+                            <group>
+                                <field name="marche_ref"/>
+                                <field name="mission_ref"/>
+                            </group>
+                        </page>
+                        <page string="Validation" name="validation">
+                            <group>
+                                <group string="Chef de département">
+                                    <field name="chef_dept_id"/>
+                                    <field name="date_visa_chef"/>
+                                </group>
+                                <group string="Visa CAF">
+                                    <field name="caf_valideur_id" readonly="1"/>
+                                    <field name="date_visa_caf" readonly="1"/>
+                                    <field name="credit_reserve" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="Autorisation">
+                                <field name="seuil_delegation"/>
+                                <field name="autorise_par_id" readonly="1"/>
+                                <field name="date_autorisation" readonly="1"/>
+                                <field name="delai_traitement_jours" readonly="1"/>
+                                <field name="delai_depasse" readonly="1"/>
+                            </group>
+                            <field name="motif_refus"/>
+                            <field name="document_feb_signee" widget="many2many_binary"/>
+                        </page>
+                        <page string="Réception et paiement" name="paiement">
+                            <group>
+                                <field name="pv_reception" widget="many2many_binary"/>
+                                <field name="facture_certifiee" widget="many2many_binary"/>
+                            </group>
+                            <group string="Paiement (double signature)">
+                                <field name="date_paiement"/>
+                                <field name="montant_paye_reel"/>
+                                <field name="paye_par_de"/>
+                                <field name="paye_par_caf"/>
+                                <field name="reference_ecriture_sage"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_budget_feb_search" model="ir.ui.view">
+        <field name="name">resade.budget.feb.search</field>
+        <field name="model">resade.budget.feb</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher FEB">
+                <field name="name"/>
+                <field name="demandeur_id"/>
+                <field name="ligne_budgetaire_id"/>
+                <filter string="Mes FEB" name="mine" domain="[('demandeur_id.user_id', '=', uid)]"/>
+                <filter string="En attente de visa CAF" name="a_viser" domain="[('state', '=', 'soumise')]"/>
+                <filter string="En attente d'autorisation DE" name="a_autoriser" domain="[('state', '=', 'visee_caf')]"/>
+                <filter string="Délai dépassé" name="depasse" domain="[('delai_depasse', '=', True)]"/>
+                <filter string="Payées" name="payees" domain="[('state', '=', 'payee')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Ligne budgétaire" name="group_ligne" context="{'group_by': 'ligne_budgetaire_id'}"/>
+                    <filter string="Demandeur" name="group_demandeur" context="{'group_by': 'demandeur_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

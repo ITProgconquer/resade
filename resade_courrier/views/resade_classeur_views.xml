@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_resade_classeur_form" model="ir.ui.view">
+        <field name="name">resade.classeur.form</field>
+        <field name="model">resade.classeur</field>
+        <field name="arch" type="xml">
+            <form string="Classeur Physique">
+                <header>
+                    <button name="action_transferer_pre_archivage" string="Transférer en pré-archivage"
+                            type="object" class="btn-primary"
+                            invisible="state != 'actif'"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
+                    <button name="action_proposer_sort_final" string="Proposer le sort final"
+                            type="object" class="btn-primary"
+                            invisible="state != 'pre_archivage'"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
+                    <button name="action_decider_conservation" string="Décider : Conservation"
+                            type="object" class="btn-success"
+                            invisible="state != 'sort_final_a_decider'"
+                            groups="resade_courrier.group_resade_courrier_de"/>
+                    <button name="action_decider_destruction" string="Décider : Destruction"
+                            type="object" class="btn-danger"
+                            invisible="state != 'sort_final_a_decider'"
+                            groups="resade_courrier.group_resade_courrier_de"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="actif,pre_archivage,sort_final_a_decider,archive_definitif"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Détruit" bg_color="text-bg-danger"
+                            invisible="state != 'detruit'"/>
+                    <widget name="web_ribbon" title="Saturé" bg_color="text-bg-warning"
+                            invisible="not sature"/>
+                    <div class="oe_title">
+                        <label for="code_classeur"/>
+                        <h1><field name="code_classeur" placeholder="G-COUR-ARR-2026"/></h1>
+                        <h2><field name="intitule" placeholder="Intitulé du classeur..."/></h2>
+                    </div>
+                    <group>
+                        <group string="Nomenclature (3 niveaux)">
+                            <field name="nature"/>
+                            <field name="code_couleur" readonly="1"/>
+                            <field name="code_projet"/>
+                            <field name="annee"/>
+                        </group>
+                        <group string="Responsabilité">
+                            <field name="responsable_id"/>
+                            <field name="suppleant_id"/>
+                            <field name="emplacement"/>
+                            <field name="confidentiel"/>
+                            <field name="sature"/>
+                        </group>
+                    </group>
+                    <group string="Durée d'Utilité Administrative (DUA)">
+                        <group>
+                            <field name="dua_age_actif_mois"/>
+                            <field name="dua_totale_annees"/>
+                        </group>
+                        <group>
+                            <field name="sort_final_prevu"/>
+                            <field name="reference_reglementaire"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Pré-archivage" name="pre_archivage"
+                              invisible="state not in ['pre_archivage','sort_final_a_decider','archive_definitif','detruit']">
+                            <group>
+                                <field name="date_transfert_pre_archivage"/>
+                                <field name="date_fin_dua_totale"/>
+                                <field name="boite_archive_ref"/>
+                                <field name="local_pre_archivage"/>
+                            </group>
+                        </page>
+                        <page string="Sort final" name="sort_final"
+                              invisible="state not in ['sort_final_a_decider','archive_definitif','detruit']">
+                            <group>
+                                <field name="decision_sort_final"/>
+                                <field name="date_decision_sort_final"/>
+                                <field name="decide_par_ids" widget="many2many_tags"/>
+                            </group>
+                            <group string="Conservation" invisible="decision_sort_final != 'conservation'">
+                                <field name="inventaire_archives_ref"/>
+                                <field name="date_archivage_definitif"/>
+                            </group>
+                            <group string="Destruction" invisible="decision_sort_final != 'destruction'">
+                                <field name="pv_destruction" filename="pv_destruction_filename" widget="binary"/>
+                                <field name="pv_destruction_filename"/>
+                                <field name="date_destruction"/>
+                                <field name="motif_destruction"/>
+                            </group>
+                        </page>
+                        <page string="Vérification trimestrielle" name="verification">
+                            <group>
+                                <field name="date_derniere_verification"/>
+                                <field name="conforme"/>
+                                <field name="anomalie_constatee" invisible="conforme"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="note_interne"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_classeur_list" model="ir.ui.view">
+        <field name="name">resade.classeur.list</field>
+        <field name="model">resade.classeur</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="sature == True"
+                  decoration-muted="state == 'detruit'"
+                  decoration-success="state == 'archive_definitif'">
+                <field name="code_classeur"/>
+                <field name="intitule"/>
+                <field name="nature"/>
+                <field name="responsable_id"/>
+                <field name="annee"/>
+                <field name="confidentiel" widget="boolean_toggle"/>
+                <field name="sature" widget="boolean_toggle"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_classeur_search" model="ir.ui.view">
+        <field name="name">resade.classeur.search</field>
+        <field name="model">resade.classeur</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code_classeur"/>
+                <field name="intitule"/>
+                <field name="responsable_id"/>
+                <filter string="Saturés" name="satures" domain="[('sature', '=', True)]"/>
+                <filter string="Confidentiels" name="confidentiels" domain="[('confidentiel', '=', True)]"/>
+                <separator/>
+                <filter string="Actifs" name="actifs" domain="[('state', '=', 'actif')]"/>
+                <filter string="En pré-archivage" name="pre_arch" domain="[('state', '=', 'pre_archivage')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Nature" name="group_nature" context="{'group_by': 'nature'}"/>
+                    <filter string="Responsable" name="group_resp" context="{'group_by': 'responsable_id'}"/>
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_resade_classeur" model="ir.actions.act_window">
+        <field name="name">Classeurs Physiques</field>
+        <field name="res_model">resade.classeur</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_actifs': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun classeur enregistré</p>
+            <p>Processus P-CA-01 — Plan de classement et archivage physique RESADE</p>
+        </field>
+    </record>
+</odoo>

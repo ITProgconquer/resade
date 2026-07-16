@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_resade_ged_document_form" model="ir.ui.view">
+        <field name="name">resade.ged.document.form</field>
+        <field name="model">resade.ged.document</field>
+        <field name="arch" type="xml">
+            <form string="Document GED">
+                <header>
+                    <button name="action_verifier_qualite" string="Vérifier la qualité du fichier"
+                            type="object" class="btn-primary"
+                            invisible="state != 'a_archiver'"/>
+                    <button name="action_retourner" string="Retourner au rédacteur"
+                            type="object"
+                            invisible="state != 'verification_qualite'"/>
+                    <button name="action_archiver" string="Archiver dans la GED"
+                            type="object" class="btn-success"
+                            invisible="state != 'verification_qualite'"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="a_archiver,verification_qualite,archive"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Retard &gt; 48h" bg_color="text-bg-danger"
+                            invisible="not depassement_48h"/>
+                    <div class="oe_title">
+                        <label for="reference"/>
+                        <h1><field name="reference" readonly="1"/></h1>
+                        <h2><field name="intitule_document" placeholder="Intitulé du document..."/></h2>
+                    </div>
+                    <group>
+                        <group string="Classification">
+                            <field name="entite"/>
+                            <field name="code_projet" invisible="entite != '05_projets'"/>
+                            <field name="nature_document"/>
+                            <field name="responsable_document_id"/>
+                            <field name="confidentiel"/>
+                        </group>
+                        <group string="Délais (cible ≤ 48h)">
+                            <field name="date_validation_document"/>
+                            <field name="date_declenchement"/>
+                            <field name="date_archivage_ged"/>
+                            <field name="delai_archivage_h" readonly="1"/>
+                            <field name="depassement_48h" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Fichier et nommage" name="fichier">
+                            <group>
+                                <group string="Convention de nommage (RESADE-F-CA-02-03)">
+                                    <field name="nom_fichier" placeholder="[CODE-ENTITÉ]-[NATURE]-[PROJET]-[AAAA-MM-JJ]-[VERSION]"/>
+                                    <field name="version"/>
+                                    <field name="format_conforme"/>
+                                </group>
+                                <group string="Fichier">
+                                    <field name="fichier" filename="fichier_filename" widget="binary"/>
+                                    <field name="fichier_filename"/>
+                                    <field name="chemin_sharepoint"/>
+                                    <field name="versionnage_active"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Droits d'accès (RESADE-F-CA-02-02)" name="droits">
+                            <group>
+                                <field name="droits_verifies_csi"/>
+                                <field name="csi_id" invisible="not droits_verifies_csi"/>
+                            </group>
+                            <group string="Matrice des droits par profil">
+                                <field name="niveau_acces_de"/>
+                                <field name="niveau_acces_caf"/>
+                                <field name="niveau_acces_agents"/>
+                            </group>
+                        </page>
+                        <page string="Retour" name="retour" invisible="state != 'retourne'">
+                            <field name="motif_retour"/>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_ged_document_list" model="ir.ui.view">
+        <field name="name">resade.ged.document.list</field>
+        <field name="model">resade.ged.document</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="depassement_48h == True"
+                  decoration-success="state == 'archive'">
+                <field name="reference"/>
+                <field name="intitule_document"/>
+                <field name="entite"/>
+                <field name="responsable_document_id"/>
+                <field name="date_declenchement"/>
+                <field name="delai_archivage_h" sum="Total"/>
+                <field name="depassement_48h" widget="boolean_toggle"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_resade_ged_document_search" model="ir.ui.view">
+        <field name="name">resade.ged.document.search</field>
+        <field name="model">resade.ged.document</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="reference"/>
+                <field name="intitule_document"/>
+                <field name="responsable_document_id"/>
+                <filter string="Dépassement 48h" name="depassement" domain="[('depassement_48h', '=', True)]"/>
+                <filter string="Confidentiels" name="confidentiels" domain="[('confidentiel', '=', True)]"/>
+                <separator/>
+                <filter string="À archiver" name="a_archiver" domain="[('state', 'in', ['a_archiver', 'verification_qualite'])]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Entité / Dossier" name="group_entite" context="{'group_by': 'entite'}"/>
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_resade_ged_document" model="ir.actions.act_window">
+        <field name="name">Tableau de Bord GED</field>
+        <field name="res_model">resade.ged.document</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_a_archiver': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun document GED enregistré</p>
+            <p>Processus P-CA-02 — Archivage numérique et Gestion Électronique des Documents (GED)</p>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════
+         AUDIT MENSUEL GED
+    ═══════════════════════════════════════════ -->
+    <record id="view_resade_ged_audit_mensuel_form" model="ir.ui.view">
+        <field name="name">resade.ged.audit.mensuel.form</field>
+        <field name="model">resade.ged.audit.mensuel</field>
+        <field name="arch" type="xml">
+            <form string="Audit Mensuel GED">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="mois"/></h1>
+                    </div>
+                    <group>
+                        <group string="Conformité au délai de 48h">
+                            <field name="realise_par_id"/>
+                            <field name="nb_documents_a_archiver"/>
+                            <field name="nb_documents_archives_48h"/>
+                            <field name="taux_conformite_delai" widget="percentage" readonly="1"/>
+                        </group>
+                        <group string="Anomalies et sauvegardes">
+                            <field name="nb_anomalies_classement"/>
+                            <field name="nb_doublons"/>
+                            <field name="sauvegarde_quotidienne_ok"/>
+                            <field name="test_restauration_effectue"/>
+                        </group>
+                    </group>
+                    <field name="observations" placeholder="Actions correctives proposées..."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_resade_ged_audit_mensuel_list" model="ir.ui.view">
+        <field name="name">resade.ged.audit.mensuel.list</field>
+        <field name="model">resade.ged.audit.mensuel</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="taux_conformite_delai &lt; 90">
+                <field name="mois"/>
+                <field name="realise_par_id"/>
+                <field name="taux_conformite_delai" widget="percentage"/>
+                <field name="nb_anomalies_classement"/>
+                <field name="sauvegarde_quotidienne_ok" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resade_ged_audit_mensuel" model="ir.actions.act_window">
+        <field name="name">Audit Mensuel GED</field>
+        <field name="res_model">resade.ged.audit.mensuel</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun audit mensuel enregistré</p>
+            <p>Processus P-CA-02 — Rapport mensuel d'audit GED (RESADE-F-CA-02-04)</p>
+        </field>
+    </record>
+</odoo>
