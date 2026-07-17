@@ -1,0 +1,80 @@
+<odoo>
+    <!-- Formulaire de soumission -->
+    <template id="formulaire_offre" name="Formulaire dépôt offre">
+        <t t-call="website.layout">
+            <div class="container py-5">
+                <h2>Dépôt d'offre</h2>
+                <h4 class="text-muted" t-esc="marche.objet"/>
+                <hr/>
+
+                <form method="post" enctype="multipart/form-data"
+                      t-attf-action="/marche/consultation/#{ligne.token}/soumettre">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <div class="mb-3">
+                        <label class="form-label">Montant proposé</label>
+                        <input type="number" name="montant_propose" class="form-control" required="1"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Délai d'exécution (jours)</label>
+                        <input type="number" name="delai_execution" class="form-control" required="1"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Commentaire</label>
+                        <textarea name="note_soumission" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Documents</label>
+                        <input type="file" name="documents" class="form-control" multiple="1"/>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">Soumettre mon offre</button>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <!-- Confirmation -->
+    <template id="confirmation_soumission" name="Confirmation">
+        <t t-call="website.layout">
+            <div class="container py-5 text-center">
+                <h1>✅ Offre soumise avec succès</h1>
+                <p>Votre offre pour le marché <strong t-esc="marche.name"/> a bien été enregistrée.</p>
+                <p>Nous vous contacterons après l'évaluation.</p>
+            </div>
+        </t>
+    </template>
+
+    <!-- Token invalide -->
+    <template id="token_invalide" name="Token invalide">
+        <t t-call="website.layout">
+            <div class="container py-5 text-center">
+                <h1>❌ Lien invalide</h1>
+                <p>Ce lien n'est pas valide ou a expiré.</p>
+            </div>
+        </t>
+    </template>
+
+    <!-- Consultation fermée -->
+    <template id="consultation_fermee" name="Consultation fermée">
+        <t t-call="website.layout">
+            <div class="container py-5 text-center">
+                <h1>🔒 Consultation fermée</h1>
+                <p>Ce marché n'est plus en phase de consultation.</p>
+            </div>
+        </t>
+    </template>
+
+    <!-- Offre déjà soumise -->
+    <template id="offre_deja_soumise" name="Offre déjà soumise">
+        <t t-call="website.layout">
+            <div class="container py-5 text-center">
+                <h1>📋 Offre déjà soumise</h1>
+                <p>Vous avez déjà déposé une offre pour ce marché.</p>
+            </div>
+        </t>
+    </template>
+</odoo>

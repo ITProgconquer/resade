@@ -1,4 +1,6 @@
-from odoo import models, fields, api
+import secrets
+
+from odoo import models, fields, api, _
 from odoo.http import UserError
 
 
@@ -69,11 +71,22 @@ class ResadeMarcheListeCourte(models.Model):
             # Template email à créer
             template = self.env.ref('resade_marche.mail_template_invitation_consultation', raise_if_not_found=False)
             if template:
-                template.with_context(invitation_url=url).send_mail(rec.id, force_send=True)
+                template.with_context(invitation_url=url).send_mail(rec.id, force_send=True,
+                                                                    email_values={'email_to': rec.email_contact})
             rec.write({
                 'state': 'invite',
                 'lettre_invitation_envoyee': True,
                 'date_invitation': fields.Date.today(),
+            })
+    
+    def action_revoquer_invitation(self):
+        """Révoque l'invitation (régénère un nouveau token)."""
+        for rec in self:
+            rec.write({
+                'token': secrets.token_urlsafe(32),
+                'state': 'preselectionne',
+                'date_invitation': False,
+                'lettre_invitation_envoyee': False,
             })
 
 

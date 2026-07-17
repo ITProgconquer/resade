@@ -282,6 +282,14 @@
                                     <field name="date_invitation"/>
                                     <field name="offre_recue"/>
                                     <field name="date_reception_offre"/>
+                                    <button name="action_envoyer_invitation"
+                                            string="📧 Envoyer invitation"
+                                            type="object" class="btn-primary"
+                                            invisible="state not in ('preselectionne', 'decline')"/>
+                                    <button name="action_revoquer_invitation"
+                                            string="🔄 Révoquer"
+                                            type="object" class="btn-secondary"
+                                            invisible="state != 'invite'"/>
                                     <field name="note_interne"/>
                                 </list>
                             </field>

@@ -53,7 +53,7 @@ class MarcheConsultationPortal(http.Controller):
         offre = request.env['resade.marche.offre'].sudo().create({
             'marche_id': ligne.marche_id.id,
             'fournisseur_id': ligne.fournisseur_id.id,
-            'montant_propose': float(post.get('montant_propose', 0)),
+            'montant_financier': float(post.get('montant_propose', 0)),
             'delai_execution': int(post.get('delai_execution', 0)),
             'note_soumission': post.get('note_soumission', ''),
             'date_reception': fields.Datetime.now(),
@@ -63,12 +63,14 @@ class MarcheConsultationPortal(http.Controller):
         # Pièces jointes
         attachments = request.httprequest.files.getlist('documents')
         for f in attachments:
-            request.env['ir.attachment'].sudo().create({
-                'name': f.filename,
-                'datas': base64.b64encode(f.read()),
-                'res_model': 'resade.marche.offre',
-                'res_id': offre.id,
-            })
+            attachment = request.env['ir.attachment'].sudo().create({
+            'name': f"{offre.fournisseur_id.name} - {f.filename}",  # Avec nom du fournisseur
+            'datas': base64.b64encode(f.read()),
+            'res_model': 'resade.marche',
+            'res_id': ligne.marche_id.id,
+        })
+        # Ajouter au champ pj_offres du marché
+        ligne.marche_id.sudo().write({'pj_offres': [(4, attachment.id)]})
 
         ligne.write({
             'state': 'offre_recue',
@@ -81,3 +83,13 @@ class MarcheConsultationPortal(http.Controller):
             'offre': offre,
             'marche': ligne.marche_id,
         })
+
+
+
+# from odoo import http
+
+# class TestPortail(http.Controller):
+
+#     @http.route('/test-resade', type='http', auth='public', website=True)
+#     def test(self):
+#         return "TEST RESADE OK - Le contrôleur fonctionne !"
