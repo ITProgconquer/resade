@@ -212,7 +212,7 @@ class ResadeBudgetAnnuel(models.Model):
             
             # Disponible = CHARGES - engagé - réalisé - réserve - provision
             rec.total_disponible_hors_reserve = (
-                total_charges                # ← Charges seulement
+                rec.total_recettes                  # ← Charges seulement
                 - rec.total_engage
                 - rec.total_realise
                 - rec.reserve_fonctionnement

@@ -25,24 +25,36 @@
             <form string="Fiche d'Expression des Besoins (P-ESB-01)">
                 <header>
                     <button name="action_soumettre" string="Soumettre" type="object"
-                            invisible="state != 'brouillon'" class="btn-primary"/>
+                            invisible="state != 'brouillon'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_demandeur"/>
+
                     <button name="action_viser_caf" string="Viser (CAF) — vérifier disponibilité" type="object"
                             invisible="state != 'soumise'" class="btn-primary"
                             groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_autoriser" string="Autoriser (DE)" type="object"
                             invisible="state != 'visee_caf'" class="btn-primary"
                             groups="resade_budget.group_resade_budget_de"/>
+
                     <button name="action_lancer_achat" string="Lancer la procédure d'achat" type="object"
-                            invisible="state != 'autorisee'" class="btn-primary"/>
+                            invisible="state != 'autorisee'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_receptionner" string="Réceptionner / certifier" type="object"
-                            invisible="state != 'en_cours'" class="btn-primary"/>
+                            invisible="state != 'en_cours'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_demandeur"/>
+
                     <button name="action_constituer_dossier" string="Constituer le dossier" type="object"
-                            invisible="state != 'receptionnee'" class="btn-primary"/>
+                            invisible="state != 'receptionnee'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_payer" string="Payer (double signature)" type="object"
                             invisible="state != 'dossier_complet'" class="btn-primary"
                             groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_rejeter" string="Rejeter" type="object"
-                            invisible="state in ('payee','rejetee')"/>
+                            invisible="state in ('payee','rejetee')"
+                            groups="resade_budget.group_resade_budget_caf"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="brouillon,soumise,visee_caf,autorisee,en_cours,receptionnee,dossier_complet,payee"/>
                 </header>

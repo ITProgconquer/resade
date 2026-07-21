@@ -78,10 +78,90 @@ class MarcheConsultationPortal(http.Controller):
             'offre_recue': True,
             'date_reception_offre': fields.Date.today(),
         })
+        # jsjsjsj
+        # DEBUG SIMPLE SANS SQL
+        marche = ligne.marche_id.sudo()
+        print("=== DEBUG PJ OFFRES ===")
+        print("IDs dans pj_offres:", marche.pj_offres.ids)
+        print("Nombre de PJ:", len(marche.pj_offres))
+        for pj in marche.pj_offres:
+            print(f"  - {pj.id}: {pj.name}")
+        print("=== FIN DEBUG ===")
+
 
         return request.render('resade_marche.confirmation_soumission', {
             'offre': offre,
             'marche': ligne.marche_id,
+        })
+    
+    # ─────────────────────────────────────────
+    # APPEL D'OFFRES OUVERT (token public)
+    # ─────────────────────────────────────────
+
+
+    @http.route('/marche/aoo/<string:token>', type='http', auth='public', website=True)
+    def afficher_aoo(self, token, **kwargs):
+        """Affiche le formulaire public pour un Appel d'Offres Ouvert."""
+        marche = request.env['resade.marche'].sudo().search([
+            ('token_public', '=', token)
+        ], limit=1)
+
+        if not marche:
+            return "Appel d'offres introuvable."
+
+        if marche.state not in ('ao_lance', 'depouillement'):
+            return "Cet appel d'offres est fermé."
+
+        return request.render('resade_marche.formulaire_aoo', {
+            'marche': marche,
+            'token': token,
+        })
+
+    @http.route('/marche/aoo/<string:token>/soumettre', type='http',
+            auth='public', website=True, methods=['POST'], csrf=True)
+    def soumettre_aoo(self, token, **post):
+        marche = request.env['resade.marche'].sudo().search([
+            ('token_public', '=', token)
+        ], limit=1)
+
+        if not marche or marche.state not in ('ao_lance', 'depouillement'):
+            return "Appel d'offres fermé."
+
+        fournisseur_id = post.get('fournisseur_id')
+        nom_fournisseur = post.get('nom_fournisseur', '')
+        email = post.get('email', '')
+
+        # Si le fournisseur existe déjà
+        if fournisseur_id and fournisseur_id != 'new':
+            fournisseur = request.env['resade.fournisseur'].sudo().browse(int(fournisseur_id))
+        else:
+            # Créer un nouveau fournisseur
+            fournisseur = request.env['resade.fournisseur'].sudo().create({
+                'name': nom_fournisseur,
+                'email': email,
+            })
+
+        offre = request.env['resade.marche.offre'].sudo().create({
+            'marche_id': marche.id,
+            'fournisseur_id': fournisseur.id,
+            'montant_financier': float(post.get('montant_propose', 0)),
+            'delai_execution': int(post.get('delai_execution', 0)),
+            'date_reception': fields.Datetime.now(),
+        })
+
+        # Pièces jointes
+        attachments = request.httprequest.files.getlist('documents')
+        for f in attachments:
+            attachment = request.env['ir.attachment'].sudo().create({
+                'name': f"{fournisseur.name} - {f.filename}",
+                'datas': base64.b64encode(f.read()),
+                'res_model': 'resade.marche',
+                'res_id': marche.id,
+            })
+            marche.sudo().write({'pj_offres': [(4, attachment.id)]})
+
+        return request.render('resade_marche.confirmation_aoo', {
+            'marche': marche,
         })
 
 

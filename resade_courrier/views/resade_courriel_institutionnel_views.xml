@@ -28,12 +28,17 @@
         <field name="arch" type="xml">
             <form string="Courriel Institutionnel (P-GC-03)">
                 <header>
-                    <button name="action_envoyer_ar" string="Envoyer AR" type="object"
-                            invisible="accuse_reception_envoye or sens != 'recu'"/>
+                   <button name="action_envoyer_ar" string="Envoyer AR" type="object"
+                            invisible="accuse_reception_envoye or sens != 'recu'"
+                            groups="resade_marche.group_resade_marche_caf,resade_marche.group_resade_marche_aa"/>
+
                     <button name="action_marquer_traite" string="Marquer Traité" type="object"
-                            invisible="statut_traitement != 'en_cours'" class="btn-primary"/>
+                            invisible="statut_traitement != 'en_cours'" class="btn-primary"
+                            groups="resade_marche.group_resade_marche_caf,resade_marche.group_resade_marche_aa"/>
+
                     <button name="action_archiver" string="Archiver GED" type="object"
-                            invisible="statut_traitement == 'archive'" class="btn-primary"/>
+                            invisible="statut_traitement == 'archive'" class="btn-primary"
+                            groups="resade_marche.group_resade_marche_caf,resade_marche.group_resade_marche_aa"/>
                     <field name="statut_traitement" widget="statusbar"/>
                 </header>
                 <sheet>

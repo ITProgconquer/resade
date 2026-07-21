@@ -15,16 +15,18 @@
                         type="object" class="btn-primary"
                         invisible="state != 'brouillon'"
                         groups="resade_marche.group_resade_marche_caf"/>
+
                     <button name="action_signer_pv"
-                        string="✍️ Signer le PV"
-                        type="object" class="btn-primary"
-                        invisible="state != 'tenue'"
-                        groups="resade_marche.group_resade_marche_caf"/>
+                            string="✍️ Signer le PV"
+                            type="object" class="btn-primary"
+                            invisible="state != 'tenue'"
+                            groups="resade_marche.group_resade_marche_caf"/>
+
                     <button name="action_cloturer"
-                        string="🔒 Clôturer la séance"
-                        type="object"
-                        invisible="state != 'pv_signe'"
-                        groups="resade_marche.group_resade_marche_de"/>
+                            string="🔒 Clôturer la séance"
+                            type="object"
+                            invisible="state != 'pv_signe'"
+                            groups="resade_marche.group_resade_marche_de"/>
                     <field name="state" widget="statusbar"
                         statusbar_visible="brouillon,tenue,pv_signe,cloturee"/>
                 </header>

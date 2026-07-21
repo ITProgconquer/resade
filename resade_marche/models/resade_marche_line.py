@@ -60,3 +60,6 @@ class ResadeMarcheOffre(models.Model):
     note_soumission = fields.Text(string='Note de soumission du fournisseur')
     ip_soumission = fields.Char(string='IP de soumission', readonly=True)
     pj_offre = fields.Many2many('ir.attachment', 'offre_pj_rel', string='Documents de l\'offre')
+
+    nom_fournisseur_tmp = fields.Char(string='Nom fournisseur (AOO)')
+    email_fournisseur_tmp = fields.Char(string='Email fournisseur (AOO)')

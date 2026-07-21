@@ -8,10 +8,12 @@
                 <header>
                     <button name="action_verifier_qualite" string="Vérifier la qualité du fichier"
                             type="object" class="btn-primary"
-                            invisible="state != 'a_archiver'"/>
+                            invisible="state != 'a_archiver'"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
                     <button name="action_retourner" string="Retourner au rédacteur"
                             type="object"
-                            invisible="state != 'verification_qualite'"/>
+                            invisible="state != 'verification_qualite'"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
                     <button name="action_archiver" string="Archiver dans la GED"
                             type="object" class="btn-success"
                             invisible="state != 'verification_qualite'"

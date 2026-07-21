@@ -77,4 +77,72 @@
             </div>
         </t>
     </template>
+
+    <!-- Formulaire AOO -->
+    <template id="formulaire_aoo" name="Formulaire AOO">
+        <t t-call="website.layout">
+            <div class="container py-5">
+                <h2>Appel d'Offres Ouvert</h2>
+                <h4 class="text-muted" t-esc="marche.objet"/>
+                <hr/>
+
+                <div class="alert alert-info">
+                    <strong>Date limite :</strong> <t t-esc="marche.date_limite_soumission"/>
+                </div>
+
+                <form method="post" enctype="multipart/form-data"
+                    t-attf-action="/marche/aoo/#{token}/soumettre">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <div class="mb-3">
+                        <label class="form-label">Votre entreprise</label>
+                        <select name="fournisseur_id" class="form-select">
+                            <option value="new">-- Nouveau fournisseur --</option>
+                            <t t-foreach="request.env['resade.fournisseur'].sudo().search([])" t-as="f">
+                                <option t-att-value="f.id" t-esc="f.name"/>
+                            </t>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nom du fournisseur *</label>
+                        <input type="text" name="nom_fournisseur" class="form-control" required="1"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" name="email" class="form-control" required="1"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Montant proposé *</label>
+                        <input type="number" name="montant_propose" class="form-control" required="1"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Délai (jours) *</label>
+                        <input type="number" name="delai_execution" class="form-control" required="1"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Documents</label>
+                        <input type="file" name="documents" class="form-control" multiple="1"/>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">Soumettre</button>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <!-- Confirmation AOO -->
+    <template id="confirmation_aoo" name="Confirmation AOO">
+        <t t-call="website.layout">
+            <div class="container py-5 text-center">
+                <h1>✅ Offre soumise avec succès</h1>
+                <p>Votre offre pour le marché <strong t-esc="marche.name"/> a bien été enregistrée.</p>
+                <p>Nous vous contacterons après l'évaluation.</p>
+            </div>
+        </t>
+    </template>
 </odoo>

@@ -61,24 +61,43 @@ class ResadeMarcheListeCourte(models.Model):
         ('token_unique', 'unique(token)', 'Le jeton d\'invitation doit être unique.'),
     ]
 
+    # def action_envoyer_invitation(self):
+    #     """Envoie le lien unique d'invitation au fournisseur."""
+    #     for rec in self:
+    #         if not rec.email_contact:
+    #             raise UserError(_("Aucun email pour ce fournisseur."))
+    #         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+    #         url = f"{base_url}/marche/consultation/{rec.token}"
+    #         # Template email à créer
+    #         template = self.env.ref('resade_marche.mail_template_invitation_consultation', raise_if_not_found=False)
+    #         if template:
+    #             template.with_context(invitation_url=url).send_mail(rec.id, force_send=True,
+    #                                                                 email_values={'email_to': rec.email_contact})
+    #         rec.write({
+    #             'state': 'invite',
+    #             'lettre_invitation_envoyee': True,
+    #             'date_invitation': fields.Date.today(),
+    #         })
     def action_envoyer_invitation(self):
-        """Envoie le lien unique d'invitation au fournisseur."""
+        """Envoie l'email avec le lien Google Drive au fournisseur."""
         for rec in self:
             if not rec.email_contact:
                 raise UserError(_("Aucun email pour ce fournisseur."))
-            base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-            url = f"{base_url}/marche/consultation/{rec.token}"
-            # Template email à créer
+            if rec.marche_id.state not in ('ao_lance', 'depouillement'):
+                raise UserError(_("Le marché n'est pas en phase de consultation."))
+            if not rec.marche_id.lien_google_drive:
+                raise UserError(_("Aucun lien Google Drive renseigné pour ce marché."))
+
             template = self.env.ref('resade_marche.mail_template_invitation_consultation', raise_if_not_found=False)
             if template:
-                template.with_context(invitation_url=url).send_mail(rec.id, force_send=True,
-                                                                    email_values={'email_to': rec.email_contact})
+                template.send_mail(rec.id, force_send=True, email_values={'email_to': rec.email_contact})
+
             rec.write({
                 'state': 'invite',
                 'lettre_invitation_envoyee': True,
                 'date_invitation': fields.Date.today(),
             })
-    
+        
     def action_revoquer_invitation(self):
         """Révoque l'invitation (régénère un nouveau token)."""
         for rec in self:

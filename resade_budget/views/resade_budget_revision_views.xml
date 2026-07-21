@@ -9,6 +9,7 @@
                 <field name="name"/>
                 <field name="budget_annuel_id"/>
                 <field name="type_modification"/>
+                <field name="nature_operation"/>  <!-- ✅ AJOUTÉ -->
                 <field name="demandeur_id"/>
                 <field name="state" widget="badge"/>
             </list>
@@ -22,19 +23,29 @@
             <form string="Révision / Réajustement Budgétaire (P-ESB-03)">
                 <header>
                     <button name="action_qualifier" string="Qualifier" type="object"
-                            invisible="state != 'identifie'" class="btn-primary"/>
+                            invisible="state != 'identifie'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_preparer_tableau" string="Préparer le tableau" type="object"
-                            invisible="state != 'qualifie'" class="btn-primary"/>
+                            invisible="state != 'qualifie'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_approuver" string="Approuver" type="object"
                             invisible="state != 'tableau_prepare'" class="btn-primary"
                             groups="resade_budget.group_resade_budget_de"/>
+
                     <button name="action_notifier_bailleur" string="Notifier le bailleur" type="object"
                             invisible="state != 'approuve' or not notification_bailleur_requise"
-                            class="btn-primary"/>
+                            class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_mettre_a_jour" string="Mettre à jour le budget" type="object"
-                            invisible="state not in ('approuve','notifie')" class="btn-primary"/>
+                            invisible="state not in ('approuve','notifie')" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
+
                     <button name="action_diffuser" string="Diffuser / archiver" type="object"
-                            invisible="state != 'mis_a_jour'" class="btn-primary"/>
+                            invisible="state != 'mis_a_jour'" class="btn-primary"
+                            groups="resade_budget.group_resade_budget_caf"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="identifie,qualifie,tableau_prepare,approuve,notifie,mis_a_jour,diffuse"/>
                 </header>
@@ -46,6 +57,7 @@
                         <group string="Identification">
                             <field name="budget_annuel_id"/>
                             <field name="type_modification"/>
+                            <field name="nature_operation" readonly="1"/>  <!-- ✅ AJOUTÉ -->
                             <field name="demandeur_id"/>
                             <field name="evenement_declencheur"/>
                         </group>
@@ -55,12 +67,25 @@
                         </group>
                     </group>
                     <field name="motif"/>
+
+                    <!-- ✅ Pièces justificatives pour ajout -->
+                    <group string="Pièces justificatives" invisible="nature_operation != 'ajout'">
+                        <field name="piece_justificative_ids" widget="many2many_binary"/>
+                    </group>
+
                     <notebook>
                         <page string="Tableau de modification (F-ESB-03-01)" name="lignes">
                             <field name="ligne_ids">
                                 <list editable="bottom">
-                                    <field name="ligne_origine_id"/>
-                                    <field name="ligne_destination_id"/>
+                                    <field name="ligne_origine_id"
+                                           invisible="parent.nature_operation == 'ajout'"/>
+                                    <field name="ligne_destination_id"
+                                           invisible="parent.nature_operation == 'ajout'"/>
+                                    <!-- ✅ Champs pour ajout -->
+                                    <field name="nouvelle_ligne_libelle"
+                                           invisible="parent.nature_operation != 'ajout'"/>
+                                    <field name="nouvelle_ligne_rubrique"
+                                           invisible="parent.nature_operation != 'ajout'"/>
                                     <field name="montant_virement"/>
                                     <field name="justification"/>
                                 </list>
@@ -105,11 +130,14 @@
                 <field name="name"/>
                 <field name="demandeur_id"/>
                 <filter string="En cours" name="en_cours" domain="[('state', 'not in', ['diffuse'])]"/>
+                <filter string="Ajout de ressources" name="ajout"
+                        domain="[('nature_operation', '=', 'ajout')]"/>  <!-- ✅ AJOUTÉ -->
                 <filter string="Nécessitant approbation CA" name="ca_requis"
                         domain="[('type_modification', 'in', ['revision_institutionnelle','avenant_bailleur'])]"/>
                 <group expand="0" string="Grouper par">
                     <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Type" name="group_type" context="{'group_by': 'type_modification'}"/>
+                    <filter string="Nature" name="group_nature" context="{'group_by': 'nature_operation'}"/>  <!-- ✅ AJOUTÉ -->
                 </group>
             </search>
         </field>

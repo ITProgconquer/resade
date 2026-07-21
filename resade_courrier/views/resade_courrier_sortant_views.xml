@@ -29,22 +29,30 @@
                     <button name="action_viser_aa" string="Viser (AA)" type="object"
                             invisible="state != 'brouillon'" class="btn-primary"
                             groups="resade_courrier.group_resade_courrier_aa"/>
+
                     <button name="action_viser_caf" string="Viser (CAF)" type="object"
                             invisible="state != 'vise_aa'" class="btn-primary"
                             groups="resade_courrier.group_resade_courrier_caf"/>
+
                     <button name="action_signer" string="Signer (DE/PCA)" type="object"
                             invisible="state != 'vise_caf'" class="btn-primary"
                             groups="resade_courrier.group_resade_courrier_de"/>
+
                     <button name="action_retourner_initiateur" string="Retourner à l'initiateur" type="object"
                             invisible="state not in ('vise_aa','vise_caf')"
                             groups="resade_courrier.group_resade_courrier_caf"/>
+
                     <button name="action_numeroter" string="Numéroter" type="object"
                             invisible="state != 'signe'" class="btn-primary"
                             groups="resade_courrier.group_resade_courrier_aa"/>
+
                     <button name="action_envoyer" string="Confirmer l'envoi" type="object"
-                            invisible="state != 'numerote'" class="btn-primary"/>
+                            invisible="state != 'numerote'" class="btn-primary"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
+
                     <button name="action_archiver" string="Archiver / Clôturer" type="object"
-                            invisible="state != 'envoye'" class="btn-primary"/>
+                            invisible="state != 'envoye'" class="btn-primary"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="brouillon,vise_aa,vise_caf,signe,numerote,envoye,archive"/>
                 </header>

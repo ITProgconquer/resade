@@ -13,95 +13,104 @@
             <form string="Ordre de Mission – RESADE">
                 <header>
                     <!-- P-GMD-01 : Brouillon → Validation chef -->
-                    <button name="action_valider_chef"
-                        string="✅ Valider (Chef Dépt)"
-                        type="object" class="btn-primary"
-                        invisible="state != 'brouillon'"/>
 
-                    <!-- P-GMD-01 : → Approbation CAF + visa budgétaire -->
-                    <button name="action_approuver_caf"
-                        string="💰 Approuver + Visa Budgétaire"
+                     <!-- P-GMD-01 : Brouillon → Validation chef -->
+                    
+                    <button name="action_valider_chef" string="✅ Valider (Chef Dépt)"
                         type="object" class="btn-primary"
-                        invisible="state != 'valide_chef'"/>
+                        invisible="state != 'brouillon'"
+                        groups="resade_mission.group_resade_mission_chef_dept"/>
+
+                        <!-- P-GMD-01 : → Approbation CAF + visa budgétaire -->
+
+                    <button name="action_approuver_caf" string="💰 Approuver + Visa Budgétaire"
+                            type="object" class="btn-primary"
+                            invisible="state != 'valide_chef'"
+                            groups="resade_mission.group_resade_mission_caf"/>
 
                     <!-- P-GMD-01 : → Signature OM par DE -->
-                    <button name="action_autoriser_de"
-                        string="📋 Signer Ordre de Mission (DE)"
-                        type="object" class="btn-primary"
-                        invisible="state != 'approuve_caf'"/>
+
+                    <button name="action_autoriser_de" string="📋 Signer Ordre de Mission (DE)"
+                            type="object" class="btn-primary"
+                            invisible="state != 'approuve_caf'"
+                            groups="resade_mission.group_resade_mission_de"/>
 
                     <!-- P-GMD-01 : → Décaissement avance -->
-                    <button name="action_decaisser_avance"
-                        string="💵 Décaisser l'Avance"
-                        type="object" class="btn-primary"
-                        invisible="state != 'autorise_de'"/>
+
+                    <button name="action_decaisser_avance" string="💵 Décaisser l'Avance"
+                            type="object" class="btn-primary"
+                            invisible="state != 'autorise_de'"
+                            groups="resade_mission.group_resade_mission_caf"/>
 
                     <!-- P-GMD-02 étape 1 : Départ -->
-                    <button name="action_partir_mission_et_registre"
-                        string="✈️ Marquer Départ en Mission"
-                        type="object" class="btn-secondary"
-                        invisible="state != 'avance_decaisse'"/>
+
+                    <button name="action_partir_mission_et_registre" string="✈️ Marquer Départ en Mission"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'avance_decaisse'"
+                            groups="resade_mission.group_resade_mission_agent"/>
+
 
                     <!-- P-GMD-02 étape 4 : Soumission rapport par missionnaire -->
-                    <button name="action_soumettre_rapport"
-                        string="📄 Soumettre le Rapport"
-                        type="object" class="btn-primary"
-                        invisible="state != 'en_mission'"/>
-
+                    <button name="action_soumettre_rapport" string="📄 Soumettre le Rapport"
+                            type="object" class="btn-primary"
+                            invisible="state != 'en_mission'"
+                            groups="resade_mission.group_resade_mission_agent"/>
+                    
                     <!-- P-GMD-02 étape 6 : Validation rapport par Chef Dépt -->
-                    <button name="action_valider_rapport_chef"
-                        string="✅ Valider le Rapport (Chef Dépt)"
-                        type="object" class="btn-secondary"
-                        invisible="state != 'rapport_soumis'"/>
+
+                    <button name="action_valider_rapport_chef" string="✅ Valider le Rapport (Chef Dépt)"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'rapport_soumis'"
+                            groups="resade_mission.group_resade_mission_chef_dept"/>
 
                     <!-- P-GMD-02 étape 7 : Approbation rapport par DE -->
-                    <button name="action_approuver_rapport_de"
-                        string="✔️ Approuver le Rapport (DE)"
-                        type="object" class="btn-primary"
-                        invisible="state != 'rapport_soumis' or not rapport_valide_chef"/>
+                    <button name="action_approuver_rapport_de" string="✔️ Approuver le Rapport (DE)"
+                            type="object" class="btn-primary"
+                            invisible="state != 'rapport_soumis' or not rapport_valide_chef"
+                            groups="resade_mission.group_resade_mission_de"/>
 
                     <!-- P-GMD-03 : Soumission justification -->
-                    <button name="action_soumettre_justification"
-                        string="🧾 Soumettre Justification Frais"
-                        type="object" class="btn-primary"
-                        invisible="state != 'rapport_approuve'"/>
+                    <button name="action_soumettre_justification" string="🧾 Soumettre Justification Frais"
+                            type="object" class="btn-primary"
+                            invisible="state != 'rapport_approuve'"
+                            groups="resade_mission.group_resade_mission_agent"/>
 
                     <!-- P-GMD-03 : Validation remboursement CAF -->
-                    <button name="action_valider_remboursement"
-                        string="💳 Valider Remboursement (CAF)"
-                        type="object" class="btn-primary"
-                        invisible="state != 'justif_soumise'"/>
+                    <button name="action_valider_remboursement" string="💳 Valider Remboursement (CAF)"
+                            type="object" class="btn-primary"
+                            invisible="state != 'justif_soumise'"
+                            groups="resade_mission.group_resade_mission_caf"/>
 
                     <!-- Clôture finale -->
-                    <button name="action_cloturer"
-                        string="🏁 Clôturer la Mission"
-                        type="object" class="btn-success"
-                        invisible="state != 'remboursement_ok'"/>
-
+                    <button name="action_cloturer" string="🏁 Clôturer la Mission"
+                            type="object" class="btn-success"
+                            invisible="state != 'remboursement_ok'"
+                            groups="resade_mission.group_resade_mission_caf"/>
+                    
                     <!-- Impression OM -->
-                    <button name="action_imprimer_om"
-                        string="🖨️ Imprimer OM"
-                        type="object" class="btn-secondary"
-                        invisible="state in ['brouillon', 'valide_chef', 'refuse']"/>
+                    <button name="action_imprimer_om" string="🖨️ Imprimer OM"
+                            type="object" class="btn-secondary"
+                            invisible="state in ['brouillon', 'valide_chef', 'refuse']"
+                            groups="resade_mission.group_resade_mission_aa"/>
 
                     <!-- Refus -->
-                    <button name="action_refuser"
-                        string="❌ Refuser"
-                        type="object" class="btn-danger"
-                        invisible="state in ['cloture', 'refuse', 'brouillon', 'remboursement_ok']"/>
+                    <button name="action_refuser" string="❌ Refuser"
+                            type="object" class="btn-danger"
+                            invisible="state in ['cloture', 'refuse', 'brouillon', 'remboursement_ok']"
+                            groups="resade_mission.group_resade_mission_caf"/>
 
                     <!-- Retour brouillon -->
-                    <button name="action_remettre_brouillon"
-                        string="🔄 Remettre en Brouillon"
-                        type="object"
-                        invisible="state not in ['valide_chef', 'approuve_caf', 'refuse']"/>
+                    <button name="action_remettre_brouillon" string="🔄 Remettre en Brouillon"
+                            type="object"
+                            invisible="state not in ['valide_chef', 'approuve_caf', 'refuse']"
+                            groups="resade_mission.group_resade_mission_agent"/>
 
                     <!-- RATTRAPAGE : mission décaissée avec une version du module
                          antérieure à l'intégration comptable (pas de paiement créé) -->
-                    <button name="action_regulariser_paiement_manquant"
-                        string="🔧 Régulariser le paiement comptable manquant"
-                        type="object" class="btn-warning"
-                        invisible="not montant_avance_approuve or payment_avance_id or state not in ['avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise']"/>
+                    <button name="action_regulariser_paiement_manquant" string="🔧 Régulariser le paiement comptable manquant"
+                            type="object" class="btn-warning"
+                            invisible="not montant_avance_approuve or payment_avance_id or state not in ['avance_decaisse','en_mission','rapport_soumis','rapport_approuve','justif_soumise']"
+                            groups="resade_mission.group_resade_mission_caf"/>
 
                     <field name="state" widget="statusbar"
                         statusbar_visible="brouillon,valide_chef,approuve_caf,autorise_de,avance_decaisse,en_mission,rapport_soumis,rapport_approuve,justif_soumise,remboursement_ok,cloture"/>

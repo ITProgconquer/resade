@@ -32,8 +32,22 @@
     <field name="arch" type="xml">
         <form string="Procès-Verbal de Réception (PVR) – P-RC-01">
             <header>
-                <button name="action_signer_pvr" string="📋 Signer le PVR"
-                    type="object" class="btn-primary"/>
+                <button name="action_signer_pvr" 
+                        string="✍️ Signer le PVR"
+                        type="object" class="btn-primary"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                <button name="action_envoyer_lettre_nc" 
+                        string="📤 Envoyer lettre non-conformité"
+                        type="object" class="btn-warning"
+                        invisible="statut not in ('rejet_partiel', 'rejet_total') or lettre_nc_envoyee == True"
+                        groups="resade_marche.group_resade_marche_caf"/>
+
+                <button name="action_enregistrer_inventaire" 
+                        string="📋 Enregistrer à l'inventaire"
+                        type="object" class="btn-secondary"
+                        invisible="statut != 'conforme' or enregistre_inventaire == True"
+                        groups="resade_marche.group_resade_marche_caf"/>
                 <field name="statut" widget="statusbar"
                     statusbar_visible="conforme,reserves,rejet_partiel,rejet_total"/>
             </header>
@@ -131,13 +145,16 @@
             <header>
                 <button name="action_valider" string="✅ Valider – Émettre ASF"
                     type="object" class="btn-primary"
-                    invisible="statut_validation in ['valide','rejete']"/>
+                    invisible="statut_validation in ['valide','rejete']"
+                    groups="resade_marche.group_resade_marche_caf"/>
                 <button name="action_demander_corrections" string="🔄 Corrections demandées"
                     type="object"
-                    invisible="statut_validation in ['valide','rejete']"/>
+                    invisible="statut_validation in ['valide','rejete']"
+                    groups="resade_marche.group_resade_marche_caf"/>
                 <button name="action_rejeter" string="❌ Rejet définitif"
                     type="object" class="btn-danger"
-                    invisible="statut_validation in ['valide','rejete']"/>
+                    invisible="statut_validation in ['valide','rejete']"
+                    groups="resade_marche.group_resade_marche_de"/>
                 <field name="statut_validation" widget="statusbar"
                     statusbar_visible="en_cours,corrections,valide,rejete"/>
             </header>

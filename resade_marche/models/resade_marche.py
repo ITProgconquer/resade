@@ -1,4 +1,4 @@
-from odoo import models, fields, api, exceptions
+from odoo import _, models, fields, api, exceptions
 
 
 class ResadeMarche(models.Model):
@@ -454,6 +454,25 @@ class ResadeMarche(models.Model):
         string='Délai exécution (jours)', compute='_compute_delai', store=True
     )
     note_interne = fields.Text(string='Note interne')
+
+    # ─────────────────────────────────────────────
+    # lien public pour consultation externe (ex: bailleur, partenaire)
+    # ─────────────────────────────────────────────
+    
+    nom_fournisseur_tmp = fields.Char(string='Nom fournisseur (AOO)')
+    email_fournisseur_tmp = fields.Char(string='Email fournisseur (AOO)')
+
+    token_public = fields.Char(
+        string='Token public AOO',
+        default=lambda self: __import__('secrets').token_urlsafe(32),
+        readonly=True, copy=False
+    )
+
+    lien_google_drive = fields.Char(
+        string='Lien Google Drive (dépôt offres)',
+        help='Lien du dossier Google Drive où les fournisseurs déposent leurs offres'
+    )
+
 
     # ─────────────────────────────────────────────
     # COMPUTES
@@ -926,3 +945,18 @@ class ResadeMarche(models.Model):
                     or 'DM-2026-001'
                 )
         return super().create(vals_list)
+
+
+    def action_copier_lien_aoo(self):
+        self.ensure_one()
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        if not self.token_public:
+            self.token_public = __import__('secrets').token_urlsafe(32)
+        url = f"{base_url}/marche/aoo/{self.token_public}"
+        raise exceptions.UserError(_("Lien public de l'AOO :\n%s") % url)
+    
+    def action_copier_lien_drive(self):
+        self.ensure_one()
+        if not self.lien_google_drive:
+            raise exceptions.UserError(_("Aucun lien Google Drive renseigné. Veuillez d'abord saisir le lien."))
+        raise exceptions.UserError(_("Lien Google Drive du marché :\n%s") % self.lien_google_drive)

@@ -1,4 +1,5 @@
 from odoo import models, fields, api, exceptions
+from odoo.tools import _
 
 
 class ResadeMarcheCotation(models.Model):
@@ -369,18 +370,36 @@ class ResadeMarchePVR(models.Model):
     )
 
     def action_signer_pvr(self):
-        self.ensure_one()
-        if self.statut in ('rejet_partiel', 'rejet_total') and not self.lettre_nc_envoyee:
-            raise exceptions.UserError(
-                "La lettre de non-conformité doit être envoyée au fournisseur "
-                "dans les 5 jours ouvrables (P-RC-01 B.11)."
-            )
-        self.message_post(body=f"📋 PVR signé – statut : {dict(self._fields['statut'].selection).get(self.statut)}.")
-        # Le PVR signé ne débloque la certification de facture que s'il est
-        # réellement conforme (ou avec réserves acceptées) — un rejet total
-        # ou partiel non levé ne doit jamais lever le blocage.
-        if self.marche_id and self.statut in ('conforme', 'reserves'):
-            self.marche_id.pv_reception_signe = True
+        """Signer le PVR après vérification."""
+        for rec in self:
+            if rec.statut in ('rejet_partiel', 'rejet_total') and not rec.lettre_nc_envoyee:
+                raise api.UserError(_(
+                    "La lettre de non-conformité doit être envoyée au fournisseur "
+                    "dans les 5 jours ouvrables (P-RC-01 B.11)."
+                ))
+            rec.message_post(body=f"📋 PVR signé – statut : {dict(self._fields['statut'].selection).get(rec.statut)}.")
+            # Le PVR signé ne débloque la certification de facture que s'il est
+            # réellement conforme (ou avec réserves acceptées) — un rejet total
+            # ou partiel non levé ne doit jamais lever le blocage.
+            if rec.marche_id and rec.statut in ('conforme', 'reserves'):
+                rec.marche_id.pv_reception_signe = True
+
+    def action_envoyer_lettre_nc(self):
+        """Envoyer la lettre de non-conformité au fournisseur."""
+        for rec in self:
+            if not rec.ecarts_constates and not rec.non_conformites:
+                raise api.UserError(_("Veuillez documenter les écarts ou non-conformités avant d'envoyer la lettre."))
+            rec.write({
+                'lettre_nc_envoyee': True,
+                'date_lettre_nc': fields.Date.today(),
+            })
+            rec.message_post(body="📤 Lettre de non-conformité envoyée au fournisseur.")
+
+    def action_enregistrer_inventaire(self):
+        """Enregistrer les fournitures au registre des immobilisations/stocks."""
+        for rec in self:
+            rec.write({'enregistre_inventaire': True})
+            rec.message_post(body="📋 Fournitures enregistrées à l'inventaire.")
 
     @api.model_create_multi
     def create(self, vals_list):

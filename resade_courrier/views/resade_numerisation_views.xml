@@ -12,10 +12,12 @@
                             groups="resade_courrier.group_resade_courrier_aa"/>
                     <button name="action_soumettre_controle" string="Soumettre au contrôle qualité"
                             type="object" class="btn-primary"
-                            invisible="state != 'en_cours'"/>
+                            invisible="state != 'en_cours'"
+                            groups="resade_courrier.group_resade_courrier_aa"/>
                     <button name="action_rejeter" string="Rejeter"
                             type="object" class="btn-danger"
-                            invisible="state != 'controle'"/>
+                            invisible="state != 'controle'"
+                            groups="resade_courrier.group_resade_courrier_csi"/>
                     <button name="action_valider_controle" string="Valider et verser en GED"
                             type="object" class="btn-success"
                             invisible="state != 'controle'"

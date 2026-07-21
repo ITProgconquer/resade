@@ -66,11 +66,13 @@
                         type="object"
                         class="btn-primary"
                         invisible="archivage_confirme"
+                        groups="resade_mission.group_resade_mission_aa"
                         help="L'AA confirme le dépôt du dossier complet dans SharePoint (02_ADMIN/Archives_Missions)"/>
                     <button name="action_ouvrir_mission"
                         string="📋 Ouvrir l'Ordre de Mission"
                         type="object"
-                        class="btn-secondary"/>
+                        class="btn-secondary"
+                        groups="resade_mission.group_resade_mission_aa"/>
                     <field name="statut_registre" widget="statusbar"
                         statusbar_visible="en_cours,rapport_attente,rapport_soumis,rapport_valide,rapport_approuve,justif_en_cours,remboursement_ok,archive"/>
                 </header>

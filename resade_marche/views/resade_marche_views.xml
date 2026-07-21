@@ -233,6 +233,10 @@
                                     <field name="cam_id" readonly="1"
                                         invisible="cam_requise == False"/>
                                     <field name="nb_offres" readonly="1"/>
+                                    <field name="lien_google_drive" 
+                                        string="Lien Google Drive"
+                                        placeholder="https://drive.google.com/drive/folders/..."
+                                        widget="url"/>
                                 </group>
                             </group>
 
@@ -318,6 +322,16 @@
                                     <field name="reference_publication"/>
                                     <field name="ano_bailleur_recu"
                                         invisible="ano_bailleur_requis == False"/>
+                                    <!-- <button name="action_copier_lien_aoo" 
+                                        string="📋 Copier le lien public" 
+                                        type="object"
+                                        invisible="type_procedure not in ['appel_offres', 'appel_offres_majeur']"/> -->
+                                    
+                                    <button name="action_copier_lien_drive" 
+                                        string="📋 Copier le lien Drive" 
+                                        type="object"
+                                        invisible="type_procedure not in ['appel_offres', 'appel_offres_majeur', 'consultation']"/>
+
                                 </group>
                             </group>
                             <group string="Pièces jointes AOO">

@@ -54,6 +54,26 @@ class ResadeBudgetRevision(models.Model):
         string='Notification bailleur requise', compute='_compute_niveau', store=True
     )
 
+    nature_operation = fields.Selection([
+        ('transfert', 'Transfert entre lignes existantes'),
+        ('ajout', 'Ajout de ressources / nouvelle ligne'),
+    ], string='Nature de l\'opération', compute='_compute_nature_operation', store=True)
+
+    piece_justificative_ids = fields.Many2many(
+        'ir.attachment', 'budget_revision_pj_justif_rel',
+        string='Pièces justificatives (convention, notification don...)'
+    )
+
+    @api.depends('type_modification')
+    def _compute_nature_operation(self):
+        for rec in self:
+            if rec.type_modification == 'ressources_supplementaires':
+                rec.nature_operation = 'ajout'
+            elif rec.type_modification == 'revision_institutionnelle':
+                rec.nature_operation = 'ajout'  # Peut créer de nouvelles lignes
+            else:
+                rec.nature_operation = 'transfert'
+
     @api.depends('type_modification')
     def _compute_niveau(self):
         mapping = {
@@ -75,6 +95,7 @@ class ResadeBudgetRevision(models.Model):
     document_tableau_modification = fields.Many2many(
         'ir.attachment', 'budget_revision_pj_tableau_rel', string='Tableau de modification (RESADE-F-ESB-03-01)'
     )
+    
 
     # ─────────────────────────────────────────────
     # ÉTAPE 4 : VALIDATION
@@ -151,17 +172,62 @@ class ResadeBudgetRevision(models.Model):
             })
 
     def action_mettre_a_jour(self):
-        """Étape 6 : applique les virements sur les lignes budgétaires concernées."""
+        """Étape 6 : applique les modifications + vérifie l'équilibre du budget."""
         for rec in self:
+            budget = rec.budget_annuel_id
+            
+            # Vérification spécifique selon la nature
+            if rec.nature_operation == 'transfert':
+                total_variation = sum(rec.ligne_ids.mapped('montant_virement'))
+                if total_variation != 0:
+                    raise UserError(_(
+                        "Un transfert doit être à somme nulle : ce qui est retiré d'une ligne "
+                        "doit être ajouté à une autre. Écart constaté : %.0f FCFA."
+                    ) % total_variation)
+            
+            if rec.nature_operation == 'ajout':
+                if not rec.piece_justificative_ids:
+                    raise UserError(_(
+                        "Une révision par ajout de ressources doit être justifiée par une pièce "
+                        "(convention, notification de don, etc.)."
+                    ))
+            
+            # Appliquer les modifications
             for ligne in rec.ligne_ids:
                 if ligne.ligne_origine_id and ligne.montant_virement:
-                    if ligne.montant_virement > ligne.ligne_origine_id.montant_disponible:
-                        raise UserError(_(
-                            "Virement impossible : le montant dépasse le disponible de la ligne d'origine « %s »."
-                        ) % ligne.ligne_origine_id.name)
-                    ligne.ligne_origine_id.montant_prevu -= ligne.montant_virement
+                    ligne.ligne_origine_id.with_context(via_revision=True).write({
+                        'montant_prevu': ligne.ligne_origine_id.montant_prevu - ligne.montant_virement,
+                    })
                 if ligne.ligne_destination_id and ligne.montant_virement:
-                    ligne.ligne_destination_id.montant_prevu += ligne.montant_virement
+                    ligne.ligne_destination_id.with_context(via_revision=True).write({
+                        'montant_prevu': ligne.ligne_destination_id.montant_prevu + ligne.montant_virement,
+                    })
+                # Ajout : création d'une nouvelle ligne si pas de destination
+                if rec.nature_operation == 'ajout' and ligne.montant_virement and not ligne.ligne_destination_id:
+                    self.env['resade.budget.ligne'].create({
+                        'name': ligne.nouvelle_ligne_libelle or 'Nouvelle ligne',
+                        'budget_annuel_id': budget.id,
+                        'rubrique': ligne.nouvelle_ligne_rubrique or 'ressources',
+                        'montant_prevu': ligne.montant_virement,
+                    })
+            
+            # Vérifier l'équilibre
+            budget.invalidate_recordset()
+            budget._compute_montants()
+            budget._compute_reserve_provision()
+            
+            if not budget.budget_equilibre:
+                raise UserError(_(
+                    "La révision rend le budget déséquilibré.\n\n"
+                    "Recettes : %.0f %s\n"
+                    "Charges + Réserve + Provision : %.0f %s\n\n"
+                    "Veuillez ajuster les lignes avant de valider."
+                ) % (
+                    budget.total_recettes, budget.currency_id.name,
+                    budget.total_charges + budget.reserve_fonctionnement + budget.provision_imprevus_montant,
+                    budget.currency_id.name,
+                ))
+            
             rec.write({
                 'state': 'mis_a_jour',
                 'date_mise_a_jour_sage': rec.date_mise_a_jour_sage or fields.Date.context_today(rec),
@@ -188,3 +254,11 @@ class ResadeBudgetRevisionLigne(models.Model):
         related='ligne_origine_id.currency_id', string='Devise'
     )
     justification = fields.Char(string='Justification de ce virement')
+    nouvelle_ligne_libelle = fields.Char(string='Libellé nouvelle ligne (si ajout)')
+    nouvelle_ligne_rubrique = fields.Selection([
+        ('ressources', 'RESSOURCES (RECETTES)'),
+        ('charges_fixes', 'CHARGES DE STRUCTURE FIXES'),
+        ('charges_operationnelles', 'CHARGES OPÉRATIONNELLES'),
+        ('budget_projets', 'BUDGET DES PROJETS DE RECHERCHE'),
+        ('investissements', 'INVESTISSEMENTS'),
+    ], string='Rubrique nouvelle ligne')
