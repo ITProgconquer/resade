@@ -5,6 +5,7 @@ access_resade_budget_annuel_admin,resade.budget.annuel admin,model_resade_budget
 access_resade_budget_ligne_chef_dept,resade.budget.ligne chef dept,model_resade_budget_ligne,group_resade_budget_chef_dept,1,1,1,1
 access_resade_budget_ligne_caf,resade.budget.ligne caf,model_resade_budget_ligne,group_resade_budget_caf,1,1,1,0
 access_resade_budget_ligne_admin,resade.budget.ligne admin,model_resade_budget_ligne,group_resade_budget_admin,1,1,1,1
+access_resade_budget_ligne_demandeur,resade.budget.ligne demandeur,model_resade_budget_ligne,group_resade_budget_demandeur,1,0,0,0
 access_resade_budget_projet_bailleur_chef_dept,resade.budget.projet.bailleur chef dept,model_resade_budget_projet_bailleur,group_resade_budget_chef_dept,1,0,0,0
 access_resade_budget_projet_bailleur_caf,resade.budget.projet.bailleur caf,model_resade_budget_projet_bailleur,group_resade_budget_caf,1,1,1,0
 access_resade_budget_projet_bailleur_admin,resade.budget.projet.bailleur admin,model_resade_budget_projet_bailleur,group_resade_budget_admin,1,1,1,1

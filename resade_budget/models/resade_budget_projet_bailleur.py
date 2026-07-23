@@ -40,7 +40,7 @@ class ResadeBudgetProjetBailleur(models.Model):
     montant_couts_directs = fields.Monetary(
         string='Total coûts directs', compute='_compute_montants', store=True, currency_field='currency_id'
     )
-    taux_overhead_pct = fields.Float(string='Taux frais de gestion / overhead (%)', default=15.0, tracking=True)
+    taux_overhead_pct = fields.Float(string='Taux frais de gestion / overhead (%)', default=0.15, tracking=True)
     montant_overhead = fields.Monetary(
         string='Frais de gestion (overhead)', compute='_compute_montants', store=True, currency_field='currency_id'
     )
@@ -73,8 +73,10 @@ class ResadeBudgetProjetBailleur(models.Model):
     # ─────────────────────────────────────────────
     date_soumission = fields.Date(string='Date de soumission au bailleur')
     document_budget_devise = fields.Many2many(
-        'ir.attachment', 'budget_projet_bailleur_pj_rel', string='Budget projet (RESADE-F-EAB-02-01)'
+        'ir.attachment', 'budget_projet_bailleur_pj_rel', string='Budget projet (RESADE-F-EAB-02-01)',
+        domain="[('res_model', '=', 'resade.budget.projet.bailleur')]"
     )
+
     commentaire_negociation = fields.Text(string='Commentaire / demandes de révision du bailleur')
 
     # ─────────────────────────────────────────────
@@ -86,7 +88,8 @@ class ResadeBudgetProjetBailleur(models.Model):
     date_signature_convention = fields.Date(string='Date de signature de la convention')
     document_repartition_panier = fields.Many2many(
         'ir.attachment', 'budget_projet_bailleur_pj_panier_rel',
-        string='Document de répartition du panier commun (RESADE-F-CR-02-04)'
+        string='Document de répartition du panier commun (RESADE-F-CR-02-04)',
+        domain="[('res_model', '=', 'resade.budget.projet.bailleur')]"
     )
 
     # Ligne budgétaire générée pour suivi (P-ESB-01/02)
@@ -110,6 +113,19 @@ class ResadeBudgetProjetBailleur(models.Model):
     # ─────────────────────────────────────────────
     # ACTIONS DU WORKFLOW (P-EAB-02)
     # ─────────────────────────────────────────────
+
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_budget_devise:
+                record.document_budget_devise.write({
+                    'res_model': 'resade.budget.projet.bailleur',
+                    'res_id': record.id,
+                })
+            if record.document_repartition_panier:
+                record.document_repartition_panier.write({
+                    'res_model': 'resade.budget.projet.bailleur',
+                    'res_id': record.id,
+                })
 
 
     def action_analyser(self):
@@ -186,13 +202,27 @@ class ResadeBudgetProjetBailleur(models.Model):
             if not rec.document_budget_devise:
                 raise UserError(_("Veuillez joindre le budget en devise avant soumission au bailleur."))
             rec.write({
-                'state': 'soumis',
+                'state': 'negociation',
                 'date_soumission': rec.date_soumission or fields.Date.context_today(rec),
             })
 
     def action_negocier(self):
         for rec in self:
             rec.write({'state': 'negociation'})
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if any(f in vals for f in ['document_budget_devise', 'document_repartition_panier']):
+            self._sync_attachments()
+        return result
+
 
     def action_integrer(self):
         """Étape 7 : ouverture du code analytique + génération de la ligne budgétaire de suivi."""

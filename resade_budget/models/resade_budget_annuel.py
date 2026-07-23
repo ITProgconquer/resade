@@ -64,8 +64,12 @@ class ResadeBudgetAnnuel(models.Model):
     orientations_strategiques = fields.Text(string='Orientations stratégiques (Plan Stratégique 2026-2030)')
     contraintes_financieres = fields.Text(string='Contraintes financières')
     document_cadrage = fields.Many2many(
-        'ir.attachment', 'budget_annuel_pj_cadrage_rel', 
-        string='Note de cadrage (RESADE-F-EAB-01-01)'
+        'ir.attachment',                    # Modèle lié
+        'budget_annuel_pj_cadrage_rel',     # Table de liaison
+        'resade_budget_annuel_id',                 # Colonne qui pointe vers resade.budget.annuel
+        'ir_attachment_id',                    # Colonne qui pointe vers ir.attachment
+        string='Note de cadrage (RESADE-F-EAB-01-01)',
+        domain="[('res_model', '=', 'resade.budget.annuel')]"
     )
     delai_soumission = fields.Date(string='Délai de soumission des départements')
 
@@ -112,8 +116,8 @@ class ResadeBudgetAnnuel(models.Model):
     date_approbation_ca = fields.Date(string="Date d'approbation CA")
     reference_resolution_ca = fields.Char(string="N° résolution CA (RESADE-F-EAB-01-03/RES)")
     document_resolution_ca = fields.Many2many(
-        'ir.attachment', 'budget_annuel_pj_resolution_rel', 
-        string='Résolution CA (scan)'
+        'ir.attachment', 'budget_annuel_pj_resolution_rel',
+        string='Résolution CA (scan)',
     )
 
     # ─────────────────────────────────────────────
@@ -124,7 +128,7 @@ class ResadeBudgetAnnuel(models.Model):
     date_diffusion = fields.Date(string='Date de diffusion aux départements')
     document_budget_consolide = fields.Many2many(
         'ir.attachment', 'budget_annuel_pj_consolide_rel',
-        string='Budget annuel consolidé (RESADE-F-EAB-01-03)'
+        string='Budget annuel consolidé (RESADE-F-EAB-01-03)',
     )
 
     # ─────────────────────────────────────────────
@@ -477,6 +481,33 @@ class ResadeBudgetAnnuel(models.Model):
             # Revenir à l'étape de cadrage
             rec.write({'state': 'cadrage'})
 
+
+    def _sync_attachments(self):
+        """Synchronise les pièces jointes avec le bon res_model et res_id."""
+        for record in self:
+            if record.document_cadrage:
+                record.document_cadrage.write({
+                    'res_model': 'resade.budget.annuel',
+                    'res_id': record.id,
+                })
+            if record.document_resolution_ca:
+                record.document_resolution_ca.write({
+                    'res_model': 'resade.budget.annuel',
+                    'res_id': record.id,
+                })
+            if record.document_budget_consolide:
+                record.document_budget_consolide.write({
+                    'res_model': 'resade.budget.annuel',
+                    'res_id': record.id,
+                })
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
     # ─────────────────────────────────────────────
     # ACTIONS DE NAVIGATION
     # ─────────────────────────────────────────────
@@ -543,7 +574,11 @@ class ResadeBudgetAnnuel(models.Model):
                         "Le chef de département ne peut pas modifier les informations générales du budget."
                     )
         
-        return super().write(vals)
+        result = super().write(vals)
+        if any(f in vals for f in ['document_cadrage', 'document_resolution_ca', 'document_budget_consolide']):
+            self._sync_attachments()
+        return result
+    
 
     def unlink(self):
         """
