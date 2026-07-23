@@ -64,7 +64,7 @@ class ResadeBudgetFeb(models.Model):
 
     # Imputation budgétaire — le VRAI lien vers la structure budgétaire
     ligne_budgetaire_id = fields.Many2one(
-        'resade.budget.ligne', string='Ligne budgétaire (imputation)', required=True, tracking=True,
+        'resade.budget.ligne', string='Ligne budgétaire (imputation)', tracking=True,
         domain="[('budget_annuel_id.state', 'in', ['approuve_ca', 'diffuse'])]"
     )
     montant_disponible_ligne = fields.Monetary(
@@ -108,7 +108,7 @@ class ResadeBudgetFeb(models.Model):
     # ─────────────────────────────────────────────
     pv_reception = fields.Many2many('ir.attachment', 'budget_feb_pj_pvr_rel', string='PV de réception')
     facture_certifiee = fields.Many2many('ir.attachment', 'budget_feb_pj_facture_rel', string='Facture certifiée')
-    document_feb_signee = fields.Many2many('ir.attachment', 'budget_feb_pj_signee_rel', string='FEB signée (scan)')
+    document_feb_signee = fields.Many2many('ir.attachment', 'budget_feb_pj_signee_rel', string='FEB signée (scan)',domain="[('res_model', '=', 'resade.budget.feb')]")
 
     date_paiement = fields.Date(string='Date de paiement')
     montant_paye_reel = fields.Monetary(string='Montant réellement payé', currency_field='currency_id')
@@ -140,7 +140,25 @@ class ResadeBudgetFeb(models.Model):
         for vals in vals_list:
             if vals.get('name', _('Nouveau')) == _('Nouveau'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('resade.budget.feb') or _('Nouveau')
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_feb_signee:
+                record.document_feb_signee.write({
+                    'res_model': 'resade.budget.feb',
+                    'res_id': record.id,    
+                })
+
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'document_feb_signee' in vals:
+            self._sync_attachments()
+        return result
 
     @api.depends('date_creation', 'date_autorisation')
     def _compute_delai(self):

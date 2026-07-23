@@ -61,7 +61,8 @@ class ResadeBudgetRevision(models.Model):
 
     piece_justificative_ids = fields.Many2many(
         'ir.attachment', 'budget_revision_pj_justif_rel',
-        string='Pièces justificatives (convention, notification don...)'
+        string='Pièces justificatives (convention, notification don...)',
+        domain="[('res_model', '=', 'resade.budget.revision')]"
     )
 
     @api.depends('type_modification')
@@ -93,7 +94,7 @@ class ResadeBudgetRevision(models.Model):
     # ─────────────────────────────────────────────
     ligne_ids = fields.One2many('resade.budget.revision.ligne', 'revision_id', string='Lignes impactées')
     document_tableau_modification = fields.Many2many(
-        'ir.attachment', 'budget_revision_pj_tableau_rel', string='Tableau de modification (RESADE-F-ESB-03-01)'
+        'ir.attachment', 'budget_revision_pj_tableau_rel', string='Tableau de modification (RESADE-F-ESB-03-01)', domain="[('res_model', '=', 'resade.budget.revision')]"
     )
     
 
@@ -106,7 +107,8 @@ class ResadeBudgetRevision(models.Model):
     date_approbation_ca = fields.Date(string="Date d'approbation CA")
     reference_decision = fields.Char(string='Réf. décision / résolution (RESADE-F-ESB-03-02)')
     document_decision = fields.Many2many(
-        'ir.attachment', 'budget_revision_pj_decision_rel', string='Décision approbation (scan)'
+        'ir.attachment', 'budget_revision_pj_decision_rel', string='Décision approbation (scan)',
+        domain="[('res_model', '=', 'resade.budget.revision')]"
     )
 
     # ─────────────────────────────────────────────
@@ -136,7 +138,35 @@ class ResadeBudgetRevision(models.Model):
         for vals in vals_list:
             if vals.get('name', _('Nouveau')) == _('Nouveau'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('resade.budget.revision') or _('Nouveau')
-        return super().create(vals_list)
+
+            records = super().create(vals_list)
+            records._sync_attachments()
+            return records
+
+
+    def _sync_attachments(self):
+        for record in self:
+            if record.piece_justificative_ids:
+                record.piece_justificative_ids.write({
+                    'res_model': 'resade.budget.revision',
+                    'res_id': record.id,
+                })
+            if record.document_tableau_modification:
+                record.document_tableau_modification.write({
+                    'res_model': 'resade.budget.revision',
+                    'res_id': record.id,
+                })
+            if record.document_decision:
+                record.document_decision.write({
+                    'res_model': 'resade.budget.revision',
+                    'res_id': record.id,
+                })
+
+    def write(self, vals):
+        result = super().write(vals)
+        if any(f in vals for f in ['piece_justificative_ids', 'document_tableau_modification', 'document_decision']):
+            self._sync_attachments()
+        return result
 
     def action_qualifier(self):
         for rec in self:
@@ -179,11 +209,6 @@ class ResadeBudgetRevision(models.Model):
             # Vérification spécifique selon la nature
             if rec.nature_operation == 'transfert':
                 total_variation = sum(rec.ligne_ids.mapped('montant_virement'))
-                if total_variation != 0:
-                    raise UserError(_(
-                        "Un transfert doit être à somme nulle : ce qui est retiré d'une ligne "
-                        "doit être ajouté à une autre. Écart constaté : %.0f FCFA."
-                    ) % total_variation)
             
             if rec.nature_operation == 'ajout':
                 if not rec.piece_justificative_ids:

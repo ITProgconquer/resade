@@ -30,6 +30,14 @@
             <field name="comment">Soumet le budget départemental (P-EAB-01) ; identifie les besoins de révision (P-ESB-03)</field>
         </record>
 
+        <record id="group_resade_budget_cdp" model="res.groups">
+            <field name="name">Chef de Département Partenariat (CDP)</field>
+            <field name="category_id" ref="module_resade_budget"/>
+            <field name="implied_ids" eval="[(4, ref('group_resade_budget_demandeur'))]"/>
+            <field name="comment">Gère les budgets de projets bailleurs et la relation avec les PTF (P-EAB-02, Carnet H)</field>
+        </record>
+
+
         <!-- CAF : pilotage technique principal de tous les processus budgétaires -->
         <record id="group_resade_budget_caf" model="res.groups">
             <field name="name">CAF (Administration &amp; Finances)</field>
@@ -93,6 +101,54 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_budget_ligne_cdp" model="ir.rule">
+            <field name="name">CDP : lecture des lignes de son département</field>
+            <field name="model_id" ref="model_resade_budget_ligne"/>
+            <field name="groups" eval="[(4, ref('group_resade_budget_cdp'))]"/>
+            <field name="domain_force">[('department_id', '=', user.employee_id.department_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+
+        <!-- CDP : gérer les projets bailleurs -->
+        <record id="rule_budget_projet_bailleur_cdp" model="ir.rule">
+            <field name="name">CDP : gérer les projets bailleurs</field>
+            <field name="model_id" ref="model_resade_budget_projet_bailleur"/>
+            <field name="groups" eval="[(4, ref('group_resade_budget_cdp'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- CAF : gérer les projets bailleurs -->
+        <record id="rule_budget_projet_bailleur_caf" model="ir.rule">
+            <field name="name">CAF / DE / Admin : tous les projets bailleurs</field>
+            <field name="model_id" ref="model_resade_budget_projet_bailleur"/>
+            <field name="groups" eval="[(4, ref('group_resade_budget_caf'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Chef Département ordinaire : NE VOIT RIEN -->
+        <record id="rule_budget_projet_bailleur_chef_block" model="ir.rule">
+            <field name="name">Chef Département : AUCUN accès projets bailleurs</field>
+            <field name="model_id" ref="model_resade_budget_projet_bailleur"/>
+            <field name="groups" eval="[(4, ref('group_resade_budget_chef_dept'))]"/>
+            <field name="domain_force">[(0, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
 

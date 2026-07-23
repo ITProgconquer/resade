@@ -100,14 +100,14 @@
         name="Élaboration et Adoption (Module 01)"
         parent="menu_resade_budget_root"
         sequence="10"
-        groups="resade_budget.group_resade_budget_chef_dept,resade_budget.group_resade_budget_caf"/>
+        groups="resade_budget.group_resade_budget_chef_dept,resade_budget.group_resade_budget_cdp,resade_budget.group_resade_budget_caf"/>
 
     <menuitem id="menu_resade_budget_annuel"
         name="Budget Annuel (POA) — F-EAB-01-03"
         parent="menu_resade_budget_elaboration"
         action="action_resade_budget_annuel"
         sequence="10"
-        groups="resade_budget.group_resade_budget_chef_dept,resade_budget.group_resade_budget_caf"/>
+        groups="resade_budget.group_resade_budget_chef_dept,resade_budget.group_resade_budget_cdp,resade_budget.group_resade_budget_caf"/>
 
     <menuitem id="menu_resade_budget_ligne"
         name="Lignes Budgétaires"
@@ -169,6 +169,6 @@
         parent="menu_resade_budget_execution"
         action="action_resade_budget_revision"
         sequence="60"
-        groups="resade_budget.group_resade_budget_chef_dept,resade_budget.group_resade_budget_caf"/>
+        groups="resade_budget.group_resade_budget_chef_dept,resade_budget.group_resade_budget_cdp,resade_budget.group_resade_budget_caf"/>
 
 </odoo>

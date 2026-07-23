@@ -34,14 +34,14 @@
                         string="📐 Valider cadrage interne"
                         type="object" class="btn-secondary"
                         invisible="state != 'cadrage'"
-                        groups="resade_budget.group_resade_budget_de,resade_budget.group_resade_budget_caf"/>
+                        groups="resade_budget.group_resade_budget_de,resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_cdp"/>
 
                     <!-- ÉTAPE 3 : CONSTRUCTION DU BUDGET -->
                     <button name="action_construire"
                         string="🧮 Construire le budget"
                         type="object" class="btn-primary"
                         invisible="state != 'construction'"
-                        groups="resade_budget.group_resade_budget_caf"/>
+                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_cdp"/>
 
                     <!-- ÉTAPE 4 : VALIDATION DE -->
                     <button name="action_valider_de"
@@ -55,14 +55,14 @@
                         string="📤 Soumettre au bailleur"
                         type="object" class="btn-primary"
                         invisible="state != 'soumis'"
-                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_de"/>
+                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_de,resade_budget.group_resade_budget_cdp"/>
 
                     <!-- ÉTAPE 6 : NÉGOCIATION -->
                     <button name="action_negocier"
                         string="🤝 Marquer en négociation"
                         type="object" class="btn-secondary"
                         invisible="state != 'negociation'"
-                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_de"/>
+                        groups="resade_budget.group_resade_budget_caf,resade_budget.group_resade_budget_de,resade_budget.group_resade_budget_cdp"/>
 
                     <!-- ÉTAPE 7 : INTÉGRATION -->
                     <button name="action_integrer"
