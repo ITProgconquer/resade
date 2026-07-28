@@ -156,7 +156,7 @@
                         <!-- P-EST-01 : Activités POA -->
                         <page string="⚙️ Activités POA (P-EST-01)">
                             <field name="activite_ids">
-                                <list editable="bottom">
+                                <list>
                                     <field name="sequence" widget="handle"/>
                                     <field name="code_activite"/>
                                     <field name="name" string="Activité"/>

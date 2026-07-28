@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ LISTE ═══════════════ -->
+    <record id="view_resade_panier_commun_list" model="ir.ui.view">
+        <field name="name">resade.panier.commun.list</field>
+        <field name="model">resade.panier.commun</field>
+        <field name="arch" type="xml">
+            <list string="Paniers Communs">
+                <field name="name"/>
+                <field name="exercice"/>
+                <field name="taux_prelevement_defaut"/>
+                <field name="solde_panier"/>
+                <field name="valide_par_ca"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ FORMULAIRE ═══════════════ -->
+    <record id="view_resade_panier_commun_form" model="ir.ui.view">
+        <field name="name">resade.panier.commun.form</field>
+        <field name="model">resade.panier.commun</field>
+        <field name="arch" type="xml">
+            <form string="Panier Commun (P-CD-03)">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="exercice"/>
+                            <field name="taux_prelevement_defaut"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Validation">
+                            <field name="valide_par_ca"/>
+                            <field name="date_validation_ca"/>
+                        </group>
+                    </group>
+                    <group string="Clé de répartition">
+                        <field name="cle_repartition" nolabel="1"/>
+                    </group>
+                    <group string="Soldes">
+                        <field name="solde_panier"/>
+                        <field name="montant_alloue_support"/>
+                        <field name="montant_alloue_institutionnel"/>
+                        <field name="montant_reserve_audit"/>
+                    </group>
+                    <group string="Projets contribuants">
+                        <field name="projet_ids">
+                            <list>
+                                <field name="name"/>
+                                <field name="state" widget="badge"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Documents">
+                        <field name="document_ids" widget="many2many_binary"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ ACTION ═══════════════ -->
+    <record id="action_resade_panier_commun" model="ir.actions.act_window">
+        <field name="name">Panier Commun (P-CD-03)</field>
+        <field name="res_model">resade.panier.commun</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

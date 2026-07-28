@@ -53,7 +53,7 @@
                 <field name="total_engage" sum="Total"/>
                 <field name="total_realise" sum="Total"/>
                 <field name="total_disponible_hors_reserve" sum="Total" string="Disponible (hors réserve/provision)"/>
-                <field name="taux_execution" widget="percentage" decoration-danger="taux_execution > 100"/>
+                <field name="taux_execution"  decoration-danger="taux_execution > 100"/>
                 <field name="budget_equilibre" widget="boolean_toggle"/>
                 <field name="state" widget="badge"/>
             </list>
@@ -178,7 +178,7 @@
                             <field name="total_engage"/>
                             <field name="total_realise"/>
                             <field name="total_disponible_hors_reserve" string="Disponible (hors réserve/provision)"/>
-                            <field name="taux_execution" widget="percentage" decoration-danger="taux_execution > 100"/>
+                            <field name="taux_execution"  decoration-danger="taux_execution > 100"/>
                             <field name="nb_lignes"/>
                             <field name="budget_equilibre" widget="boolean_toggle" readonly="1"/>
                         </group>
@@ -265,7 +265,7 @@
                                     <field name="name"/>
                                     <field name="bailleur_name"/>
                                     <field name="montant_total" sum="Total"/>
-                                    <field name="taux_overhead_pct" widget="percentage"/>
+                                    <field name="taux_overhead_pct" />
                                     <field name="montant_overhead" sum="Total"/>
                                     <field name="state" widget="badge"/>
                                 </list>

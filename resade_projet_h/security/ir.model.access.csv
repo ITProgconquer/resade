@@ -15,7 +15,8 @@ access_proposition_cdp,resade.proposition cdp,model_resade_proposition,resade_pr
 access_proposition_de,resade.proposition de,model_resade_proposition,resade_projet_h.group_resade_de_projet,1,1,1,1
 access_proposition_admin,resade.proposition admin,model_resade_proposition,resade_projet_h.group_resade_projet_admin,1,1,1,1
 access_projet_rp,resade.projet rp,model_resade_projet,resade_projet_h.group_resade_rp,1,1,0,0
-access_projet_cdo,resade.projet cdo,model_resade_projet,resade_projet_h.group_resade_cdo,1,1,1,0
+access_projet_cdo,resade.projet cdo,model_resade_projet,resade_projet_h.group_resade_cdo,1,0,0,0
+access_projet_cdp,resade.projet cdp,model_resade_projet,resade_projet_h.group_resade_cdp,1,1,1,0
 access_projet_de,resade.projet de,model_resade_projet,resade_projet_h.group_resade_de_projet,1,1,1,1
 access_projet_admin,resade.projet admin,model_resade_projet,resade_projet_h.group_resade_projet_admin,1,1,1,1
 access_activite_rp,resade.activite.projet rp,model_resade_activite_projet,resade_projet_h.group_resade_rp,1,1,1,0

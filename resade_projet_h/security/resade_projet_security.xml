@@ -27,7 +27,6 @@
         <record id="group_resade_rp" model="res.groups">
             <field name="name">Responsable de Projet (RP / CMPPE)</field>
             <field name="category_id" ref="module_resade_projet"/>
-            <field name="implied_ids" eval="[(4, ref('group_resade_cdp'))]"/>
             <field name="comment">Pilote opérationnel du projet, suivi POA, rapports bailleurs</field>
         </record>
 
@@ -35,7 +34,6 @@
         <record id="group_resade_cdo" model="res.groups">
             <field name="name">Chef Département Opérations (CDO)</field>
             <field name="category_id" ref="module_resade_projet"/>
-            <field name="implied_ids" eval="[(4, ref('group_resade_rp'))]"/>
             <field name="comment">Valide les rapports techniques, supervise exécution</field>
         </record>
 
@@ -43,7 +41,6 @@
         <record id="group_resade_de_projet" model="res.groups">
             <field name="name">Directeur Exécutif (DE) – Projets</field>
             <field name="category_id" ref="module_resade_projet"/>
-            <field name="implied_ids" eval="[(4, ref('group_resade_cdo'))]"/>
             <field name="comment">GO/NO-GO, signature conventions, approbation rapports bailleurs, clôture</field>
         </record>
 

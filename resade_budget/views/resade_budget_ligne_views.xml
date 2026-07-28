@@ -43,7 +43,7 @@
                 <field name="montant_engage" sum="Total"/>
                 <field name="montant_realise" sum="Total"/>
                 <field name="montant_disponible" sum="Total"/>
-                <field name="taux_consommation" widget="percentage"/>
+                <field name="taux_consommation"/>
                 <field name="alerte_seuil" widget="badge"/>
             </list>
         </field>
@@ -81,7 +81,7 @@
                             <field name="montant_disponible" readonly="1"/>
                         </group>
                         <group>
-                            <field name="taux_consommation" readonly="1" widget="percentage"/>
+                            <field name="taux_consommation" readonly="1"/>
                             <field name="alerte_seuil" readonly="1"/>
                         </group>
                     </group>

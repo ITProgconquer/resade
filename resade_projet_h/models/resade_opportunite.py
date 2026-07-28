@@ -161,6 +161,11 @@ class ResadeOpportunite(models.Model):
         string='Documents de l\'appel (PDF, guidelines...)'
     )
 
+    show_create_proposition = fields.Boolean(
+        compute='_compute_show_create_proposition',
+        string='Peut créer une proposition'
+    )
+
     # ────────────────────────────────────────
     # COMPUTED
     # ────────────────────────────────────────
@@ -173,12 +178,23 @@ class ResadeOpportunite(models.Model):
                 rec.jours_restants = delta
                 if delta < 0:
                     rec.urgence = 'expiree'
+                    if rec.state in ['identifiee', 'en_analyse']:
+                        print("worked")
+                        rec.state = 'expiree' 
+
                 elif delta < 15:
                     rec.urgence = 'haute'
+                    if rec.state == 'expiree':
+                        rec.state = 'identifiee'
+
                 elif delta <= 30:
                     rec.urgence = 'moyenne'
+                    if rec.state == 'expiree':
+                        rec.state = 'identifiee'
                 else:
                     rec.urgence = 'basse'
+                    if rec.state == 'expiree':
+                        rec.state = 'identifiee'
             else:
                 rec.jours_restants = 0
                 rec.urgence = 'basse'
@@ -242,6 +258,12 @@ class ResadeOpportunite(models.Model):
         self.ensure_one()
         self.write({'state': 'en_analyse'})
         self.message_post(body=_('🔬 Opportunité en cours d\'analyse (grille F-MRV-01-07).'))
+
+    @api.depends('proposition_ids')
+    def _compute_show_create_proposition(self):
+        for rec in self:
+            rec.show_create_proposition = not rec.proposition_ids
+
 
     def action_qualifier(self):
         """CDP valide la qualification → bordereau F-MRV-01-02 émis automatiquement"""

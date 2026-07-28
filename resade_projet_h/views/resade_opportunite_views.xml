@@ -35,7 +35,7 @@
                     <button name="action_creer_proposition"
                         string="📝 Créer une Proposition (P-MRV-02)"
                         type="object" class="btn-success"
-                        invisible="state != 'qualifiee'"
+                        invisible="state != 'qualifiee' or not show_create_proposition"
                         groups="resade_projet_h.group_resade_dpmr,resade_projet_h.group_resade_cdp"/>
 
                     <field name="state" widget="statusbar"
@@ -332,5 +332,7 @@
         <field name="res_model">resade.axe.thematique</field>
         <field name="view_mode">list,form</field>
     </record>
+
+    
 
 </odoo>

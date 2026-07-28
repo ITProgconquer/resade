@@ -52,13 +52,13 @@
                     <notebook>
                         <page string="Lignes d'analyse (F-ESB-02-01)" name="lignes">
                             <field name="ligne_analyse_ids">
-                                <list editable="bottom" decoration-danger="abs(ecart_pct) > 10">
+                                <list editable="bottom" decoration-danger="ecart_pct > 10 or ecart_pct &lt; -10">
                                     <field name="ligne_budgetaire_id"/>
                                     <field name="rubrique"/>
                                     <field name="montant_prevu"/>
                                     <field name="montant_realise_cumul"/>
                                     <field name="ecart_montant"/>
-                                    <field name="ecart_pct" widget="percentage"/>
+                                    <field name="ecart_pct"/>
                                     <field name="commentaire"/>
                                 </list>
                             </field>
