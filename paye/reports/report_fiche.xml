@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="minimal_layout_inherit" inherit_id="web.minimal_layout">
+        <xpath expr="//head" position="inside">
+            <link rel='stylesheet' href="/paye/static/src/css/paye.css"/>
+        </xpath>
+    </template>
+    <template id="report_fiche">
+        <t t-call="web.html_container">
+            <t t-set="data_report_margin_top" t-value="9"/>
+            <t t-set="data_report_header_spacing" t-value="0"/>
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page pbord">
+                        <div>
+                            <div class="infosgb">
+                                <strong>BDISCO</strong>
+                                <br/>
+                                <strong>Société BRICO DISCOUNT</strong>
+                                <br/>
+                                <strong>Route de venise</strong>
+                                <br/>
+                                <strong>Saline Ouest</strong>
+                                <br/>
+                                <strong>Djibouti</strong>
+                                <br/>
+                                <strong>SIRET: 00000002029218 Code NAF:</strong>
+                                <br/>
+                                <strong>Urssaf:</strong>
+                                <br/>
+                            </div>
+                            <div class="infosdb">
+                                <h2>FICHE D'IMPUTATION DES SALAIRES</h2>
+                                <br/>
+                                Période:
+                                <strong>
+                                    <span t-field="o.name"/>
+                                </strong>
+                                <br/>
+                                Date :
+                                <strong>
+                                    <span t-esc="o.date_end" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                                <br/>
+                            </div>
+                        </div>
+
+                        <table class="tbord" width="100%" style="margin-top:15px">
+                            <tr>
+                                <th colspan="2">N° COMPTE
+                                    <br/>
+                                </th>
+                                <th>INTITULE DU COMPTE</th>
+                                <th>DEBIT</th>
+                                <th>CREDIT</th>
+                            </tr>
+                            <tbody class="titreval">
+                                <tr>
+                                    <td>64110000</td>
+                                    <td></td>
+                                    <td>Salaires, Appointements</td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.rd1).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>64130000</td>
+                                    <td></td>
+                                    <td>Primes et gratifications</td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.rd2).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>64140000</td>
+                                    <td></td>
+                                    <td>Indemintés et avantages divers</td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.indf).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>64510000</td>
+                                    <td></td>
+                                    <td>Cotisation CNSS / Part patronale</td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.cotpat).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>42100000</td>
+                                    <td>Remunération dûe / A verser</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.rdn).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>43100000</td>
+                                    <td>Cotisation CNSS / Part salariale</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.cotsal).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>43100000</td>
+                                    <td>Cotisation CNSS / Part patronale</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.cotpat).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>44200000</td>
+                                    <td>Impôts, Traitements et salaires</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.sits).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>43720000</td>
+                                    <td>Retenue Cimetière</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.src).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>42510000</td>
+                                    <td>Retenue Achat Brico Discount</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.srm).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>42510000</td>
+                                    <td>Retenue Achat Cafette</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.srmc).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>42520000</td>
+                                    <td>Retenue Achat Pharmacie</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.srmp).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>42500000</td>
+                                    <td>Avance et acompte</td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(o.sav).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <t t-set="totaldebit" t-value="o.rd1+o.rd2+o.indf+o.cotpat"/>
+                                <t t-set="totalcredit" t-value="o.rdn+o.cotsal+o.cotpat+o.sits+o.src+o.srm+o.srmc+o.srmp+o.sav"/>
+                                <t t-if="totaldebit>=totalcredit">
+                                    <t t-set="arrdebit" t-value="0"/>
+                                    <t t-set="arrcredit" t-value="totaldebit-totalcredit"/>
+                                    <t t-set="comptedebit" t-value="658000"/>
+                                    <t t-set="comptecredit" t-value=""/>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="arrdebit" t-value="totalcredit-totaldebit"/>
+                                    <t t-set="arrcredit" t-value="0"/>
+                                    <t t-set="comptecredit" t-value="758000"/>
+                                    <t t-set="comptedebit" t-value=""/>
+                                </t>
+                                <tr>
+                                    <td><span t-esc="comptedebit"/></td>
+                                    <td><span t-esc="comptecredit"/></td>
+                                    <td>Ajustement d'arrondi</td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(arrdebit).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(arrcredit).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>TOTAUX</td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(totaldebit+arrdebit).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(totalcredit+arrcredit).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

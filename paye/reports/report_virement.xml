@@ -1,0 +1,238 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="minimal_layout_inherit" inherit_id="web.minimal_layout">
+		<xpath expr="//head" position="inside">
+			<link rel='stylesheet' href="/paye/static/src/css/paie.css"/>
+		</xpath>
+</template>
+<template id="report_virement">
+    <t t-call="web.html_container">
+        <t t-set="data_report_margin_top" t-value="12"/>
+        <t t-set="data_report_header_spacing" t-value="0"/>
+        <t t-set="data_report_dpi" t-value="110"/>
+	<t t-call="web.external_layout">    
+        <t t-foreach="docs" t-as="o">
+                <div class="page">
+                    <div class="bhaut">
+                      <div class="bhautg">
+                        <img src="/paye/static/src/img/logo.jpg" width="30%"/>
+                      </div>
+                      <div class="bhautd">
+
+                      </div>
+                    </div>
+<div class="vmodepaie">VIREMENT BANCAIRE</div>
+<div class="vdest">Ouagadougou, le <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/><br/><br/>
+                   DESTINATAIRE:  <br/>
+                   <div class="vbanque">BANQUE ATLANTIQUE</div><br/>
+ </div>
+<div class="vobjet">
+<strong>Objet: Etat de salaires - Période du <span t-field="o.date_start"/> AU <span t-field="o.date_end"/></strong><br/><br/>
+Veuillez payer les salariés ci-après au regard des montants indiqués (en FCFA) <br/><br/>
+</div>
+ 
+                  <table class="lvir" width="100%">
+                      <tr>
+                        <th width="5%">N°</th>
+                        <th width="20%">NOM Prénom(s)</th>
+			<th width="20%">Banque</th>
+                        <th width="30%">N° Compte</th>
+                        <th width="25%">Montant</th>
+                      </tr>
+                       <t t-set="numline" t-value="1"/>
+                       <t t-set="totbanque" t-value="0"/>
+                      <t t-foreach="o.slip_ids.filtered(lambda c:c.contract_id.modep=='virement')" t-as="oline">
+                       <tr>
+                        <td align="center"><span t-esc="numline"/></td>
+                        <td><span t-esc="oline.employee_id.name"/></td>
+                        <td align="center"><span t-esc="oline.employee_id.bank_account_id.bank_id.name"/></td>
+			<td align="center"><span t-esc="oline.employee_id.bank_account_id.acc_number"/></td>
+                        <td align="right"><span t-esc="'{:,.0f}'.format(oline.snetp).replace(',', ' ').replace('.', ',')"/></td>
+                       </tr>
+                       <t t-set="numline" t-value="numline+1"/>
+                       <t t-set="totbanque" t-value="totbanque+oline.snetp"/>
+
+                      </t>
+                       <tr>
+                        <td></td>
+                        <td colspan="3">Total</td>
+                        <td align="right"><span t-esc="'{:,.0f}'.format(totbanque).replace(',', ' ').replace('.', ',')"/></td>
+                       </tr>
+                  </table>
+
+                  <div class="bmention" >Arrêté le montant total à la somme de : <span t-esc="o.convlettre(totbanque)"/></div>
+                  <div class="cnsignature1" >
+			  <br/><br/>
+			  Chef SAR
+          <br/><br/><br/><br/><br/>
+			  
+              <u></u>
+			 <br/>
+                  </div>
+                  <div class="cnsignature2" >
+			  <br/><br/>
+			  Service SFC
+          <br/><br/><br/><br/><br/>
+			  
+<u></u><br/>
+
+                  </div>
+<div class="cnsignature3" >
+			  <br/><br/>
+			 CGI
+          <br/><br/><br/><br/><br/>
+			  
+<u></u><br/>
+
+                  </div>
+<div class="cnsignature4" >
+		
+			 Directeur
+          <br/><br/><br/><br/><br/>
+			  
+<u></u><br/>
+
+                  </div>
+                
+                </div>
+
+		<!--
+<p style="page-break-after: always;"> </p>
+                <div class="page">
+                    <div class="bhaut">
+                      <div class="bhautg">
+                        <img src="/paye/static/src/img/logo.jpg" width="30%"/>
+                      </div>
+                      <div class="bhautd">
+
+                      </div>
+                    </div>
+<div class="vmodepaie">PAIEMENT PAR CHEQUE</div>
+<div class="vdest">Ouagadougou, le <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/><br/><br/>
+
+ </div>
+<div class="vobjet">
+<strong>Objet: Etat de salaires - Période du <span t-field="o.date_start"/> AU <span t-field="o.date_end"/></strong><br/><br/>
+Veuillez payer les salariés ci-après au regard des montants indiqués (en FCFA) <br/><br/>
+<strong>CHEQUE</strong>
+</div>
+
+                  <table class="lvir" width="100%">
+                      <tr>
+                        <th width="5%">N°</th>
+                        <th width="40%">NOM Prénom(s)</th>
+                        <th width="25%">Montant</th>
+			<th width="20%">Signature</th>
+                      </tr>
+                       <t t-set="numline" t-value="1"/>
+                       <t t-set="totbanque" t-value="0"/>
+                      <t t-foreach="o.slip_ids.filtered(lambda c:c.contract_id.modep=='cheque')" t-as="oline">
+                       <tr>
+                        <td align="center"><span t-esc="numline"/></td>
+                        <td><span t-esc="oline.employee_id.name"/></td>
+                        <td align="right"><span t-esc="'{:,.0f}'.format(oline.snetp).replace(',', ' ').replace('.', ',')"/></td>
+			<td></td>
+                       </tr>
+                       <t t-set="numline" t-value="numline+1"/>
+                       <t t-set="totbanque" t-value="totbanque+oline.snetp"/>
+
+                      </t>
+                       <tr>
+                        <td></td>
+                        <td>Total CHEQUE</td>
+                        <td align="right"><span t-esc="'{:,.0f}'.format(totbanque).replace(',', ' ').replace('.', ',')"/></td>
+			<td></td>
+                       </tr>
+                  </table>
+
+                  <div class="bmention" >Arrêté le montant total à la somme de : <span t-esc="o.convlettre(totbanque)"/></div>
+                  <div class="cnsignature1" >
+          <br/><br/><br/><br/><br/><br/><br/>
+              <u></u>
+			 <br/>
+                  </div>
+                  <div class="cnsignature2" >
+          <br/><br/><br/><br/><br/><br/><br/>
+<u></u><br/>
+
+                  </div>
+                
+                </div>
+
+<p style="page-break-after: always;"> </p>
+
+		                <div class="page">
+                    <div class="bhaut">
+                      <div class="bhautg">
+                        <img src="/paye/static/src/img/logo.jpg" width="30%"/>
+                      </div>
+                      <div class="bhautd">
+
+                      </div>
+                    </div>
+<div class="vmodepaie">PAIEMENT ESPECE</div>
+<div class="vdest">Ouagadougou, le <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/><br/><br/>
+
+ </div>
+<div class="vobjet">
+<strong>Objet: Etat de salaires - Période du <span t-field="o.date_start"/> AU <span t-field="o.date_end"/></strong><br/><br/>
+Veuillez payer les salariés ci-après au regard des montants indiqués (en FCFA) <br/><br/>
+<strong>ESPECE</strong>
+</div>
+
+                  <table class="lvir" width="100%">
+                      <tr>
+                        <th width="5%">N°</th>
+                        <th width="40%">NOM Prénom(s)</th>
+                        <th width="25%">Montant</th>
+			<th width="20%">Signature</th>
+                      </tr>
+                       <t t-set="numline" t-value="1"/>
+                       <t t-set="totbanque" t-value="0"/>
+                      <t t-foreach="o.slip_ids.filtered(lambda c:c.contract_id.modep=='espece')" t-as="oline">
+                       <tr>
+                        <td align="center"><span t-esc="numline"/></td>
+                        <td><span t-esc="oline.employee_id.name"/></td>
+                        <td align="right"><span t-esc="'{:,.0f}'.format(oline.snetp).replace(',', ' ').replace('.', ',')"/></td>
+			<td></td>
+                       </tr>
+                       <t t-set="numline" t-value="numline+1"/>
+                       <t t-set="totbanque" t-value="totbanque+oline.snetp"/>
+
+                      </t>
+                       <tr>
+                        <td></td>
+                        <td>Total ESPECE</td>
+                        <td align="right"><span t-esc="'{:,.0f}'.format(totbanque).replace(',', ' ').replace('.', ',')"/></td>
+			<td></td>
+                       </tr>
+                  </table>
+
+                  <div class="bmention" >Arrêté le montant total à la somme de : <span t-esc="o.convlettre(totbanque)"/></div>
+                  <div class="cnsignature1" >
+          <br/><br/><br/><br/><br/><br/><br/>
+              <u></u>
+			 <br/>
+                  </div>
+                  <div class="cnsignature2" >
+          <br/><br/><br/><br/><br/><br/><br/>
+<u></u><br/>
+
+                  </div>
+                
+                </div>-->
+		
+<template id="external_layout_footer">
+    <div class="footer">
+                  <div class="baspage" >Edition du <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%m-%Y %H:%M')"/>
+                  </div>
+<center><span>Page </span><span class="page" /> de <span class="topage" /></center>
+    </div>      
+</template>
+        </t>
+
+        </t>
+	     </t>
+</template>
+</odoo>
+

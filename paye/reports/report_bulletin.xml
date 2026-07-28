@@ -1,0 +1,484 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="minimal_layout_inherit" inherit_id="web.minimal_layout">
+        <xpath expr="//head" position="inside">
+            <link rel='stylesheet' href="/paye/static/src/css/paye.css"/>
+        </xpath>
+    </template>
+    <template id="report_bulletin">
+        <t t-call="web.html_container">
+            <t t-set="data_report_margin_top" t-value="9"/>
+            <t t-set="data_report_header_spacing" t-value="0"/>
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page pbord">
+                        <div>
+                            <div class="infosgb">
+                                <strong>BDISCO</strong>
+                                <br/>
+                                <strong>Société BRICO DISCOUNT</strong>
+                                <br/>
+                                <strong>Route de venise</strong>
+                                <br/>
+                                <strong>Saline Ouest</strong>
+                                <br/>
+                                <strong>Djibouti</strong>
+                                <br/>
+                                <strong>SIRET: 00000002029218 Code NAF:</strong>
+                                <br/>
+                                <strong>Urssaf:</strong>
+                            </div>
+                            <div class="infosdb">
+                                <h3>BULLETIN DE SALAIRE</h3>
+                                <br/>
+                                Période:
+                                <strong>
+                                    <span t-esc="o.name[-12:]"/>
+                                </strong>
+                                <br/>
+                                Paiement le :
+                                <strong>
+                                    <span t-esc="o.datep" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                                <br/>
+                                Du:
+                                <strong>
+                                    <span t-esc="o.date_from" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                                Au:
+                                <strong>
+                                    <span t-esc="o.date_to" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                            </div>
+                        </div>
+                        <div class="nomemp">
+                            <span t-field="o.employee_id.name"/>
+                        </div>
+                        <table class="sbord" width="98%">
+                            <tr>
+                                <td>Matricule:</td>
+                                <td>
+                                    <span t-field="o.employee_id.identification_id"/>
+                                </td>
+                                <td></td>
+                                <td>NoSecu.:</td>
+                                <td>
+                                    <span t-field="o.employee_id.secsoc"/>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Entrée le:</td>
+                                <td>
+                                    <span t-field="o.contract_id.date_start"/>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            .
+                            <tr>
+                                <td>Emploi:</td>
+                                <td>
+                                    <span t-field="o.employee_id.job_id.name"/>
+                                </td>
+                                <td></td>
+                                <td>Ancienneté:</td>
+                                <td>
+                                    <span t-field="o.ancannee"/>
+                                    an(s) et
+                                    <span t-field="o.ancmois"/>
+                                    mois
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Qualif:</td>
+                                <td></td>
+                                <td>Classif:</td>
+                                <td></td>
+                                <td>Coeff:</td>
+                                <td></td>
+                                <td>SMIC Horaire:</td>
+                                <td>9.88</td>
+                                <td>Plafond Sécu:</td>
+                                <td>3311.00</td>
+                            </tr>
+                        </table>
+                        <table class="tbord" width="100%" style="margin-top:15px">
+                            <tr>
+                                <th>Code
+                                    <br/>
+                                </th>
+                                <th>Rubriques</th>
+                                <th>Base</th>
+                                <th>Taux salariale</th>
+                                <th>Montant salariale</th>
+                                <th>Taux patronale</th>
+                                <th>Cot.Patronales</th>
+                            </tr>
+                            <tbody class="titreval">
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.salary_rule_id.ref and int(line.salary_rule_id.ref) in range (101,110) and line.total !=0).sorted(key=lambda line: line.salary_rule_id.ref)"
+                                    t-as="line">
+                                    <td></td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.2f}'.format(line.amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.4f}'.format(line.quantity).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="esp1"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code in ('SBRUT'))" t-as="line">
+                                    <td class="total"></td>
+                                    <td class="total">SALAIRE BRUT</td>
+                                    <td class="total"></td>
+                                    <td class="total"></td>
+                                    <td class="total" align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="total"></td>
+                                    <td class="total"></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='EPF')" t-as="line">
+                                    <td>
+                                        <span t-field="line.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.2f}'.format(line.amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.4f}'.format(line.quantity).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.2f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='EAT')" t-as="line">
+                                    <td>
+                                        <span t-field="line.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.2f}'.format(line.amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.4f}'.format(line.quantity).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.2f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <t t-foreach="o.line_ids.filtered(lambda line: line.code=='EVIS')" t-as="line">
+                                        <td>
+                                            <span t-field="line.code"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.name"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.2f}'.format(line.amount).replace(',', ' ')"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.4f}'.format(line.quantity).replace(',', ' ')"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.2f}'.format(line.total).replace(',', ' ')"/>
+                                        </td>
+                                    </t>
+                                    <t t-foreach="o.line_ids.filtered(lambda line: line.code=='EVISP')" t-as="line">
+                                        <td align="right">
+                                            <span t-esc="'{:,.4f}'.format(line.quantity).replace(',', ' ')"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.2f}'.format(line.total).replace(',', ' ')"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                                <tr>
+                                    <t t-foreach="o.line_ids.filtered(lambda line: line.code=='ES')" t-as="line">
+                                        <td>
+                                            <span t-field="line.code"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.name"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.2f}'.format(line.amount).replace(',', ' ')"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.4f}'.format(line.quantity).replace(',', ' ')"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.2f}'.format(line.total).replace(',', ' ')"/>
+                                        </td>
+                                    </t>
+                                    <t t-foreach="o.line_ids.filtered(lambda line: line.code=='ESP')" t-as="line">
+                                        <td align="right">
+                                            <span t-esc="'{:,.4f}'.format(line.quantity).replace(',', ' ')"/>
+                                        </td>
+                                        <td align="right">
+                                            <span t-esc="'{:,.2f}'.format(line.total).replace(',', ' ')"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                                <tr>
+                                    <t t-foreach="o.line_ids.filtered(lambda line: line.code=='COTSAL')" t-as="line">
+                                        <td></td>
+                                        <td class="total">TOTAL DES RETENUES</td>
+                                        <td class="total"></td>
+                                        <td class="total"></td>
+                                        <td class="total" align="right">
+                                            <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                        </td>
+                                    </t>
+                                    <t t-foreach="o.line_ids.filtered(lambda line: line.code=='COTPAT')" t-as="line">
+                                        <td class="total"></td>
+                                        <td class="total" align="right">
+                                            <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                                <tr>
+                                    <td class="esp2"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='NETI')" t-as="line">
+                                    <td></td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='SRC')" t-as="line">
+                                    <td>
+                                        <span t-field="line.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code in('SRM','SRMC','SRMP'))"
+                                    t-as="line">
+                                    <td>
+                                        <span t-field="line.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='SAV')" t-as="line">
+                                    <td>
+                                        <span t-field="line.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='SITS')" t-as="line">
+                                    <td>
+                                        <span t-field="line.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td align="right">-
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='SINF' and line.total !=0)"
+                                    t-as="line">
+                                    <td>
+                                        <span t-field="line.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.total).replace(',', ' ')"/>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr t-foreach="o.line_ids.filtered(lambda line: line.code=='NET')" t-as="line">
+                                    <td class="total"></td>
+                                    <td class="total">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td class="total"></td>
+                                    <td class="total"></td>
+                                    <td class="total" align="right">
+                                        <span t-esc="'{:,.0f}'.format((round(line.total/5))*5).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="total"></td>
+                                    <td class="total"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="recap" width="100%" style="margin-top:20px">
+                            <tr>
+                                <td class="lh gris">Heures période</td>
+                                <td class="lh" align="right">
+                                    <span t-esc="'{:,.2f}'.format(o.heuretp).replace(',', ' ')"/>
+                                </td>
+                                <td class="lh gris">Cumul bases</td>
+                                <td class="lh"></td>
+                                <td class="lh">Paiement</td>
+                                <td class="lh gris">Total cot.patronales</td>
+                                <td class="lh" align="right">
+                                    <span t-esc="'{:,.0f}'.format(o.chargepatp).replace(',', ' ')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="gris">Cumul heures</td>
+                                <td align="right">
+                                    <span t-esc="'{:,.2f}'.format(o.heureta).replace(',', ' ')"/>
+                                </td>
+                                <td class="gris">Cumul bruts</td>
+                                <td align="right">
+                                    <span t-esc="'{:,.2f}'.format(o.bruta).replace(',', ' ')"/>
+                                </td>
+                                <td></td>
+                                <td class="gris"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="gris">Cumul h.sup</td>
+                                <td align="right">
+                                    <span t-esc="'{:,.2f}'.format(o.heuresupa).replace(',', ' ')"/>
+                                </td>
+                                <td class="gris">Cumul imposable</td>
+                                <td align="right">
+                                    <span t-esc="'{:,.2f}'.format(o.neta).replace(',', ' ')"/>
+                                </td>
+                                <td>
+                                    <span t-esc="o.modep"/>
+                                </td>
+                                <td class="gris">Total des retenues</td>
+                                <td align="right">
+                                    <span t-esc="'{:,.0f}'.format(o.chargesalp+o.chargepatp+o.itsp).replace(',', ' ')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="gris">Solde rep.remp.</td>
+                                <td></td>
+                                <td class="gris"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="gris"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="gris">Solde rep.recup</td>
+                                <td class="lh"></td>
+                                <td class="gris ls">Cum H.Majorées</td>
+                                <td class="lh">0</td>
+                                <td></td>
+                                <td class="gris ls">Coût global période</td>
+                                <td class="lh" align="right">
+                                    <span t-esc="'{:,.0f}'.format(o.chargesalp+o.chargepatp+o.snetp).replace(',', ' ')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="lh"></td>
+                                <td colspan="2" class="gris  lh" align="center">NET A PAYER</td>
+                                <td colspan="2" align="right" class="lh">
+                                    <strong>
+                                        <span t-esc="'{:,.0f}'.format((round(o.snetp/5))*5).replace(',', ' ')"/>
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

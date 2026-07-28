@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_hr_contract_3_form" model="ir.ui.view">
+            <field name="name">Contract3.ext</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='wage']" position="after">
+                    <field name="typeemp"/>
+                    <field name="modep"/>
+                    <field name="carfo"/>
+                    <field name="sursal"/>
+                    <field name="indlog"/>
+                    <field name="indtrans"/>
+                    <field name="pcaisse"/>
+                    <field name="indfonc"/>
+                    <field name="indspec"/>
+                    <field name="indast"/>
+                    <field name="indtech"/>
+                    <field name="indexp"/>
+                    <field name="alloc"/>
+                    <field name="aprime"/>
+                    
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_brico_hr_payslip_form" model="ir.ui.view">
+            <field name="name">Payroll.ext</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='contract_id']" position="after">
+                    <field name="nbj"/>
+                    <field name="ancannee"/>
+                    <field name="ancmois"/>
+                    <field name="modep"/>
+                    <field name="datep"/>
+                </xpath>
+                <xpath expr="//field[@name='worked_days_line_ids']" position="replace"/>
+            </field>
+        </record>
+        <record id="view_brico_hr_salary_rule_form" model="ir.ui.view">
+            <field name="name">Payrolll.ext</field>
+            <field name="model">hr.salary.rule</field>
+            <field name="inherit_id" ref="hr_payroll.hr_salary_rule_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='active']" position="after">
+                    <field name="ref"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

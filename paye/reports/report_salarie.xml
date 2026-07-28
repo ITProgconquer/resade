@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="minimal_layout_inherit" inherit_id="web.minimal_layout">
+        <xpath expr="//head" position="inside">
+            <link rel='stylesheet' href="/paye/static/src/css/paye.css"/>
+        </xpath>
+    </template>
+    <template id="report_salarie">
+        <t t-call="web.html_container">
+            <t t-set="data_report_margin_top" t-value="9"/>
+            <t t-set="data_report_header_spacing" t-value="0"/>
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page pbord">
+                        <div>
+                            <div class="infosgb">
+                                <strong>BDISCO</strong>
+                                <br/>
+                                <strong>Société BRICO DISCOUNT</strong>
+                                <br/>
+                                <strong>Route de venise</strong>
+                                <br/>
+                                <strong>Saline Ouest</strong>
+                                <br/>
+                                <strong>Djibouti</strong>
+                                <br/>
+                                <strong>SIRET: 00000002029218 Code NAF:</strong>
+                                <br/>
+                                <strong>Urssaf:</strong>
+                                <br/>
+                            </div>
+                            <div class="infosdb">
+                                <h1>PAIEMENT SALARIES</h1>
+                                <br/>
+                                Période:
+                                <strong>
+                                    <span t-esc="o.name"/>
+                                </strong>
+                                <br/>
+                                Du:
+                                <strong>
+                                    <span t-esc="o.date_start" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                                Au:
+                                <strong>
+                                    <span t-esc="o.date_end" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="titretat">Etat de paiement de salaires du mois de
+                            <span t-esc="o.name"/>
+                        </div>
+                        <table class="tbord" width="100%" style="margin-top:15px">
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom</th>
+                                <th>Salaire net</th>
+                                <th>Mode</th>
+                            </tr>
+                            <tbody class="titreval">
+                                <t t-set="totn" t-value="0"/>
+                                <tr t-foreach="o.slip_ids.filtered(lambda line: line.snetp!=0).sorted(key=lambda line: line.employee_id.name)"
+                                    t-as="line">
+                                    <td>
+                                        <span t-esc="line.employee_id.identification_id"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="line.employee_id.name"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format((round(line.snetp/5))*5).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="line.modep"/>
+                                    </td>
+                                    <t t-set="totn" t-value="totn+((round(line.snetp/5)))*5"/>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <strong>TOTAL</strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong>
+                                            <span t-esc="'{:,.0f}'.format(totn).replace(',', ' ')"/>
+                                        </strong>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,155 @@
+
+/* CSS Document */
+.titretat {
+   width:100%;
+   margin-top:10px;
+   font-family:Arial, Helvetica, sans-serif;
+   font-size:20px;
+   font-weight:bold;
+   text-align:center;
+}
+  .pbord{
+    border: 1px solid #000;
+    margin-top:100px;
+    
+  }
+.lh {
+   border: 1px solid #000;
+}
+.esp1 {
+   padding-top:10px;
+}
+.esp2 {
+   padding-top:10px;
+}
+.gris {
+background-color:#CCCCCC;
+}
+  .tbord td{
+    border: 1px solid #eee; 
+    border-right: 1px solid #000;  
+    line-height:20px; 
+  }
+  .recap td{
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #eee;    
+  }
+  .sbord td{
+    border: 1px solid #fff;
+    
+  }
+  .tbord th{
+    border: 1px solid #000;
+    text-align:center;
+    vertical-align:center;
+    background-color:#CCCCCC;
+    font-size:15px;
+    font-family:cambria;
+    padding-bottom:10px;
+    padding-top:10px;
+  }
+.titreval td {
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #fff;
+}
+.total {
+    background-color:#EEEEEE;
+    font-weight:bold;
+}
+  .titre{
+    font-size:22px;
+    background-color:#AAAAAA;
+    color:#FFFFFF;
+    font-family:cambria;
+    text-align:center;
+    font-weight:bold;
+  }
+  .soustitre{
+    font-size:18px;
+    font-family:cambria;
+    font-weight:bold;
+    font-style:italic;
+  }
+  .titrecol{
+    font-size:13px;
+    background-color:#EAEAEA;
+    font-family:Arial;
+    border: 1px solid #000;
+    text-align:center;
+    vertical-align:center;
+    font-weight:bold;
+  }
+  .titreval{
+    font-size:15px;
+    font-family:cambria;
+    border: 1px solid #000;
+    align:center
+  }
+  .sess{
+    font-size:15px;
+    font-family:cambria;
+    border: 1px solid #000;
+    align:center
+  }
+ table tr td{
+    border: 1px solid #000;
+    font-size:15px;
+    font-family:cambria;
+    padding: 4px 4px 4px 4px;
+  }
+  .infosgb{
+    font-size:15px;
+    font-family:cambria;
+    float:left;
+    width:60%;
+border:1px solid #000;
+   min-height:120px;
+padding-left:10px;
+  }
+  .infosdb{
+    font-size:15px;
+    font-family:cambria;
+    float:right;
+    width:40%;
+border-top:1px solid #000;
+border-bottom:1px solid #000;
+border-right:1px solid #000;
+   min-height:120px;
+padding-left:10px;
+  }
+  .nomemp{
+    font-size:16px;
+    font-family:cambria;
+    float:left;
+text-align:center;
+font-weight:bold;
+  }
+
+.cnsignature1{
+float:left;
+width:33%;   
+font-weight:bold;
+font-size:18px;   
+}
+.cnsignature2{
+float:left;
+width:33%;   
+text-align:center;
+font-weight:bold;
+font-size:18px;
+}
+.cnsignature3{
+float:left;
+width:33%;   
+text-align:right;
+font-weight:bold;
+font-size:18px;
+}
+.cnsignature4{
+float:left;
+width:100%;   
+Text-align:center;
+font-weight:bold;
+font-size:18px;
+}
+

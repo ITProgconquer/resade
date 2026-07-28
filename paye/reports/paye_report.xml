@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- QWeb Reports -->
+
+    <record id="report_livrepxlsx" model="ir.actions.report">
+      <field name="name">Livre de paie Excel</field>
+      <field name="model">hr.payslip.run</field>
+      <field name="report_type">xlsx</field>
+      <field name="report_name">paye.report_livrepaiexlsx</field>
+      <field name="report_file">paye.report_livrepaiexlsx</field>
+      <field name="binding_model_id" ref="model_hr_payslip_run"/>
+      <field name="binding_type">report</field>
+  </record>
+ <record id="report_iutsxlsx" model="ir.actions.report">
+      <field name="name">IUTS Excel</field>
+      <field name="model">hr.payslip.run</field>
+      <field name="report_type">xlsx</field>
+      <field name="report_name">paye.report_iutsxlsx</field>
+      <field name="report_file">paye.report_iutsxlsx</field>
+      <field name="binding_model_id" ref="model_hr_payslip_run"/>
+      <field name="binding_type">report</field>
+  </record>
+ <record id="report_cnsspxlsx" model="ir.actions.report">
+      <field name="name">CNSS Excel</field>
+      <field name="model">hr.payslip.run</field>
+      <field name="report_type">xlsx</field>
+      <field name="report_name">paye.report_cnssxlsx</field>
+      <field name="report_file">paye.report_cnssxlsx</field>
+      <field name="binding_model_id" ref="model_hr_payslip_run"/>
+      <field name="binding_type">report</field>
+  </record>
+ <record id="report_virementsalaire" model="ir.actions.report">
+      <field name="name">Ordre de virement</field>
+      <field name="model">hr.payslip.run</field>
+      <field name="report_type">qweb-pdf</field>
+      <field name="report_name">paye.report_virement</field>
+      <field name="report_file">paye.report_virement</field>
+      <field name="binding_model_id" ref="model_hr_payslip_run"/>
+      <field name="binding_type">report</field>
+  </record>
+       <!-- <report
+                id="action_report_bulletin"
+                model="hr.payslip"
+                string="Bulletin de paie"
+                report_type="qweb-pdf"
+                name="paye.report_bulletin"
+                file="paye.report_bulletin"
+        />
+        <report
+                id="action_report_fiche"
+                model="hr.payslip.run"
+                string="Fiche Imputation"
+                report_type="qweb-pdf"
+                name="paye.report_fiche"
+                file="paye.report_fiche"
+        />
+        <report
+                id="action_report_rubrique"
+                model="hr.payslip.run"
+                string="Etat paie"
+                report_type="qweb-pdf"
+                name="paye.report_rubrique"
+                file="paye.report_rubrique"
+        />
+        <report
+                id="action_report_cnss"
+                model="hr.payslip.run"
+                string="Etat CNSS"
+                report_type="qweb-pdf"
+                name="paye.report_cnss"
+                file="paye.report_cnss"
+        />
+        <report
+                id="action_report_its"
+                model="hr.payslip.run"
+                string="Etat ITS"
+                report_type="qweb-pdf"
+                name="paye.report_its"
+                file="paye.report_its"
+        />
+        <report
+                id="action_report_salarie"
+                model="hr.payslip.run"
+                string="Etat Salaires"
+                report_type="qweb-pdf"
+                name="paye.report_salarie"
+                file="paye.report_salarie"
+        />
+    <record id="report_livrepxlsx" model="ir.actions.report">
+      <field name="name">Livre de paie Excel</field>
+      <field name="model">hr.payslip.run</field>
+      <field name="report_type">xlsx</field>
+      <field name="report_name">paie.report_livrepaiexlsx</field>
+      <field name="report_file">Livre de paie</field>
+      <field name="binding_model_id" ref="hr_payroll.model_hr_payslip_run"/>
+      <field name="binding_type">report</field>
+  </record>
+        
+            <record id="action_report_bulletin" model="ir.actions.report">
+            <field name="name">Bulletin</field>
+            <field name="model">hr.payslip</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">paye.report_bulletin</field>
+            <field name="report_file">paye.report_bulletin</field>
+            <field name="print_report_name">'Bulletin - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_hr_payslip"/>
+            <field name="binding_type">report</field>
+            <field name="attachment"></field>
+            <field name="attachment_use" eval="False"/>
+        </record>
+        <record id="action_report_fiche" model="ir.actions.report">
+            <field name="name">Fiche Imputation</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">paye.report_fiche</field>
+            <field name="report_file">paye.report_fiche</field>
+            <field name="print_report_name">'Fiche Imputation - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_hr_payslip_run"/>
+            <field name="binding_type">report</field>
+            <field name="attachment"></field>
+            <field name="attachment_use" eval="False"/>
+        </record>
+    <record id="action_report_rubrique" model="ir.actions.report">
+            <field name="name">Etat paie</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">paye.report_rubrique</field>
+            <field name="report_file">paye.report_rubrique</field>
+            <field name="print_report_name">'Etat paie - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_hr_payslip_run"/>
+            <field name="binding_type">report</field>
+            <field name="attachment"></field>
+            <field name="attachment_use" eval="False"/>
+        </record>
+    <record id="action_report_cnss" model="ir.actions.report">
+            <field name="name">Etat CNSS</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">paye.report_cnss</field>
+            <field name="report_file">paye.report_cnss</field>
+            <field name="print_report_name">'Etat CNSS - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_hr_payslip_run"/>
+            <field name="binding_type">report</field>
+            <field name="attachment"></field>
+            <field name="attachment_use" eval="False"/>
+        </record>
+        <record id="action_report_its" model="ir.actions.report">
+            <field name="name">Etat ITS</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">paye.report_its</field>
+            <field name="report_file">paye.report_its</field>
+            <field name="print_report_name">'Etat ITS - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_hr_payslip_run"/>
+            <field name="binding_type">report</field>
+            <field name="attachment"></field>
+            <field name="attachment_use" eval="False"/>
+        </record>
+        <record id="action_report_cnss" model="ir.actions.report">
+            <field name="name">Etat Salaires</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">paye.report_salarie</field>
+            <field name="report_file">paye.report_salarie</field>
+            <field name="print_report_name">'Etat Salaires - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_hr_payslip_run"/>
+            <field name="binding_type">report</field>
+            <field name="attachment"></field>
+            <field name="attachment_use" eval="False"/>
+        </record>    
+        
+        -->
+
+
+    </data>
+</odoo>

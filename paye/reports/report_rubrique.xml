@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="minimal_layout_inherit" inherit_id="web.minimal_layout">
+        <xpath expr="//head" position="inside">
+            <link rel='stylesheet' href="/paye/static/src/css/paye.css"/>
+        </xpath>
+    </template>
+    <template id="report_rubrique">
+        <t t-call="web.html_container">
+            <t t-set="data_report_margin_top" t-value="9"/>
+            <t t-set="data_report_header_spacing" t-value="0"/>
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page pbord">
+                        <div>
+                            <div class="infosgb">
+                                <strong>BDISCO</strong>
+                                <br/>
+                                <strong>Société BRICO DISCOUNT</strong>
+                                <br/>
+                                <strong>Route de venise</strong>
+                                <br/>
+                                <strong>Saline Ouest</strong>
+                                <br/>
+                                <strong>Djibouti</strong>
+                                <br/>
+                                <strong>SIRET: 00000002029218 Code NAF:</strong>
+                                <br/>
+                                <strong>Urssaf:</strong>
+                                <br/>
+                            </div>
+                            <div class="infosdb">
+                                <h1>ETAT DE LA PAIE</h1>
+                                <br/>
+                                Période:
+                                <strong>
+                                    <span t-esc="o.name"/>
+                                </strong>
+                                <br/>
+                                Du:
+                                <strong>
+                                    <span t-esc="o.date_start" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                                Au:
+                                <strong>
+                                    <span t-esc="o.date_end" t-esc-options='{"widget": "date"}'/>
+                                </strong>
+                                <br/>
+                            </div>
+                        </div>
+                        <table class="tbord" width="100%" style="margin-top:15px">
+                            <tr>
+                                <th>N°</th>
+                                <th>Employé</th>
+                                <th>Salaire net</th>
+                                <th>Cot. Salariale</th>
+                                <th>Cot. Patronale</th>
+                                <th>ITS</th>
+                            </tr>
+                            <tbody class="titreval">
+                                <t t-set="ordre" t-value="1"/>
+                                <t t-set="totnet" t-value="0"/>
+                                <t t-set="totcs" t-value="0"/>
+                                <t t-set="totcp" t-value="0"/>
+                                <t t-set="totits" t-value="0"/>
+                                <tr t-foreach="o.slip_ids.filtered(lambda line: line.snetp!=0).sorted(key=lambda line: line.employee_id.name)"
+                                    t-as="line">
+                                    <td>
+                                        <span t-esc="ordre"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="line.employee_id.name"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format((round(line.snetp/5))*5).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.chargesalp).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.chargepatp).replace(',', ' ')"/>
+                                    </td>
+                                    <td align="right">
+                                        <span t-esc="'{:,.0f}'.format(line.itsp).replace(',', ' ')"/>
+                                    </td>
+                                    <t t-set="totnet" t-value="totnet+((round(line.snetp/5)))*5"/>
+                                    <t t-set="totcs" t-value="totcs+round(line.chargesalp,0)"/>
+                                    <t t-set="totcp" t-value="totcp+round(line.chargepatp,0)"/>
+                                    <t t-set="totits" t-value="totcs+round(line.itsp,0)"/>
+                                    <t t-set="ordre" t-value="ordre+1"/>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <strong>TOTAL</strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong>
+                                            <span t-esc="'{:,.0f}'.format(totnet).replace(',', ' ')"/>
+                                        </strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong>
+                                            <span t-esc="'{:,.0f}'.format(totcs).replace(',', ' ')"/>
+                                        </strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong>
+                                            <span t-esc="'{:,.0f}'.format(totcp).replace(',', ' ')"/>
+                                        </strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong>
+                                            <span t-esc="'{:,.0f}'.format(totits).replace(',', ' ')"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

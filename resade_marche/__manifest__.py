@@ -44,7 +44,7 @@ Groupes securite (organigramme RESADE 2025):
     'author': 'IT PROJET SARL',
     'website': 'https://www.it-projet.com',
     'license': 'LGPL-3',
-    'depends': ['base', 'hr', 'account', 'analytic', 'mail', 'resade_budget','website'],
+    'depends': ['base', 'hr', 'account', 'analytic', 'mail', 'resade_budget'],
     'data': [
         # Securite
         'security/resade_marche_security.xml',
