@@ -34,6 +34,15 @@
                         invisible="state != 'actif'"
                         groups="resade_projet_h.group_resade_de_projet"/>
 
+
+                    <!-- Réactiver : DE -->
+                    <button name="action_reactiver"
+                        string="♻️ Réactiver"
+                        type="object" class="btn-success"
+                        invisible="state != 'suspendu'"
+                        groups="resade_projet_h.group_resade_de_projet"/>
+
+
                     <!-- Résilier : DE -->
                     <button name="action_resilier"
                         string="❌ Résilier"
@@ -127,10 +136,10 @@
                             <field name="incident_ids">
                                 <list editable="bottom">
                                     <field name="name"/>
-                                    <field name="type_incident" widget="badge"/>
+                                    <field name="type_incident"/>
                                     <field name="date_detection"/>
                                     <field name="date_echeance_correction"/>
-                                    <field name="state" widget="badge"
+                                    <field name="state"
                                         decoration-danger="state == 'ouvert'"
                                         decoration-warning="state == 'en_cours'"
                                         decoration-success="state == 'resolu'"/>

@@ -51,6 +51,7 @@
         'views/resade_cloture_views.xml',
         'views/resade_projet_menus.xml',
         'views/resade_panier_views.xml',
+        'views/resade_rapport_trimestriel.xml',
         'report/resade_projet_reports.xml',
         'report/resade_projet_report_templates.xml',
     ],

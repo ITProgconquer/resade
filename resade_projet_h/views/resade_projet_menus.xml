@@ -31,7 +31,7 @@
         name="📝 Propositions de Financement"
         parent="menu_resade_projet_root"
         sequence="20"
-        groups="resade_projet_h.group_resade_dpmr"/>
+        groups="resade_projet_h.group_resade_dpmr,resade_projet_h.group_resade_de_projet"/>
 
     <menuitem id="menu_resade_proposition_all"
         name="Registre des Propositions (F-MRV-02-07)"
@@ -44,7 +44,7 @@
         name="📊 Portefeuille de Projets"
         parent="menu_resade_projet_root"
         sequence="30"
-        groups="resade_projet_h.group_resade_rp"/>
+        groups="resade_projet_h.group_resade_rp,resade_projet_h.group_resade_de_projet,resade_projet_h.group_resade_cdo"/>
 
     <menuitem id="menu_resade_projet_all"
         name="Tous les Projets (P-CD / P-EST)"
@@ -69,7 +69,7 @@
         name="🏁 Clôtures de Projets"
         parent="menu_resade_projet_root"
         sequence="40"
-        groups="resade_projet_h.group_resade_cdo"/>
+        groups="resade_projet_h.group_resade_cdo,resade_projet_h.group_resade_de_projet,resade_projet_h.group_resade_cdp,resade_projet_h.group_resade_rp"/>
 
     <menuitem id="menu_resade_cloture_all"
         name="Dossiers de Clôture (P-CC-01/02)"
@@ -95,6 +95,6 @@
         parent="menu_resade_projet_config"
         action="action_resade_panier_commun"
         sequence="20"
-        groups="resade_projet_h.group_resade_de_projet"/>
+        groups="resade_projet_h.group_resade_de_projet,resade_projet_h.group_resade_cdp"/>
 
 </odoo>

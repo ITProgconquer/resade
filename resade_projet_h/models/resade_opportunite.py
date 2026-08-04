@@ -411,6 +411,27 @@ class ResadePlanVeille(models.Model):
             rec.taux_conversion = (qualifiees / total * 100) if total else 0.0
 
 
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_ids:
+                record.document_ids.write({
+                    'res_model': 'resade.plan.veille',
+                    'res_id': record.id,
+                })
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'document_ids' in vals:
+            self._sync_attachments()
+        return result
+
+
 class ResadeRapportVeille(models.Model):
     """F-MRV-01-05 : Rapport trimestriel de veille"""
     _name = 'resade.rapport.veille'

@@ -51,6 +51,7 @@ class ResadePartenaireProjet(models.Model):
         'resade_part_dd_rel', 'part_id', 'att_id',
         string='Fiche due diligence (F-EST-03-01)'
     )
+
     due_diligence_concluante = fields.Boolean(
         string='Due diligence concluante',
         compute='_compute_due_diligence', store=True
@@ -200,12 +201,50 @@ class ResadePartenaireProjet(models.Model):
                    'Plan de correction à déclencher (F-EST-03-07).')
         )
 
+    def action_reactiver(self):
+        """Réactive un partenaire suspendu."""
+        for rec in self:
+            if rec.state != 'suspendu':
+                raise UserError(_("Seul un partenaire suspendu peut être réactivé."))
+            rec.write({'state': 'actif'})
+
     def action_resilier(self):
         self.ensure_one()
         self.write({'state': 'resilie'})
         self.message_post(
             body=_('❌ Accord résilié. Décision DE formalisée.')
         )
+
+
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_ids:
+                record.document_ids.write({
+                    'res_model': 'resade.partenaire.projet',
+                    'res_id': record.id,
+                })
+            if record.accord_signe_ids:
+                record.accord_signe_ids.write({
+                    'res_model': 'resade.partenaire.projet',
+                    'res_id': record.id,
+                })
+            if record.pv_kickoff_ids:
+                record.pv_kickoff_ids.write({
+                    'res_model': 'resade.partenaire.projet',
+                    'res_id': record.id,
+                })
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if any(f in vals for f in ['document_ids', 'accord_signe_ids', 'pv_kickoff_ids']):
+            self._sync_attachments()
+        return result
 
 
 class ResadeEvaluationPartenaire(models.Model):

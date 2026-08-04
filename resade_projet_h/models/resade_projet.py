@@ -293,8 +293,9 @@ class ResadeProjet(models.Model):
                 vals['ref'] = self.env['ir.sequence'].next_by_code(
                     'resade.projet'
                 ) or _('Nouveau')
-        return super().create(vals_list)
-
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
     # ────────────────────────────────────────
     # WORKFLOW P-CD-01
     # ────────────────────────────────────────
@@ -388,6 +389,41 @@ class ResadeProjet(models.Model):
             'res_id': cloture.id,
             'view_mode': 'form',
         }
+
+
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_ids:
+                record.document_ids.write({
+                    'res_model': 'resade.projet',
+                    'res_id': record.id,
+                })
+            if record.accord_signe_ids:
+                record.accord_signe_ids.write({
+                    'res_model': 'resade.projet',
+                    'res_id': record.id,
+                })
+            if record.pv_kickoff_ids:
+                record.pv_kickoff_ids.write({
+                    'res_model': 'resade.projet',
+                    'res_id': record.id,
+                })
+            if record.convention_signee_ids:
+                record.convention_signee_ids.write({
+                    'res_model': 'resade.projet',
+                    'res_id': record.id,
+                })
+            if record.bordereau_notification_ids:
+                record.bordereau_notification_ids.write({
+                    'res_model': 'resade.projet',
+                    'res_id': record.id,
+                })
+
+    def write(self, vals):
+        result = super().write(vals)
+        if any(f in vals for f in ['document_ids', 'accord_signe_ids', 'pv_kickoff_ids', 'convention_signee_ids', 'bordereau_notification_ids']):
+            self._sync_attachments()
+        return result
 
 
 class ResadeActiviteProjet(models.Model):
@@ -596,6 +632,26 @@ class ResadeRapportProjet(models.Model):
         'ir.attachment', string='Rapport joint (PDF, tableaux Excel...)'
     )
 
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_ids:
+                record.document_ids.write({
+                    'res_model': 'resade.rapport.projet',
+                    'res_id': record.id,
+                })
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'document_ids' in vals:
+            self._sync_attachments()
+        return result
+
 
 class ResadePanierCommun(models.Model):
     """P-CD-03 : Panier commun et clé de répartition interne"""
@@ -647,6 +703,26 @@ class ResadePanierCommun(models.Model):
     document_ids = fields.Many2many(
         'ir.attachment', string='PV CA, politique overhead, arrêté comptable...'
     )
+
+    def _sync_attachments(self):
+            for record in self:
+                if record.document_ids:
+                    record.document_ids.write({
+                        'res_model': 'resade.panier.commun',
+                        'res_id': record.id,
+                    })
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'document_ids' in vals:
+            self._sync_attachments()
+        return result
 
     @api.depends('exercice')
     def _compute_name(self):
