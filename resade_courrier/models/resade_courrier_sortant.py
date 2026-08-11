@@ -67,6 +67,8 @@ class ResadeCourrierSortant(models.Model):
         'ir.attachment', 'courrier_sortant_pj_signe_rel', string='Courrier signé (scan)'
     )
 
+
+
     # ─────────────────────────────────────────────
     # VISAS / CIRCUIT DE VALIDATION (B.8 du Manuel)
     # ─────────────────────────────────────────────
@@ -225,3 +227,28 @@ class ResadeCourrierSortant(models.Model):
                 'state': 'archive',
                 'date_archivage_ged': rec.date_archivage_ged or fields.Datetime.now(),
             })
+
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_projet:
+                record.document_projet.write({
+                    'res_model': 'resade.courrier.sortant',
+                    'res_id': record.id,
+                })
+            if record.document_signe:
+                record.document_signe.write({
+                    'res_model': 'resade.courrier.sortant',
+                    'res_id': record.id,
+                })
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if any(f in vals for f in ['document_projet', 'document_signe']):
+            self._sync_attachments()
+        return result

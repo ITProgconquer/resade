@@ -168,8 +168,8 @@ class ResadeBudgetProjetBailleur(models.Model):
                     "Le budget total est à 0. Veuillez renseigner les montants "
                     "(personnel, terrain, publication, équipements) avant de valider."
                 ))
-            # Vérifier le taux d'overhead minimum (15%)
-            if rec.taux_overhead_pct < 15.0:
+            # Vérifier le taux d'overhead minimum (10%)
+            if rec.taux_overhead_pct < 10.0:
                 raise UserError(_(
                     "Le taux de frais de gestion (overhead) est inférieur au minimum institutionnel "
                     "de 15%% (Manuel P-EAB-02, B.3).\n"
@@ -189,10 +189,10 @@ class ResadeBudgetProjetBailleur(models.Model):
     def action_valider_de(self):
         """Étape 4 : Validation par le DE, puis passage direct à l'état soumis."""
         for rec in self:
-            if rec.taux_overhead_pct < 15.0:
+            if rec.taux_overhead_pct < 10.0:
                 raise UserError(_(
                     "Le taux de frais de gestion (overhead) est inférieur au minimum institutionnel "
-                    "de 15%% (Manuel P-EAB-02, B.3). Toute dérogation nécessite l'approbation du DE et du CA."
+                    "de 10%% (Manuel P-EAB-02, B.3). Toute dérogation nécessite l'approbation du DE et du CA."
                 ))
             rec.write({'state': 'soumis'})
 

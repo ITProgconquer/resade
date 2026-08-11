@@ -65,7 +65,7 @@
                         </group>
                     </group>
                     <group>
-                        <field name="observations" placeholder="Conditions posées par l'organisme, amendements demandés..."/>
+                        <field name="observations" required="decision == 'approuve_conditions'"  placeholder="Conditions posées par l'organisme, amendements demandés..."/>
                     </group>
                     <notebook>
                         <page string="Consentements liés" invisible="type_soumission != 'cers'">

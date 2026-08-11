@@ -143,6 +143,27 @@ class ResadeCourrielInstitutionnel(models.Model):
                 'date_archivage_ged': rec.date_archivage_ged or fields.Datetime.now(),
             })
 
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_archive:
+                record.document_archive.write({
+                    'res_model': 'resade.courriel.institutionnel',
+                    'res_id': record.id,
+                })
+
+        
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'document_archive' in vals:
+            self._sync_attachments()
+        return result
+
 
 class ResadeRapportBoiteMail(models.Model):
     """Rapport mensuel de gestion des boîtes @resade — RESADE-F-GC-03-03."""

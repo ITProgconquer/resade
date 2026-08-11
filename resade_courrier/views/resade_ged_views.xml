@@ -72,7 +72,7 @@
                                 <field name="niveau_acces_agents"/>
                             </group>
                         </page>
-                        <page string="Retour" name="retour" invisible="state != 'retourne'">
+                        <page string="Retour" name="retour" invisible="state != 'verification_qualite'">
                             <field name="motif_retour"/>
                         </page>
                         <page string="Notes">

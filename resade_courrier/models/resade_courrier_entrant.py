@@ -222,6 +222,27 @@ class ResadeCourrierEntrant(models.Model):
                 'date_archivage_ged': rec.date_archivage_ged or fields.Datetime.now(),
             })
 
+    def _sync_attachments(self):
+        for record in self:
+            if record.document_numerise:
+                record.document_numerise.write({
+                    'res_model': 'resade.courrier.entrant',
+                    'res_id': record.id,
+                })
+            
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if any(f in vals for f in ['document_numerise']):
+            self._sync_attachments()
+        return result
+
 
 class ResadeCourrierEmargement(models.Model):
     """Cahier de transmission interne – RESADE-F-GC-01-03."""

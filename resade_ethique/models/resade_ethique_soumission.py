@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class ResadeEthiqueSoumission(models.Model):
@@ -121,3 +121,12 @@ class ResadeEthiqueSoumission(models.Model):
                 "peuvent faire avancer une soumission au-delà de sa transmission initiale. Le chercheur "
                 "responsable ne peut que préparer et soumettre son dossier (bouton « Soumettre »)."
             ))
+
+    @api.constrains('decision', 'observations')
+    def _check_observations_conditions(self):
+        for rec in self:
+            if rec.decision == 'approuve_conditions' and not rec.observations:
+                raise ValidationError(_(
+                    "Les observations/conditions de l'organisme sont obligatoires "
+                    "lorsque la décision est 'Approuvé sous conditions'."
+                ))

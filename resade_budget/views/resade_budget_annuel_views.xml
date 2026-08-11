@@ -174,7 +174,6 @@
                         <group string="📊 Synthèse financière">
                             <field name="total_recettes" readonly="1"/>
                             <field name="total_charges" readonly="1"/>
-                            <field name="total_prevu"/>
                             <field name="total_engage"/>
                             <field name="total_realise"/>
                             <field name="total_disponible_hors_reserve" string="Disponible (hors réserve/provision)"/>

@@ -78,7 +78,7 @@
                                     <field name="date_controle"/>
                                 </group>
                             </group>
-                            <field name="motif_rejet" invisible="state != 'rejete'"/>
+                            <field name="motif_rejet" string="Motif du rejet" invisible="state not in ('controle', 'rejete')"/>
                         </page>
                         <page string="Versement GED et original" name="ged"
                               invisible="state != 'numerise'">

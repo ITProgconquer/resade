@@ -62,7 +62,6 @@
                         <group string="Classification">
                             <field name="budget_annuel_id"/>
                             <field name="rubrique"/>
-                            <field name="sous_rubrique"/>
                             <field name="code_sycebnl"/>
                             <field name="department_id" readonly="1"/>
                         </group>

@@ -58,6 +58,7 @@
                         <group>
                             <field name="sort_final_prevu"/>
                             <field name="reference_reglementaire"/>
+                            <field name="boite_archive_ref"/>
                         </group>
                     </group>
                     <notebook>
