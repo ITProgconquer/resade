@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_donnees_recherche_form" model="ir.ui.view">
+        <field name="name">resade.donnees.recherche.form</field>
+        <field name="model">resade.donnees.recherche</field>
+        <field name="arch" type="xml">
+            <form string="Données de Recherche">
+                <header>
+                    <button name="action_archiver" string="Archiver"
+                            type="object"
+                            invisible="state == 'archive'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="collecte,nettoyage,analyse,archive"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="reference" readonly="1"/></h1>
+                        <h2><field name="titre" placeholder="Titre du jeu de données..."/></h2>
+                    </div>
+                    <group>
+                        <group string="Source">
+                            <field name="etude_id"/>
+                            <field name="protocole_id"/>
+                            <field name="type_donnees"/>
+                        </group>
+                        <group string="Responsables">
+                            <field name="gestionnaire_id"/>
+                            <field name="investigateur_id"/>
+                            <field name="responsable_archivage_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Caractéristiques">
+                            <field name="format_fichier"/>
+                            <field name="taille_base"/>
+                            <field name="nb_observations"/>
+                            <field name="date_creation"/>
+                            <field name="date_derniere_mise_a_jour"/>
+                        </group>
+                        <group string="Stockage et Sécurité">
+                            <field name="lieu_stockage"/>
+                            <field name="chiffrement"/>
+                            <field name="acces_restreint"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Plan de gestion (DMP)">
+                            <group>
+                                <field name="dmp_redige"/>
+                                <field name="dmp_fichier" filename="dmp_filename" widget="binary" invisible="not dmp_redige"/>
+                                <field name="dmp_filename" invisible="not dmp_redige"/>
+                            </group>
+                        </page>
+                        <page string="Partage et Publication">
+                            <group>
+                                <field name="partage_prevu"/>
+                                <field name="conditions_partage" invisible="not partage_prevu"/>
+                                <field name="depot_externe" invisible="not partage_prevu"/>
+                                <field name="doi_dataset"/>
+                                <field name="date_archivage"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_donnees_recherche_list" model="ir.ui.view">
+        <field name="name">resade.donnees.recherche.list</field>
+        <field name="model">resade.donnees.recherche</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="reference"/>
+                <field name="titre"/>
+                <field name="etude_id"/>
+                <field name="type_donnees"/>
+                <field name="lieu_stockage"/>
+                <field name="gestionnaire_id"/>
+                <field name="date_creation"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_donnees_recherche" model="ir.actions.act_window">
+        <field name="name">Données de Recherche</field>
+        <field name="res_model">resade.donnees.recherche</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun jeu de données enregistré</p>
+            <p>Processus P-CI-03 — Gestion des données de recherche</p>
+        </field>
+    </record>
+</odoo>

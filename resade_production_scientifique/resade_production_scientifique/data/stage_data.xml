@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Thématiques de recherche RESADE (données de référence) -->
+
+    <record id="thematique_sante_publique" model="resade.thematique">
+        <field name="name">Santé publique</field>
+        <field name="code">SP</field>
+        <field name="color">1</field>
+    </record>
+
+    <record id="thematique_epidemiologie" model="resade.thematique">
+        <field name="name">Épidémiologie</field>
+        <field name="code">EPI</field>
+        <field name="color">2</field>
+    </record>
+
+    <record id="thematique_economie_sante" model="resade.thematique">
+        <field name="name">Économie de la santé</field>
+        <field name="code">ECO</field>
+        <field name="color">3</field>
+    </record>
+
+    <record id="thematique_politique_sante" model="resade.thematique">
+        <field name="name">Politique &amp; Systèmes de santé</field>
+        <field name="code">PSS</field>
+        <field name="color">4</field>
+    </record>
+
+    <record id="thematique_financement" model="resade.thematique">
+        <field name="name">Financement de la santé / CSU</field>
+        <field name="code">FIN</field>
+        <field name="color">5</field>
+    </record>
+
+    <record id="thematique_evaluation" model="resade.thematique">
+        <field name="name">Évaluation des programmes</field>
+        <field name="code">EVAL</field>
+        <field name="color">6</field>
+    </record>
+
+    <record id="thematique_genre" model="resade.thematique">
+        <field name="name">Genre &amp; Santé</field>
+        <field name="code">GENRE</field>
+        <field name="color">7</field>
+    </record>
+
+    <record id="thematique_numerique" model="resade.thematique">
+        <field name="name">Santé numérique</field>
+        <field name="code">NUM</field>
+        <field name="color">8</field>
+    </record>
+</odoo>

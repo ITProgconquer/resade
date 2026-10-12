@@ -1,0 +1,26 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_protocole_user,Protocole (User),model_resade_protocole_recherche,group_resade_scientifique_user,1,1,1,0
+access_protocole_manager,Protocole (Manager),model_resade_protocole_recherche,group_resade_scientifique_manager,1,1,1,1
+access_etude_user,Etude (User),model_resade_etude_enquete,group_resade_scientifique_user,1,1,1,0
+access_etude_manager,Etude (Manager),model_resade_etude_enquete,group_resade_scientifique_manager,1,1,1,1
+access_donnees_user,Données (User),model_resade_donnees_recherche,group_resade_scientifique_user,1,1,1,0
+access_donnees_manager,Données (Manager),model_resade_donnees_recherche,group_resade_scientifique_manager,1,1,1,1
+access_article_user,Article (User),model_resade_article_scientifique,group_resade_scientifique_user,1,1,1,0
+access_article_pi,Article (PI),model_resade_article_scientifique,group_resade_scientifique_pi,1,1,1,0
+access_article_manager,Article (Manager),model_resade_article_scientifique,group_resade_scientifique_manager,1,1,1,1
+access_soumission_user,Soumission (User),model_resade_soumission_revue,group_resade_scientifique_user,1,1,1,0
+access_soumission_pi,Soumission (PI),model_resade_soumission_revue,group_resade_scientifique_pi,1,1,1,0
+access_soumission_manager,Soumission (Manager),model_resade_soumission_revue,group_resade_scientifique_manager,1,1,1,1
+access_evenement_user,Evenement (User),model_resade_evenement_scientifique,group_resade_scientifique_user,1,1,1,0
+access_evenement_rc,Evenement (RC),model_resade_evenement_scientifique,group_resade_scientifique_rc,1,1,1,0
+access_evenement_manager,Evenement (Manager),model_resade_evenement_scientifique,group_resade_scientifique_manager,1,1,1,1
+access_com_interne_user,Com Interne (User),model_resade_communication_interne,group_resade_scientifique_user,1,1,1,0
+access_com_interne_manager,Com Interne (Manager),model_resade_communication_interne,group_resade_scientifique_manager,1,1,1,1
+access_bibliotheque_user,Bibliotheque (User),model_resade_bibliotheque,group_resade_scientifique_user,1,1,1,0
+access_bibliotheque_rc,Bibliotheque (RC),model_resade_bibliotheque,group_resade_scientifique_rc,1,1,1,0
+access_bibliotheque_manager,Bibliotheque (Manager),model_resade_bibliotheque,group_resade_scientifique_manager,1,1,1,1
+access_presse_user,Presse (User),model_resade_presse_communication,group_resade_scientifique_user,1,1,0,0
+access_presse_rc,Presse (RC),model_resade_presse_communication,group_resade_scientifique_rc,1,1,1,0
+access_presse_manager,Presse (Manager),model_resade_presse_communication,group_resade_scientifique_manager,1,1,1,1
+access_thematique_user,Thematique (User),model_resade_thematique,group_resade_scientifique_user,1,0,0,0
+access_thematique_manager,Thematique (Manager),model_resade_thematique,group_resade_scientifique_manager,1,1,1,1

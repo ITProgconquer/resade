@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_soumission_revue_form" model="ir.ui.view">
+        <field name="name">resade.soumission.revue.form</field>
+        <field name="model">resade.soumission.revue</field>
+        <field name="arch" type="xml">
+            <form string="Soumission Revue Scientifique">
+                <header>
+                    <button name="action_soumettre" string="Soumettre"
+                            type="object" class="btn-primary"
+                            invisible="state != 'brouillon'"/>
+                    <button name="action_revision_demandee" string="Révision demandée"
+                            type="object"
+                            invisible="state not in ['soumis','peer_review']"/>
+                    <button name="action_accepter" string="Accepté"
+                            type="object" class="btn-success"
+                            invisible="state not in ['soumis','peer_review','revision_demandee','revision_mineure']"/>
+                    <button name="action_publier" string="Publié"
+                            type="object" class="btn-success"
+                            invisible="state != 'accepte'"/>
+                    <button name="action_rejeter" string="Rejeté"
+                            type="object" class="btn-danger"
+                            invisible="state in ['rejete','retire','publie']"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="brouillon,soumis,peer_review,accepte,publie"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="reference" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Article">
+                            <field name="article_id"/>
+                            <field name="auteur_correspondant_id"/>
+                        </group>
+                        <group string="Revue cible">
+                            <field name="nom_revue"/>
+                            <field name="editeur"/>
+                            <field name="quartile"/>
+                            <field name="indexee"/>
+                            <field name="open_access"/>
+                            <field name="facteur_impact"/>
+                            <field name="frais_publication" invisible="not open_access"/>
+                            <field name="url_submission"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Dates soumission">
+                            <field name="date_soumission"/>
+                            <field name="numero_soumission"/>
+                            <field name="date_accuse_reception"/>
+                            <field name="date_retour_reviewers"/>
+                            <field name="date_resoumission"/>
+                            <field name="date_decision_finale"/>
+                        </group>
+                        <group string="Publication">
+                            <field name="date_publication"/>
+                            <field name="doi"/>
+                            <field name="url_publication"/>
+                            <field name="numero_volume"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Commentaires reviewers">
+                            <field name="commentaires_reviewers" placeholder="Commentaires des reviewers..."/>
+                            <group>
+                                <field name="reponse_reviewers" filename="reponse_reviewers_filename" widget="binary"/>
+                                <field name="reponse_reviewers_filename"/>
+                            </group>
+                        </page>
+                        <page string="Documents soumis">
+                            <group>
+                                <group string="Lettre de couverture">
+                                    <field name="lettre_couverture" filename="lettre_couverture_filename" widget="binary"/>
+                                    <field name="lettre_couverture_filename"/>
+                                </group>
+                                <group string="Manuscrit soumis">
+                                    <field name="manuscrit_soumis" filename="manuscrit_soumis_filename" widget="binary"/>
+                                    <field name="manuscrit_soumis_filename"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Notes et historique..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_soumission_revue_list" model="ir.ui.view">
+        <field name="name">resade.soumission.revue.list</field>
+        <field name="model">resade.soumission.revue</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'publie'"
+                  decoration-info="state == 'accepte'"
+                  decoration-danger="state == 'rejete'">
+                <field name="reference"/>
+                <field name="article_id"/>
+                <field name="nom_revue"/>
+                <field name="quartile"/>
+                <field name="open_access" widget="boolean_toggle"/>
+                <field name="date_soumission"/>
+                <field name="date_decision_finale"/>
+                <field name="doi"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'publie'"
+                       decoration-info="state == 'accepte'"
+                       decoration-danger="state == 'rejete'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_soumission_revue" model="ir.actions.act_window">
+        <field name="name">Soumissions aux Revues</field>
+        <field name="res_model">resade.soumission.revue</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune soumission enregistrée</p>
+            <p>Processus P-CI-05 — Soumission à des revues scientifiques indexées</p>
+        </field>
+    </record>
+</odoo>

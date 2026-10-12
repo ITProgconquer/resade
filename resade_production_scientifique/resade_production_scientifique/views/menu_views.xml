@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================
+         MENUS — RESADE Production Scientifique (Carnet I)
+         =================================================== -->
+
+    <!-- Menu racine -->
+    <menuitem id="menu_resade_scientifique_root"
+              name="Production Scientifique"
+              sequence="50"
+              web_icon="resade_production_scientifique,static/description/icon.png"
+              groups="resade_production_scientifique.group_resade_scientifique_user"/>
+
+    <!-- ─────────────────────────────────────────────────────
+         MODULE 01 : Processus de Recherche
+         ───────────────────────────────────────────────────── -->
+    <menuitem id="menu_resade_recherche"
+              name="Processus de Recherche"
+              parent="menu_resade_scientifique_root"
+              sequence="10"/>
+
+    <menuitem id="menu_protocole_recherche"
+              name="Protocoles de Recherche (P-CI-01)"
+              parent="menu_resade_recherche"
+              action="action_protocole_recherche"
+              sequence="10"/>
+
+    <menuitem id="menu_etude_enquete"
+              name="Études &amp; Enquêtes Terrain (P-CI-02)"
+              parent="menu_resade_recherche"
+              action="action_etude_enquete"
+              sequence="20"/>
+
+    <menuitem id="menu_donnees_recherche"
+              name="Gestion des Données (P-CI-03)"
+              parent="menu_resade_recherche"
+              action="action_donnees_recherche"
+              sequence="30"/>
+
+    <!-- ─────────────────────────────────────────────────────
+         MODULE 02 : Publication Scientifique
+         ───────────────────────────────────────────────────── -->
+    <menuitem id="menu_resade_publication"
+              name="Publications Scientifiques"
+              parent="menu_resade_scientifique_root"
+              sequence="20"/>
+
+    <menuitem id="menu_article_scientifique"
+              name="Articles Scientifiques (P-CI-04)"
+              parent="menu_resade_publication"
+              action="action_article_scientifique"
+              sequence="10"/>
+
+    <menuitem id="menu_soumission_revue"
+              name="Soumissions aux Revues (P-CI-05)"
+              parent="menu_resade_publication"
+              action="action_soumission_revue"
+              sequence="20"/>
+
+    <!-- ─────────────────────────────────────────────────────
+         MODULE 03 : Communication Institutionnelle
+         ───────────────────────────────────────────────────── -->
+    <menuitem id="menu_resade_communication"
+              name="Communication &amp; Dissémination"
+              parent="menu_resade_scientifique_root"
+              sequence="30"/>
+
+    <menuitem id="menu_communication_interne"
+              name="Communications Internes (P-CI-06)"
+              parent="menu_resade_communication"
+              action="action_communication_interne"
+              sequence="10"/>
+
+    <menuitem id="menu_evenement_scientifique"
+              name="Événements Scientifiques (P-CI-07/09)"
+              parent="menu_resade_communication"
+              action="action_evenement_scientifique"
+              sequence="20"/>
+
+    <menuitem id="menu_bibliotheque"
+              name="Bibliothèque en ligne (P-CI-08)"
+              parent="menu_resade_communication"
+              action="action_bibliotheque"
+              sequence="30"/>
+
+    <menuitem id="menu_presse_communication"
+              name="Relations Presse (P-CI-10)"
+              parent="menu_resade_communication"
+              action="action_presse_communication"
+              sequence="40"/>
+
+    <!-- ─────────────────────────────────────────────────────
+         CONFIGURATION
+         ───────────────────────────────────────────────────── -->
+    <menuitem id="menu_resade_scientifique_config"
+              name="Configuration"
+              parent="menu_resade_scientifique_root"
+              sequence="99"
+              groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+
+    <menuitem id="menu_thematiques"
+              name="Thématiques de recherche"
+              parent="menu_resade_scientifique_config"
+              action="action_resade_thematique"
+              sequence="10"/>
+</odoo>

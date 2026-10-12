@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Séquences automatiques RESADE — Carnet I -->
+
+    <record id="seq_protocole_recherche" model="ir.sequence">
+        <field name="name">RESADE Protocole de Recherche</field>
+        <field name="code">resade.protocole.recherche</field>
+        <field name="prefix">RESADE-P-CI-01-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_etude_enquete" model="ir.sequence">
+        <field name="name">RESADE Étude / Enquête Terrain</field>
+        <field name="code">resade.etude.enquete</field>
+        <field name="prefix">RESADE-P-CI-02-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_donnees_recherche" model="ir.sequence">
+        <field name="name">RESADE Données de Recherche</field>
+        <field name="code">resade.donnees.recherche</field>
+        <field name="prefix">RESADE-P-CI-03-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_article_scientifique" model="ir.sequence">
+        <field name="name">RESADE Article Scientifique</field>
+        <field name="code">resade.article.scientifique</field>
+        <field name="prefix">RESADE-P-CI-04-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_soumission_revue" model="ir.sequence">
+        <field name="name">RESADE Soumission Revue Scientifique</field>
+        <field name="code">resade.soumission.revue</field>
+        <field name="prefix">RESADE-P-CI-05-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_communication_interne" model="ir.sequence">
+        <field name="name">RESADE Communication Interne</field>
+        <field name="code">resade.communication.interne</field>
+        <field name="prefix">RESADE-P-CI-06-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_evenement_scientifique" model="ir.sequence">
+        <field name="name">RESADE Événement Scientifique</field>
+        <field name="code">resade.evenement.scientifique</field>
+        <field name="prefix">RESADE-P-CI-07-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_bibliotheque" model="ir.sequence">
+        <field name="name">RESADE Bibliothèque / Document</field>
+        <field name="code">resade.bibliotheque</field>
+        <field name="prefix">RESADE-P-CI-08-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+
+    <record id="seq_presse_communication" model="ir.sequence">
+        <field name="name">RESADE Presse &amp; Communication Externe</field>
+        <field name="code">resade.presse.communication</field>
+        <field name="prefix">RESADE-P-CI-10-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+    </record>
+</odoo>

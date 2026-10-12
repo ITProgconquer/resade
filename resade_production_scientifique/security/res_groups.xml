@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Groupes de sécurité — Module RESADE Production Scientifique
+         Conforme à la matrice RACI du Manuel de Procédures RESADE v2.0
+         ================================================================ -->
+
+    <record id="module_resade_scientifique" model="ir.module.category">
+        <field name="name">RESADE — Production Scientifique</field>
+        <field name="description">Gestion de la production scientifique et communication RESADE</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Utilisateur (lecture + saisie de base) -->
+    <record id="group_resade_scientifique_user" model="res.groups">
+        <field name="name">Utilisateur</field>
+        <field name="category_id" ref="module_resade_scientifique"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">
+            Peut consulter et créer des fiches (protocoles, articles, événements).
+            Correspond aux rôles R (Responsable) opérationnels dans la RACI.
+        </field>
+    </record>
+
+    <!-- Responsable scientifique (PI / CRSP) — peut valider ses processus -->
+    <record id="group_resade_scientifique_pi" model="res.groups">
+        <field name="name">Investigateur Principal (PI)</field>
+        <field name="category_id" ref="module_resade_scientifique"/>
+        <field name="implied_ids" eval="[(4, ref('group_resade_scientifique_user'))]"/>
+        <field name="comment">
+            Peut soumettre des protocoles, valider des articles et gérer les études.
+            Correspond aux rôles R (Responsable) + A (Approbateur) au niveau processus.
+        </field>
+    </record>
+
+    <!-- Responsable Communication (RC) -->
+    <record id="group_resade_scientifique_rc" model="res.groups">
+        <field name="name">Responsable Communication (RC)</field>
+        <field name="category_id" ref="module_resade_scientifique"/>
+        <field name="implied_ids" eval="[(4, ref('group_resade_scientifique_user'))]"/>
+        <field name="comment">
+            Gère les événements, la bibliothèque en ligne, et les relations presse.
+        </field>
+    </record>
+
+    <!-- Gestionnaire (CDP / CDO) — accès complet sauf administration -->
+    <record id="group_resade_scientifique_manager" model="res.groups">
+        <field name="name">Gestionnaire</field>
+        <field name="category_id" ref="module_resade_scientifique"/>
+        <field name="implied_ids" eval="[
+            (4, ref('group_resade_scientifique_pi')),
+            (4, ref('group_resade_scientifique_rc')),
+        ]"/>
+        <field name="comment">
+            Accès complet à tous les processus du Carnet I.
+            Correspond au rôle A (Approbateur) dans les matrices RACI.
+        </field>
+    </record>
+
+    <!-- Administrateur système (AS) — accès total -->
+    <record id="group_resade_scientifique_admin" model="res.groups">
+        <field name="name">Administrateur</field>
+        <field name="category_id" ref="module_resade_scientifique"/>
+        <field name="implied_ids" eval="[(4, ref('group_resade_scientifique_manager'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>
