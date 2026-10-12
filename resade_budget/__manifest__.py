@@ -75,6 +75,7 @@
         'views/resade_budget_feb_views.xml',
         'views/resade_budget_tdb_views.xml',
         'views/resade_budget_revision_views.xml',
+        'views/resade_budget_encaissement_views.xml',
         'views/resade_budget_menus.xml',
         # Rapports PDF
         'report/resade_budget_report_templates.xml',

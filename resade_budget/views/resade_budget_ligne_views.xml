@@ -2,7 +2,7 @@
 <odoo>
 
 
-    <!-- ═══ VUE POPUP : AJOUTER UNE LIGNE ═══ -->
+    <!-- ═══ VUE POPUP : AJOUTER UNE LIGNE ═══
     <record id="view_resade_budget_ligne_create_form" model="ir.ui.view">
         <field name="name">resade.budget.ligne.create.form</field>
         <field name="model">resade.budget.ligne</field>
@@ -26,7 +26,7 @@
                 </footer>
             </form>
         </field>
-    </record>
+    </record> -->
 
     <record id="view_resade_budget_ligne_list" model="ir.ui.view">
         <field name="name">resade.budget.ligne.list</field>
@@ -66,8 +66,9 @@
                             <field name="department_id" readonly="1"/>
                         </group>
                         <group string="Imputation analytique">
-                            <field name="code_analytique"/>
+                            
                             <field name="analytic_account_id"/>
+                            <field name="account_id"/>
                             <field name="ressource_confirmee"/>
                         </group>
                     </group>
@@ -96,7 +97,7 @@
         <field name="res_model">resade.budget.ligne</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="view_id" ref="view_resade_budget_ligne_create_form"/>
+        <field name="view_id" ref="view_resade_budget_ligne_form"/>
         <field name="context">{'default_budget_annuel_id': active_id}</field>
     </record>
 

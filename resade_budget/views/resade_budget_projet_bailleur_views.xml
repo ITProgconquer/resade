@@ -97,7 +97,7 @@
                     </group>
                     <notebook>
                         <page string="Structure du budget (B.5)" name="structure">
-                            <group>
+                            <group string="Structure du budget (devise)">
                                 <field name="montant_personnel"/>
                                 <field name="montant_terrain"/>
                                 <field name="montant_publication"/>
@@ -105,6 +105,14 @@
                                 <field name="taux_overhead_pct"/>
                                 <field name="taux_imprevus_pct"/>
                                 <field name="montant_audit"/>
+                            </group>
+                            <group string="Équivalent FCFA (taux BCEAO)">
+                                <field name="montant_personnel_xof"/>
+                                <field name="montant_terrain_xof"/>
+                                <field name="montant_publication_xof"/>
+                                <field name="montant_equipements_xof"/>
+                                <field name="taux_change_bceao"/>
+                                <field name="montant_audit_xof"/>
                             </group>
                         </page>
                         <page string="Soumission / négociation" name="soumission">

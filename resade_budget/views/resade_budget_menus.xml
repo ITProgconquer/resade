@@ -123,6 +123,9 @@
         sequence="30"
         groups="resade_budget.group_resade_budget_caf"/>
 
+    
+    
+    
     <!-- EXÉCUTION ET SUIVI (P-ESB-01/02/03) -->
     <menuitem id="menu_resade_budget_execution"
         name="Exécution et Suivi (Module 02)"
@@ -142,33 +145,40 @@
         action="action_resade_budget_feb_a_traiter"
         sequence="20"
         groups="resade_budget.group_resade_budget_caf"/>
+    
+    <menuitem id="menu_resade_budget_encaissement"
+        name="Encaissements"
+        parent="menu_resade_budget_execution"
+        action="action_resade_budget_encaissement"
+        groups="resade_budget.group_resade_budget_caf"
+        sequence="30"/>
 
     <menuitem id="menu_resade_budget_ligne_alerte"
         name="Lignes en alerte (≥ 80%)"
         parent="menu_resade_budget_execution"
         action="action_resade_budget_ligne_alerte"
-        sequence="30"
+        sequence="40"
         groups="resade_budget.group_resade_budget_caf"/>
 
     <menuitem id="menu_resade_budget_tdb"
         name="Tableaux de Bord Mensuels — F-ESB-02-01"
         parent="menu_resade_budget_execution"
         action="action_resade_budget_tdb"
-        sequence="40"
+        sequence="50"
         groups="resade_budget.group_resade_budget_caf"/>
 
     <menuitem id="menu_resade_budget_rapport_trimestriel"
         name="Rapports Trimestriels (CA) — F-ESB-02-02"
         parent="menu_resade_budget_execution"
         action="action_resade_budget_rapport_trimestriel"
-        sequence="50"
+        sequence="60"
         groups="resade_budget.group_resade_budget_caf"/>
 
     <menuitem id="menu_resade_budget_revision"
         name="Révisions Budgétaires — F-ESB-03-01"
         parent="menu_resade_budget_execution"
         action="action_resade_budget_revision"
-        sequence="60"
+        sequence="70"
         groups="resade_budget.group_resade_budget_chef_dept,resade_budget.group_resade_budget_cdp,resade_budget.group_resade_budget_caf"/>
 
 </odoo>

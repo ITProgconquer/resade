@@ -398,11 +398,6 @@ class ResadeProjet(models.Model):
                     'res_model': 'resade.projet',
                     'res_id': record.id,
                 })
-            if record.accord_signe_ids:
-                record.accord_signe_ids.write({
-                    'res_model': 'resade.projet',
-                    'res_id': record.id,
-                })
             if record.pv_kickoff_ids:
                 record.pv_kickoff_ids.write({
                     'res_model': 'resade.projet',
@@ -421,7 +416,7 @@ class ResadeProjet(models.Model):
 
     def write(self, vals):
         result = super().write(vals)
-        if any(f in vals for f in ['document_ids', 'accord_signe_ids', 'pv_kickoff_ids', 'convention_signee_ids', 'bordereau_notification_ids']):
+        if any(f in vals for f in ['document_ids', 'pv_kickoff_ids', 'convention_signee_ids', 'bordereau_notification_ids']):
             self._sync_attachments()
         return result
 

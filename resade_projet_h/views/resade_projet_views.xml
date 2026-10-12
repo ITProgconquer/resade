@@ -182,7 +182,7 @@
                         <page string="📊 Indicateurs MELA">
                             <field name="indicateur_ids">
                                 <list editable="bottom">
-                                    <field name="niveau" widget="badge"/>
+                                    <field name="niveau"/>
                                     <field name="name" string="Indicateur"/>
                                     <field name="unite"/>
                                     <field name="valeur_baseline"/>
@@ -200,7 +200,7 @@
                             <field name="risque_ids">
                                 <list editable="bottom">
                                     <field name="name" string="Risque"/>
-                                    <field name="categorie" widget="badge"/>
+                                    <field name="categorie"/>
                                     <field name="probabilite"/>
                                     <field name="impact"/>
                                     <field name="score_risque" readonly="1"/>
@@ -327,6 +327,57 @@
                         context="{'group_by':'panier_commun_id'}"/>
                 </group>
             </search>
+        </field>
+    </record>
+
+    <record id="view_resade_activite_form" model="ir.ui.view">
+        <field name="name">resade.activite.form</field>
+        <field name="model">resade.activite.projet</field>
+        <field name="arch" type="xml">
+            <form string="Activité POA">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="code_activite"/>
+                            <field name="projet_id"/>
+                            <field name="responsable_id"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="Statut">
+                            <field name="state"/>
+                            <field name="taux_realisation"/>
+                        </group>
+                    </group>
+                    <group string="Planning">
+                        <group>
+                            <field name="date_debut_prevue"/>
+                            <field name="date_fin_prevue"/>
+                        </group>
+                        <group>
+                            <field name="date_realisation"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Budget">
+                        <group>
+                            <field name="budget_prevu"/>
+                        </group>
+                        <group>
+                            <field name="depense_reelle"/>
+                        </group>
+                    </group>
+                    <group string="Livrables et observations">
+                        <field name="livrables" nolabel="1"/>
+                        <field name="observations" nolabel="1"/>
+                    </group>
+                    <group string="Documents livrables">
+                        <field name="document_ids" widget="many2many_binary" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 

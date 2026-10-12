@@ -258,9 +258,9 @@
                         
                         <page string="🤝 Projets bailleurs (P-EAB-02)" name="projets">
                             <field name="projet_bailleur_ids" >
-                                <list decoration-success="state == 'integre'"
-                                    decoration-warning="state == 'negociation'"
-                                    decoration-danger="state == 'rejete'">
+                                <list  decoration-success="statut and statut == 'certifiee'"
+                                       decoration-warning="statut and statut == 'incomplete'"
+                                       decoration-danger="statut and statut == 'rejetee'">
                                     <field name="name"/>
                                     <field name="bailleur_name"/>
                                     <field name="montant_total" sum="Total"/>

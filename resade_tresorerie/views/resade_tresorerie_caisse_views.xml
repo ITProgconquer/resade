@@ -10,11 +10,13 @@
                     <button name="action_demander_autorisation_caf" string="✅ Autoriser (CAF)"
                         type="object" class="btn-primary"
                         invisible="statut != 'brouillon'"
-                        groups="resade_tresorerie.group_resade_tresorerie_caf"/>
+                        groups="resade_tresorerie.group_resade_tresorerie_caf"
+                        close="0"/>
                     <button name="action_autoriser_de" string="🖊️ Autoriser (DE)"
                         type="object" class="btn-primary"
                         invisible="statut != 'autorise_caf' or autorisation_de_requise == False"
-                        groups="resade_tresorerie.group_resade_tresorerie_de"/>
+                        groups="resade_tresorerie.group_resade_tresorerie_de"
+                        close="0"/>
                     <button name="action_decaisser" string="💵 Décaisser et enregistrer"
                         type="object" class="btn-success"
                         invisible="statut not in ['autorise_caf','autorise_de']"
@@ -47,6 +49,8 @@
                             <field name="beneficiaire_id"/>
                             <field name="motif"/>
                             <field name="montant"/>
+                            <field name="ligne_budgetaire_id"/>
+                            <field name="montant_disponible_ligne" invisible="not ligne_budgetaire_id"/>
                         </group>
                         <group>
                             <field name="autorisation_de_requise" readonly="1"/>
@@ -54,6 +58,7 @@
                             <field name="de_id" readonly="1" invisible="autorisation_de_requise == False"/>
                             <field name="date_decaissement" readonly="1"/>
                             <field name="account_move_id" readonly="1"/>
+                            <field name="credit_reserve" readonly="1" invisible="not ligne_budgetaire_id"/>
                         </group>
                     </group>
                     <group string="Pièce justificative (obligatoire — P-TB-01 B.3)">

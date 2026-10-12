@@ -33,3 +33,5 @@ access_resade_budget_revision_ligne_chef_dept,resade.budget.revision.ligne chef 
 access_resade_budget_revision_ligne_cdp,resade.budget.revision.ligne cdp,model_resade_budget_revision_ligne,group_resade_budget_cdp,1,1,1,0
 access_resade_budget_revision_ligne_caf,resade.budget.revision.ligne caf,model_resade_budget_revision_ligne,group_resade_budget_caf,1,1,1,0
 access_resade_budget_revision_ligne_admin,resade.budget.revision.ligne admin,model_resade_budget_revision_ligne,group_resade_budget_admin,1,1,1,1
+access_resade_budget_encaissement_caf,resade.budget.encaissement caf,model_resade_budget_encaissement,group_resade_budget_caf,1,1,1,0
+access_resade_budget_encaissement_admin,resade.budget.encaissement admin,model_resade_budget_encaissement,group_resade_budget_admin,1,1,1,1

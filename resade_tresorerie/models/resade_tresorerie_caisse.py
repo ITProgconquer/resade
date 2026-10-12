@@ -33,6 +33,19 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
     motif = fields.Char(string='Motif du décaissement', required=True)
     montant = fields.Monetary(string='Montant demandé', currency_field='currency_id', required=True)
 
+    ligne_budgetaire_id = fields.Many2one(
+        'resade.budget.ligne', string='Ligne budgétaire (imputation)',
+        domain="[('rubrique', '!=', 'ressources'), ('budget_annuel_id.state', 'in', ['approuve_ca', 'diffuse'])]",
+        help="Ligne budgétaire consommée par ce décaissement. Si renseignée : "
+             "le crédit est réservé dès l'autorisation CAF (vérification réelle de "
+             "disponibilité) et l'écriture comptable utilise le compte comptable "
+             "configuré sur la ligne au lieu du compte de charge par défaut."
+    )
+    montant_disponible_ligne = fields.Monetary(
+        related='ligne_budgetaire_id.montant_disponible', string='Disponible sur la ligne', readonly=True
+    )
+    credit_reserve = fields.Boolean(string='Crédit réservé sur la ligne', default=False, readonly=True, copy=False)
+
     piece_justificative = fields.Binary(string='Pièce justificative (reçu, facture, OM)', attachment=True)
     piece_justificative_nom = fields.Char(string='Nom du fichier')
 
@@ -54,6 +67,12 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
         ('decaisse', 'Décaissé (comptabilisé)'),
         ('rejete', 'Rejeté'),
     ], string='Statut', default='brouillon', tracking=True)
+
+    feb_id = fields.Many2one(
+        'resade.budget.feb', 
+        string='FEB liée',
+        help='Fiche d\'Expression des Besoins à solder'
+    )
 
     caf_id = fields.Many2one('hr.employee', string='Autorisé par (CAF)')
     de_id = fields.Many2one('hr.employee', string='Autorisé par (DE)')
@@ -84,6 +103,9 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
                 "bénéficiaire – P-TB-01 B.3."
             ))
         self._check_solde_disponible()
+        if self.ligne_budgetaire_id:
+            self.ligne_budgetaire_id.reserver_credit(self.montant)
+            self.credit_reserve = True
         self.write({'statut': 'autorise_caf', 'caf_id': self.env.user.employee_id.id})
         self.message_post(body=_("Décaissement autorisé par le CAF."))
         if self.autorisation_de_requise:
@@ -91,18 +113,23 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
                 "Montant > %s : autorisation du Directeur Exécutif requise avant décaissement."
             ) % '{:,.0f}'.format(self.seuil_autorisation_de))
 
+        return True
+
     def action_autoriser_de(self):
         self.ensure_one()
         if self.statut != 'autorise_caf':
             raise UserError(_("L'autorisation du CAF est requise avant celle du DE."))
         self.write({'statut': 'autorise_de', 'de_id': self.env.user.employee_id.id})
         self.message_post(body=_("Décaissement autorisé par le Directeur Exécutif."))
+        return True
 
     def action_rejeter(self):
         self.ensure_one()
         if not self.motif_rejet:
             raise UserError(_("Renseignez le motif de rejet."))
-        self.write({'statut': 'rejete'})
+        if self.credit_reserve and self.ligne_budgetaire_id:
+            self.ligne_budgetaire_id.liberer_credit(self.montant)
+        self.write({'statut': 'rejete', 'credit_reserve': False})
         self.message_post(body=_("Décaissement rejeté : %s") % self.motif_rejet)
 
     def _check_solde_disponible(self):
@@ -119,7 +146,10 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
     def action_decaisser(self):
         """
         Enregistrement immédiat de l'opération (P-TB-01 B.4 étape 1/3) :
-        génère l'écriture réelle dans le journal de caisse Odoo.
+        génère l'écriture réelle dans le journal de caisse Odoo. Si une ligne
+        budgétaire est renseignée, utilise SON compte comptable (garantissant
+        que budget et comptabilité pointent sur le même compte) et solde
+        l'engagement réservé au visa CAF.
         """
         self.ensure_one()
         statut_requis = 'autorise_de' if self.autorisation_de_requise else 'autorise_caf'
@@ -129,11 +159,24 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
             ) % (' + DE' if self.autorisation_de_requise else ''))
         self._check_solde_disponible()
 
-        compte_charge = self.env['account.account'].search([
-            ('account_type', '=', 'expense'), ('company_ids', 'in', self.env.company.id)
-        ], limit=1)
-        if not compte_charge:
-            raise UserError(_("Aucun compte de charge configuré dans la Comptabilité Odoo."))
+        if self.ligne_budgetaire_id:
+            if not self.ligne_budgetaire_id.account_id:
+                raise UserError(_(
+                    "La ligne budgétaire « %s » n'a pas de compte comptable configuré "
+                    "(champ « Compte comptable » sur la ligne). Impossible de générer la "
+                    "pièce comptable sans ce compte."
+                ) % self.ligne_budgetaire_id.name)
+            compte_charge = self.ligne_budgetaire_id.account_id
+        else:
+            compte_charge = self.env['account.account'].search([
+                ('account_type', '=', 'expense'), ('company_ids', 'in', self.env.company.id)
+            ], limit=1)
+            if not compte_charge:
+                raise UserError(_("Aucun compte de charge configuré dans la Comptabilité Odoo."))
+
+        analytic_distribution = False
+        if self.ligne_budgetaire_id and self.ligne_budgetaire_id.analytic_account_id:
+            analytic_distribution = {str(self.ligne_budgetaire_id.analytic_account_id.id): 100}
 
         move = self.env['account.move'].sudo().create({
             'move_type': 'entry',
@@ -145,6 +188,7 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
                     'name': self.motif,
                     'account_id': compte_charge.id,
                     'partner_id': self.beneficiaire_id.id,
+                    'analytic_distribution': analytic_distribution,
                     'debit': self.montant,
                     'credit': 0.0,
                 }),
@@ -158,12 +202,29 @@ class ResadeTresorerieCaisseDecaissement(models.Model):
             ],
         })
         move.action_post()
+
+        if self.ligne_budgetaire_id:
+            if self.credit_reserve:
+                self.ligne_budgetaire_id.constater_realisation(self.montant, self.montant)
+            else:
+                # Cas où le décaissement a été comptabilisé sans être passé par le
+                # visa CAF classique (ex: montant sous le seuil, workflow raccourci) :
+                # on constate directement la réalisation sans engagement préalable à solder.
+                self.ligne_budgetaire_id.montant_realise += self.montant
+
         self.write({
             'statut': 'decaisse',
             'account_move_id': move.id,
             'date_decaissement': fields.Date.today(),
         })
         self.message_post(body=_("Décaissement enregistré – écriture Odoo %s.") % move.name)
+
+         # ✅ AJOUTER ÇA ✅
+        if self.feb_id:
+            self.feb_id.write({'state': 'payee'})
+            self.message_post(body=_("FEB %s marquée payée via décaissement.") % self.feb_id.name)
+
+        return True
 
     @api.model_create_multi
     def create(self, vals_list):

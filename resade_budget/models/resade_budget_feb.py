@@ -65,7 +65,7 @@ class ResadeBudgetFeb(models.Model):
     # Imputation budgétaire — le VRAI lien vers la structure budgétaire
     ligne_budgetaire_id = fields.Many2one(
         'resade.budget.ligne', string='Ligne budgétaire (imputation)', tracking=True,
-        domain="[('budget_annuel_id.state', 'in', ['approuve_ca', 'diffuse'])]"
+        domain="[('rubrique', '!=', 'ressources'), ('budget_annuel_id.state', 'in', ['approuve_ca', 'diffuse'])]"
     )
     montant_disponible_ligne = fields.Monetary(
         related='ligne_budgetaire_id.montant_disponible', string='Disponible sur la ligne', readonly=True
@@ -103,6 +103,19 @@ class ResadeBudgetFeb(models.Model):
 
     motif_refus = fields.Text(string='Motif de refus / rejet')
 
+    journal_id = fields.Many2one(
+        'account.journal', 
+        string='Journal de paiement',
+        help='Journal de trésorerie (caisse ou banque) utilisé pour le paiement'
+    )
+
+    account_move_id = fields.Many2one(
+        'account.move',
+        string='Écriture comptable',
+        readonly=True,
+        help='Pièce comptable générée automatiquement lors du paiement'
+    )
+
     # ─────────────────────────────────────────────
     # ÉTAPES 4-7 : ACHAT / RÉCEPTION / PAIEMENT
     # ─────────────────────────────────────────────
@@ -121,9 +134,6 @@ class ResadeBudgetFeb(models.Model):
         ('soumise', '📥 Soumise'),
         ('visee_caf', '💰 Visée CAF (crédit réservé)'),
         ('autorisee', '✅ Autorisée (DE)'),
-        ('en_cours', '🛒 Procédure achat en cours'),
-        ('receptionnee', '📦 Réceptionnée / certifiée'),
-        ('dossier_complet', '📁 Dossier de paiement complet'),
         ('payee', '💵 Payée (clôturée)'),
         ('rejetee', '❌ Rejetée'),
     ], string='Statut FEB', default='brouillon', tracking=True, copy=False)
@@ -226,20 +236,92 @@ class ResadeBudgetFeb(models.Model):
             rec.write({'state': 'dossier_complet'})
 
     def action_payer(self):
-        """Étape 7 : paiement (double signature DE+CAF obligatoire) + solde du crédit engagé."""
+        """
+        Le bouton "Payer" ouvre le bon formulaire selon le montant :
+        - ≤ 50 000 → Décaissement caisse (Trésorerie)
+        - > 50 000 → Paiement direct (virement bancaire)
+        """
         for rec in self:
-            if not (rec.paye_par_de and rec.paye_par_caf):
-                raise UserError(_(
-                    "Le paiement nécessite la double signature DE et CAF (Manuel P-ESB-01, étape 7)."
-                ))
-            montant_reel = rec.montant_paye_reel or rec.montant_estime
-            if rec.credit_reserve and rec.ligne_budgetaire_id:
+            if rec.state != 'autorisee':
+                raise UserError(_("La FEB doit être autorisée avant paiement."))
+            
+            if rec.montant_estime <= 50000:
+                # Vérifier si la FEB a un journal, sinon chercher le journal caisse
+                journal = rec.journal_id
+                if not journal:
+                    journal = self.env['account.journal'].search([
+                        ('type', '=', 'cash'),
+                        ('company_id', '=', self.env.company.id),
+                    ], limit=1)
+                    if not journal:
+                        raise UserError(_(
+                            "Aucun journal de caisse configuré. Veuillez en créer un dans "
+                            "Comptabilité → Configuration → Journaux (type : Espèces)."
+                        ))
+                
+                decaissement_existant = self.env['resade.tresorerie.caisse.decaissement'].search([
+                    ('feb_id', '=', rec.id)
+                ], limit=1)
+                
+                if decaissement_existant:
+                    return {
+                        'type': 'ir.actions.act_window',
+                        'name': 'Décaissement (Trésorerie)',
+                        'res_model': 'resade.tresorerie.caisse.decaissement',
+                        'res_id': decaissement_existant.id,
+                        'view_mode': 'form',
+                        'target': 'current',
+                    }
+                
+                decaissement = self.env['resade.tresorerie.caisse.decaissement'].create({
+                    'feb_id': rec.id,
+                    'montant': rec.montant_estime,
+                    'motif': rec.nature_besoin or rec.name,
+                    'ligne_budgetaire_id': rec.ligne_budgetaire_id.id,
+                    'journal_id': journal.id,  # ← Toujours renseigné
+                    'beneficiaire_id': rec.demandeur_id.id if rec.demandeur_id else False,
+                })
+                
+                return {
+                    'type': 'ir.actions.act_window',
+                    'name': 'Décaissement (Trésorerie)',
+                    'res_model': 'resade.tresorerie.caisse.decaissement',
+                    'res_id': decaissement.id,
+                    'view_mode': 'form',
+                    'target': 'current',
+                }
+            else:
+                # Montant > 50 000 → Virement bancaire direct
+                if not (rec.paye_par_de and rec.paye_par_caf):
+                    raise UserError(_("Double signature DE+CAF obligatoire."))
+                if not rec.journal_id:
+                    raise UserError(_("Sélectionnez le journal bancaire."))
+                
+                # L'ancienne logique pour virement bancaire
+                montant_reel = rec.montant_paye_reel or rec.montant_estime
+                move = self.env['account.move'].sudo().create({
+                    'move_type': 'entry',
+                    'journal_id': rec.journal_id.id,
+                    'date': fields.Date.today(),
+                    'ref': rec.name,
+                    'line_ids': [
+                        (0, 0, {
+                            'account_id': rec.ligne_budgetaire_id.account_id.id,
+                            'debit': montant_reel,
+                            'credit': 0.0,
+                        }),
+                        (0, 0, {
+                            'account_id': rec.journal_id.default_account_id.id,
+                            'debit': 0.0,
+                            'credit': montant_reel,
+                        }),
+                    ],
+                })
+                move.action_post()
                 rec.ligne_budgetaire_id.constater_realisation(rec.montant_estime, montant_reel)
-            rec.write({
-                'state': 'payee',
-                'date_paiement': rec.date_paiement or fields.Date.context_today(rec),
-                'montant_paye_reel': montant_reel,
-            })
+                rec.write({'state': 'payee', 'account_move_id': move.id,'date_paiement': rec.date_paiement or fields.Date.context_today(rec),'montant_paye_reel': montant_reel})
+            
+            rec.message_post(body=_("Paiement enregistré – écriture comptable Odoo %s.") % move.name)
 
     def action_rejeter(self):
         for rec in self:

@@ -218,8 +218,8 @@ class ResadePartenaireProjet(models.Model):
 
     def _sync_attachments(self):
         for record in self:
-            if record.document_ids:
-                record.document_ids.write({
+            if record.fiche_due_diligence_ids:
+                record.fiche_due_diligence_ids.write({
                     'res_model': 'resade.partenaire.projet',
                     'res_id': record.id,
                 })
@@ -242,7 +242,7 @@ class ResadePartenaireProjet(models.Model):
 
     def write(self, vals):
         result = super().write(vals)
-        if any(f in vals for f in ['document_ids', 'accord_signe_ids', 'pv_kickoff_ids']):
+        if any(f in vals for f in ['fiche_due_diligence_ids', 'accord_signe_ids', 'pv_kickoff_ids']):
             self._sync_attachments()
         return result
 

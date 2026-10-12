@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ LISTE ═══════════════ -->
+    <record id="view_resade_budget_encaissement_list" model="ir.ui.view">
+        <field name="name">resade.budget.encaissement.list</field>
+        <field name="model">resade.budget.encaissement</field>
+        <field name="arch" type="xml">
+            <list string="Encaissements">
+                <field name="name"/>
+                <field name="date_encaissement"/>
+                <field name="ligne_budgetaire_id"/>
+                <field name="montant"/>
+                <field name="journal_id"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ FORMULAIRE ═══════════════ -->
+    <record id="view_resade_budget_encaissement_form" model="ir.ui.view">
+        <field name="name">resade.budget.encaissement.form</field>
+        <field name="model">resade.budget.encaissement</field>
+        <field name="arch" type="xml">
+            <form string="Encaissement sur ligne de recette">
+                <header>
+                    <button name="action_encaisser" string="💰 Encaisser" type="object"
+                            invisible="state != 'brouillon'" class="btn-primary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="brouillon,encaisse"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="date_encaissement"/>
+                            <field name="description"/>
+                        </group>
+                        <group string="Budget et Trésorerie">
+                            <field name="ligne_budgetaire_id"/>
+                            <field name="journal_id"/>
+                            <field name="montant"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Écriture comptable" invisible="state == 'brouillon'">
+                        <field name="account_move_id" readonly="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ ACTION ═══════════════ -->
+    <record id="action_resade_budget_encaissement" model="ir.actions.act_window">
+        <field name="name">Encaissements</field>
+        <field name="res_model">resade.budget.encaissement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    
+
+</odoo>

@@ -109,6 +109,46 @@ class ResadeBudgetProjetBailleur(models.Model):
 
     note_interne = fields.Text(string='Note interne')
 
+    xof_currency_id = fields.Many2one(
+        'res.currency',
+        string='Devise FCFA',
+        default=lambda self: self.env.ref('base.XOF', raise_if_not_found=False) or self.env.company.currency_id,
+        readonly=True
+    )
+
+    montant_personnel_xof = fields.Monetary(
+    string='Personnel (FCFA)', compute='_compute_montants_xof',
+    currency_field='xof_currency_id'
+    )
+    montant_terrain_xof = fields.Monetary(
+        string='Terrain (FCFA)', compute='_compute_montants_xof',
+        currency_field='xof_currency_id'
+    )
+    montant_publication_xof = fields.Monetary(
+        string='Publication (FCFA)', compute='_compute_montants_xof',
+        currency_field='xof_currency_id'
+    )
+    montant_equipements_xof = fields.Monetary(
+        string='Équipements (FCFA)', compute='_compute_montants_xof',
+        currency_field='xof_currency_id'
+    )
+    montant_audit_xof = fields.Monetary(
+        string='Audit (FCFA)', compute='_compute_montants_xof',
+        currency_field='xof_currency_id'
+    )
+
+
+    @api.depends('montant_personnel', 'montant_terrain', 'montant_publication',
+             'montant_equipements', 'montant_audit', 'taux_change_bceao')
+    def _compute_montants_xof(self):
+        for rec in self:
+            taux = rec.taux_change_bceao or 1.0
+            rec.montant_personnel_xof = rec.montant_personnel * taux
+            rec.montant_terrain_xof = rec.montant_terrain * taux
+            rec.montant_publication_xof = rec.montant_publication * taux
+            rec.montant_equipements_xof = rec.montant_equipements * taux
+            rec.montant_audit_xof = rec.montant_audit * taux
+
 
     # ─────────────────────────────────────────────
     # ACTIONS DU WORKFLOW (P-EAB-02)

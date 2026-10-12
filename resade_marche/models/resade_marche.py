@@ -224,6 +224,7 @@ class ResadeMarche(models.Model):
     # de disponibilité de crédit (Manuel P-ESB-01, étape 2).
     ligne_budgetaire_id = fields.Many2one(
         'resade.budget.ligne', string='Ligne budgétaire (imputation RESADE)',
+        domain="[('rubrique', '!=', 'ressources'), ('budget_annuel_id.state', 'in', ['approuve_ca', 'diffuse'])]",
         help="Ligne budgétaire RESADE sur laquelle ce dossier marché sera imputé. "
              "La validation CAF réserve automatiquement le crédit sur cette ligne."
     )

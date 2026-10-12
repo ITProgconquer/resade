@@ -67,6 +67,17 @@ class ResadeBudgetLigne(models.Model):
         'account.analytic.account', string='Compte analytique Odoo (optionnel)',
         help="Lien optionnel vers le compte analytique standard Odoo, si la compagnie l'utilise."
     )
+    account_id = fields.Many2one(
+            'account.account', string='Compte comptable (Odoo Accounting)',
+            help="Compte général réel utilisé en comptabilité pour cette ligne "
+                 "(ex : ligne budgétaire « Carburant » -> compte 605100 « Carburant »). "
+                 "Ce compte est celui qui sera débité (charge) ou crédité (produit) lorsqu'une "
+                 "FEB liée à cette ligne est payée ou qu'un encaissement lui est rattaché — "
+                 "c'est ce qui garantit que le budget et la comptabilité utilisent EXACTEMENT "
+                 "le même compte, sans ressaisie ni divergence possible.",
+            domain="[('account_type', 'in', ('expense', 'expense_direct_cost', 'expense_depreciation', "
+                   "'income', 'income_other'))]"
+    )
     ressource_confirmee = fields.Boolean(
         string='Ressource confirmée (vs conditionnelle)', default=True,
         help="Manuel P-EAB-01 §B.3 : distinction ressources confirmées / conditionnelles"
@@ -207,3 +218,17 @@ class ResadeBudgetLigne(models.Model):
         if self.budget_annuel_id.state == 'diffuse':
             raise UserError(_("Ce budget est verrouillé. La création de ligne n'est pas autorisée."))
         return {'type': 'ir.actions.act_window_close'}
+
+    def constater_encaissement(self, montant):
+            """
+            Pendant de constater_realisation() côté RESSOURCES : une ligne de type
+            'ressources' n'a pas d'étape d'engagement préalable (on n'engage pas une
+            recette), donc on incrémente directement le réalisé lorsqu'un encaissement
+            (resade.budget.encaissement) est validé et rapproché de cette ligne.
+            """
+            self.ensure_one()
+            if montant <= 0:
+                raise UserError(_("Le montant encaissé doit être positif."))
+            self.montant_realise += montant
+            return True
+    
