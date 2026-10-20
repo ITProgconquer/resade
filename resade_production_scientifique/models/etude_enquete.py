@@ -150,6 +150,12 @@ class EtudeEnquete(models.Model):
     def action_rediger_rapport(self):
         self.state = 'rapport'
 
+    def action_suspendre(self):
+        self.state = 'suspendue'
+
+    def action_reprendre(self):
+        self.state = 'en_cours'
+
     def action_terminer(self):
         self.write({'state': 'termine', 'date_fin_reelle': fields.Date.today()})
 

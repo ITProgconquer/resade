@@ -42,6 +42,7 @@
                         <group>
                             <field name="name" readonly="1"/>
                             <field name="categorie_donnees"/>
+                            <field name="autres" placeholder="Précisions supplémentaires si autres" invisible="categorie_donnees != 'autre'"/>
                             <field name="donnees_sensibles"/>
                             <field name="base_legale"/>
                             <field name="duree_conservation"/>

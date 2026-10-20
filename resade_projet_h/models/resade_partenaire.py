@@ -21,7 +21,6 @@ class ResadePartenaireProjet(models.Model):
         ('partenaire',    '🤝 Partenaire (MoU – F-EST-03-02)'),
         ('sous_traitant', '📄 Sous-traitant (Subaward – F-EST-03-03)'),
         ('prestataire',   '🔧 Prestataire de services'),
-        ('co_pi',         '🔬 Co-PI / Institution de recherche (Consortium)'),
     ], string='Type d\'engagement', required=True, tracking=True)
 
     pays = fields.Char(string='Pays / Localisation')

@@ -57,11 +57,19 @@
                             <field name="numero_reference_externe"/>
                         </group>
                         <group>
-                            <field name="date_soumission"/>
-                            <field name="date_decision"/>
-                            <field name="date_expiration"/>
+                            <field name="date_soumission" invisible="state == 'brouillon'"/>
+                            <field name="date_decision" invisible="state not in ['en_instruction', 'decision_rendue', 'clos']"/>
+                            <field name="date_expiration" invisible="state not in ['en_instruction', 'decision_rendue', 'clos']"/>
                             <field name="decision"/>
                             <field name="rapport_annuel_transmis"/>
+                            <field name="observations_pu" 
+                                placeholder="Conditions posées, amendements demandés..."
+                                invisible="decision not in ['approuve_conditions', 'amendement_demande']"
+                                required="decision in ['approuve_conditions', 'amendement_demande']"/>
+                            <field name="motif_rejet" 
+                                placeholder="Motif du rejet..."
+                                invisible="decision != 'rejete'"
+                                required="decision == 'rejete'"/>
                         </group>
                     </group>
                     <group>

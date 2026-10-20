@@ -18,8 +18,11 @@
                             invisible="state != 'soumission_ethique'"/>
                     <button name="action_valider" string="Valider (DE)"
                             type="object" class="btn-success"
-                            invisible="state not in ['avis_ethique_recu','revue_interne']"
+                            invisible="state not in ['avis_ethique_recu', 'revue_interne','visa_statistique'] or (necessite_ethique and not date_avis_ethique)"
                             groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+                    <button name="action_visa_statistique" string="Visa statistique" 
+                            type="object" class="btn-secondary"
+                            invisible="state != 'avis_ethique_recu'"/>
                     <button name="action_rejeter" string="Rejeter"
                             type="object" class="btn-danger"
                             invisible="state in ['rejete','archive','valide']"/>

@@ -44,6 +44,7 @@ class ResadeEthiqueConsentement(models.Model):
     nb_consentements_signes = fields.Integer(string='Nombre de consentements signés')
     nb_retraits = fields.Integer(string='Nombre de retraits de consentement')
     lieu_archivage = fields.Char(string='Lieu / support d\'archivage sécurisé')
+    vul_break = fields.Text(string='Informations supplémentaires sur la population vulnérable', help="À remplir si le formulaire concerne une population vulnérable")
 
     state = fields.Selection([
         ('brouillon', 'Brouillon'),

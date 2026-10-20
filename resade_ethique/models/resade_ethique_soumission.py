@@ -63,8 +63,10 @@ class ResadeEthiqueSoumission(models.Model):
         ('rejete', 'Rejeté'),
     ], string='Décision', default='en_attente', tracking=True)
 
-    observations = fields.Text(string='Observations / conditions de l\'organisme')
+    observations = fields.Text(string='conditions de l\'organisme')
+    observations_pu = fields.Text(string='Conditions posées / amendements demandés', help="À remplir par le CRSP ou l'Administrateur")
     rapport_annuel_transmis = fields.Boolean(string='Rapport annuel de suivi transmis')
+    motif_rejet = fields.Text(string='Motif du rejet', help="À remplir par le CRSP ou l'Administrateur")
 
     consentement_ids = fields.One2many('resade.ethique.consentement', 'soumission_id', string='Consentements liés')
 
@@ -129,4 +131,20 @@ class ResadeEthiqueSoumission(models.Model):
                 raise ValidationError(_(
                     "Les observations/conditions de l'organisme sont obligatoires "
                     "lorsque la décision est 'Approuvé sous conditions'."
+                ))
+
+
+    
+
+    @api.constrains('decision', 'observations', 'motif_rejet')
+    def _check_decision_fields(self):
+        for rec in self:
+            if rec.decision in ('approuve_conditions', 'amendements_demandes') and not rec.observations:
+                raise ValidationError(_(
+                    "Vous devez renseigner les observations/conditions pour cette décision."
+                ))
+            
+            if rec.decision == 'rejete' and not rec.motif_rejet:
+                raise ValidationError(_(
+                    "Vous devez renseigner le motif du rejet."
                 ))

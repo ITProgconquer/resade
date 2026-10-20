@@ -49,6 +49,7 @@ class ResadeEthiqueTraitement(models.Model):
 
     date_derniere_revue = fields.Date(string='Date de dernière revue')
     date_prochaine_revue = fields.Date(string='Date de prochaine revue')
+    autres = fields.Text(string='Précisions supplémentaires si autres', help="À remplir si la catégorie de données est 'Autre'")
 
     incident_ids_count = fields.Integer(string='Nombre de violations de données signalées', default=0)
 

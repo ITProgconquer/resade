@@ -69,6 +69,7 @@ class ResadeEthiqueConflit(models.Model):
 
     valideur_id = fields.Many2one('hr.employee', string='Validé par (DE)')
     date_decision = fields.Date(string='Date de décision')
+    autres = fields.Text(string='Précisions supplémentaires si autres', help="À remplir si le contexte est 'Autre'")
 
     state = fields.Selection([
         ('brouillon', 'Brouillon'),

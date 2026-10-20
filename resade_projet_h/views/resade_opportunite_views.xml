@@ -71,6 +71,7 @@
                         <group>
                             <field name="bailleur"/>
                             <field name="type_bailleur"/>
+                            <field name="autres" placeholder="Précisions supplémentaires si autres" invisible="type_bailleur != 'autres'"/>
                             <field name="date_identification"/>
                             <field name="date_limite_soumission"/>
                             <field name="jours_restants" readonly="1"/>

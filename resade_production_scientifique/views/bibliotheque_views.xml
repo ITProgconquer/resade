@@ -8,12 +8,16 @@
                 <header>
                     <button name="action_publier" string="Publier"
                             type="object" class="btn-success"
-                            invisible="state not in ['brouillon','a_publier']"
+                            invisible="state != 'a_publier'"
                             groups="resade_production_scientifique.group_resade_scientifique_rc"/>
                     <button name="action_archiver" string="Archiver"
                             type="object"
                             invisible="state != 'publie'"
                             groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+                    <button name="action_a_publier" string="À publier"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'brouillon'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="brouillon,a_publier,publie"/>
                 </header>

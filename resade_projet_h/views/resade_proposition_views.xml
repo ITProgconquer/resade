@@ -179,14 +179,17 @@
                             invisible="state not in ['soumise','acceptee','rejetee','liste_att']">
                             <group>
                                 <field name="decision_bailleur" widget="radio"/>
+                                <field name="clarification_bailleur" invisible="decision_bailleur != 'clarifs'" widget="html"/> 
                                 <field name="date_decision_bailleur"/>
                             </group>
                             <field name="note_capitalisation" widget="html"
                                 placeholder="F-MRV-02-08 : Enseignements tirés (succès ou rejet), facteurs explicatifs, recommandations pour futures propositions..."/>
                         </page>
 
-                        <field name="document_ids" widget="many2many_binary"
-                            string="Autres documents (annexes, CV, MoU partenaires, registre légal...)"/>
+                        <page string="📎 Documents joints" name="documents" invisible="state not in ['soumise','acceptee','rejetee','liste_att']">
+                            <field name="document_ids" widget="many2many_binary"
+                                string="Autres documents (annexes, CV, MoU partenaires, registre légal...)"/>
+                        </page>
 
                     </notebook>
                 </sheet>

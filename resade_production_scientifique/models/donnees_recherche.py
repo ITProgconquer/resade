@@ -101,6 +101,11 @@ class DonneesRecherche(models.Model):
     )
     doi_dataset = fields.Char(string='DOI du jeu de données')
 
+    motif_destruction = fields.Text(
+        string='Motif de la destruction',
+        help='Raison de la destruction des données (fin de DUA, protocole...)'
+    )
+
     # ─── Statut ───────────────────────────────────────────────────────────────
     state = fields.Selection([
         ('collecte', 'En cours de collecte'),
@@ -120,6 +125,23 @@ class DonneesRecherche(models.Model):
                 vals['reference'] = self.env['ir.sequence'].next_by_code(
                     'resade.donnees.recherche') or _('Nouveau')
         return super().create(vals_list)
+
+    def action_nettoyage(self):
+        self.state = 'nettoyage'
+
+    def action_analyser(self):
+        self.state = 'analyse'
+
+    def action_archiver(self):
+        self.state = 'archive'
+
+    def action_publier(self):
+        self.state = 'publie'
+
+    def action_detruire(self):
+        if not self.motif_destruction:
+            raise api.UserError(_("Veuillez indiquer le motif de destruction."))
+        self.state = 'detruit'
 
     def action_archiver(self):
         self.write({'state': 'archive', 'date_archivage': fields.Date.today()})

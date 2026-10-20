@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-
 class ResadeEthiqueSignalement(models.Model):
+
     """
     Processus P-DC-01 : Code de conduite et déontologie des membres et collaborateurs
     Manuel RESADE - Carnet J - Module 02 : Déontologie et conformité
@@ -41,17 +40,15 @@ class ResadeEthiqueSignalement(models.Model):
     anonyme = fields.Boolean(
         string='Signalement anonyme',
         default=False,
-        readonly=True,  # ← Empêche toute modification après création
-        states={'recu': [('readonly', True)]},  # ← En Odoo 18, on utilise readonly directement
+        readonly=True,  # Empêche de le modifier après création
         help="Une fois le signalement soumis, l'anonymat ne peut plus être modifié."
     )
     
-
     signalant_id = fields.Many2one(
         'hr.employee',
         string='Signalant',
         default=lambda self: self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1),
-        help="L'employé qui effectue le signalement. Si le signalement est anonyme, ce champ est masqué."
+        help="Masqué si anonyme."
     )
 
     categorie = fields.Selection([
@@ -82,7 +79,6 @@ class ResadeEthiqueSignalement(models.Model):
         ('transmission_justice', 'Transmission aux autorités judiciaires'),
     ], string='Décision', tracking=True)
     motivation_decision = fields.Text(string='Motivation de la décision')
-
     date_cloture = fields.Date(string='Date de clôture')
 
     state = fields.Selection([
@@ -98,7 +94,47 @@ class ResadeEthiqueSignalement(models.Model):
         for vals in vals_list:
             if vals.get('name', _('Nouveau')) == _('Nouveau'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('resade.ethique.signalement') or _('Nouveau')
+
+        # On vérifie si au moins un des signalements est anonyme
+        is_anonyme = any(vals.get('anonyme') for vals in vals_list)
+        
+        if is_anonyme:
+            # On force la création avec l'utilisateur administrateur (ID 2) et sudo
+            # Cela écrase l'utilisateur réel dans le champ create_uid
+            admin_user = self.env.ref('base.user_admin')
+            records = super(ResadeEthiqueSignalement, self.with_user(admin_user).sudo()).create(vals_list)
+            
+            # On nettoie les messages de suivi pour enlever toute trace
+            for rec in records:
+                if rec.anonyme:
+                    rec.message_ids.unlink() # Supprime les messages "created" et "Brouillon - Reçu"
+            return records
+        
         return super().create(vals_list)
+
+    # ✅ ANONYMAT : Empecher les messages du chatter de révéler le créateur
+    def message_post(self, **kwargs):
+        if self.anonyme:
+            return super(ResadeEthiqueSignalement, self.sudo()).message_post(**kwargs)
+        return super().message_post(**kwargs)
+
+    def action_soumettre(self):
+        """Soumet le signalement (transition Brouillon → Reçu)"""
+        for rec in self:
+            if rec.anonyme:
+                rec.signalant_id = False
+                
+                # On change l'état en tant qu'admin ET on désactive le tracking (mail_thread) temporairement
+                admin = self.env.ref('base.user_admin')
+                
+                # On utilise with_context(tracking_disable=True) pour empêcher Odoo de créer le message
+                rec.with_user(admin).sudo().with_context(tracking_disable=True).write({'state': 'recu'})
+                
+                # Ceinture et bretelles : on supprime les messages restants
+                rec.sudo().message_ids.unlink()
+            else:
+                rec.write({'state': 'recu'})
+        return True
 
     def action_mettre_en_instruction(self):
         self._check_crsp_or_above()
@@ -113,8 +149,7 @@ class ResadeEthiqueSignalement(models.Model):
         for rec in self:
             if not rec.decision:
                 raise UserError(_(
-                    "Sélectionnez une décision avant de l'enregistrer (classement sans suite, "
-                    "sanction, ou transmission aux autorités judiciaires)."
+                    "Sélectionnez une décision avant de l'enregistrer."
                 ))
         self.write({'state': 'decision_rendue'})
 
@@ -128,13 +163,3 @@ class ResadeEthiqueSignalement(models.Model):
                 "Seul le Chargé Éthique & Conformité (référent déontologie), le Directeur Exécutif "
                 "ou l'Administrateur peuvent instruire ou clôturer un signalement."
             ))
-
-
-    def action_soumettre(self):
-        """Soumet le signalement (transition Brouillon → Reçu)"""
-        for rec in self:
-            if rec.anonyme:
-                # Si anonyme, on vide le signalant_id pour que personne ne puisse le voir
-                rec.signalant_id = False
-            rec.write({'state': 'recu'})
-        return True

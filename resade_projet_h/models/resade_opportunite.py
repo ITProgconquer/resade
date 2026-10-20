@@ -30,6 +30,7 @@ class ResadeOpportunite(models.Model):
         ('gouvernement', 'Gouvernement BF / National'),
         ('autres',       'Autres'),
     ], string='Type de bailleur', required=True)
+    autres = fields.Text(string='Précisions supplémentaires si autres', help="À remplir si le type de bailleur est 'Autres'")
 
     # ── Dates & délais ──
     date_identification = fields.Date(

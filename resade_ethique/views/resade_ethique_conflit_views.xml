@@ -47,6 +47,7 @@
                             <field name="declarant_id"/>
                             <field name="date_declaration"/>
                             <field name="contexte"/>
+                            <field name="autres" placeholder="Précisions supplémentaires si autres" invisible="contexte != 'autre'"/>
                             <field name="type_conflit"/>
                             <field name="reference_dossier_lie"/>
                         </group>

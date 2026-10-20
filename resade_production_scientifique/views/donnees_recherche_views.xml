@@ -6,12 +6,33 @@
         <field name="arch" type="xml">
             <form string="Données de Recherche">
                 <header>
-                    <button name="action_archiver" string="Archiver"
-                            type="object"
-                            invisible="state == 'archive'"
+                    <button name="action_nettoyage" string="Passer au nettoyage"
+                            type="object" class="btn-primary"
+                            invisible="state != 'collecte'"
                             groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+                    
+                    <button name="action_analyser" string="Lancer l'analyse"
+                            type="object" class="btn-primary"
+                            invisible="state != 'nettoyage'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+                    
+                    <button name="action_archiver" string="Archiver"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'analyse'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+                    
+                    <button name="action_publier" string="Publier (Open Data)"
+                            type="object" class="btn-success"
+                            invisible="state != 'archive'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+                    
+                    <button name="action_detruire" string="Détruire"
+                            type="object" class="btn-danger"
+                            invisible="state not in ['archive', 'publie']"
+                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+                    
                     <field name="state" widget="statusbar"
-                           statusbar_visible="collecte,nettoyage,analyse,archive"/>
+                        statusbar_visible="collecte,nettoyage,analyse,archive,publie"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -63,6 +84,9 @@
                         </page>
                         <page string="Notes">
                             <field name="notes" placeholder="Notes..."/>
+                            <field name="motif_destruction" 
+                                invisible="state not in ['archive', 'publie']"
+                                placeholder="Motif obligatoire avant destruction..."/>
                         </page>
                     </notebook>
                 </sheet>

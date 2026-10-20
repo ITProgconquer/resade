@@ -112,7 +112,14 @@ class ResadeProposition(models.Model):
     montant_couts_indirects = fields.Monetary(
         string='Coûts indirects / Overhead',
         currency_field='currency_id',
-        help='Coûts institutionnels RESADE : % défini dans la clé de répartition P-CD-03'
+        compute='_compute_couts_indirects',
+        store=True,
+        readonly=True,
+        help='Calculé automatiquement : Montant sollicité × Taux overhead'
+    )
+    clarification_bailleur = fields.Html(
+        string='Clarification du bailleur',
+       help='À remplir si le bailleur demande des clarifications ou amendements '
     )
     taux_overhead = fields.Float(
         string='Taux overhead (%)',
@@ -356,6 +363,14 @@ class ResadeProposition(models.Model):
             self.message_post(
                 body=_('🔄 Décision intermédiaire enregistrée : %s') % self.decision_bailleur
             )
+
+    @api.depends('montant_sollicite', 'taux_overhead')
+    def _compute_couts_indirects(self):
+        for rec in self:
+            if rec.montant_sollicite and rec.taux_overhead:
+                rec.montant_couts_indirects = rec.montant_sollicite * (rec.taux_overhead / 100.0)
+            else:
+                rec.montant_couts_indirects = 0.0
 
     def action_creer_projet(self):
         """Créer le projet Odoo après acceptation → déclenche P-CD-01"""

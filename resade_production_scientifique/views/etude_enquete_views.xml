@@ -14,6 +14,17 @@
                             type="object" invisible="state != 'en_cours'"/>
                     <button name="action_analyser" string="Lancer analyse"
                             type="object" invisible="state != 'saisie'"/>
+                    <button name="action_rediger_rapport" string="Rédiger le rapport"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'analyse'"/>
+                     <button name="action_suspendre" string="⏸️ Suspendre"
+                            type="object" class="btn-warning"
+                            invisible="state in ['preparation','termine', 'suspendue']"/>
+                    
+                    <!-- ✅ AJOUT : Reprendre -->
+                    <button name="action_reprendre" string="▶️ Reprendre"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'suspendue'"/>
                     <button name="action_terminer" string="Terminer"
                             type="object" class="btn-success"
                             invisible="state not in ['analyse','rapport']"
@@ -58,7 +69,7 @@
                         </group>
                     </group>
                     <group>
-                        <field name="taux_avancement" widget="progressbar"/>
+                        <field name="taux_avancement"/>
                     </group>
                     <notebook>
                         <page string="Suivi terrain">

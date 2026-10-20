@@ -72,7 +72,7 @@
                         <field name="date_cloture" readonly="1"/>
                     </group>
                 </sheet>
-                <chatter/>
+                <chatter invisible="anonyme"/>
             </form>
         </field>
     </record>

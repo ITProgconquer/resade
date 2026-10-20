@@ -30,7 +30,7 @@ class ProtocoleRecherche(models.Model):
     )
     acronyme = fields.Char(string='Acronyme / Code court')
     projet_id = fields.Many2one(
-        'resade.projet',
+        'project.project',
         string='Projet rattaché',
         tracking=True,
     )
@@ -160,9 +160,25 @@ class ProtocoleRecherche(models.Model):
         self.write({'state': 'avis_ethique_recu', 'avis_ethique': 'favorable',
                     'date_avis_ethique': fields.Date.today()})
 
+
+    def action_visa_statistique(self):
+        for rec in self:
+            rec.write({'state': 'visa_statistique'})
+
+        
+
     def action_valider(self):
         self.ensure_one()
-        self.write({'state': 'valide', 'date_validation_interne': fields.Date.today()})
+        if self.necessite_ethique and not self.date_avis_ethique:
+            raise UserError(_(
+                "Ce protocole nécessite un avis CERS. "
+                "Impossible de valider tant que l'avis du Comité d'Éthique "
+                "pour la Recherche en Santé n'a pas été enregistré (Carnet I, P-CI-01)."
+            ))
+        self.write({
+            'state': 'valide',
+            'date_validation_interne': fields.Date.today()
+        })
 
     def action_rejeter(self):
         self.ensure_one()

@@ -43,6 +43,7 @@
                             <field name="name" readonly="1"/>
                             <field name="soumission_id"/>
                             <field name="type_participant"/>
+                            <field name="vul_break" placeholder="Ajouter des infos supplementaires sur population vulnerable" invisible="type_participant != 'vulnerable'"/>
                             <field name="langue_formulaire"/>
                             <field name="version_formulaire"/>
                         </group>

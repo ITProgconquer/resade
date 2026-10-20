@@ -124,6 +124,10 @@ class BibliothequeEnLigne(models.Model):
         for rec in self:
             rec.annee = rec.date_publication.year if rec.date_publication else 0
 
+    def action_a_publier(self):
+        for rec in self:
+            rec.write({'state': 'a_publier'})
+
     def action_publier(self):
         self.write({'state': 'publie', 'visible_site': True})
 
