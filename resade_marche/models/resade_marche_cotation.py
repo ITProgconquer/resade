@@ -203,7 +203,6 @@ class ResadeMarcheFacture(models.Model):
     cl_description = fields.Boolean(string='Description précise et quantifiée présente')
     cl_prix = fields.Boolean(string='Prix unitaire et total présents')
     cl_coordonnees_bancaires = fields.Boolean(string='Coordonnées bancaires présentes')
-
     cl_localite = fields.Boolean(string='Localité présente')
     cl_situation_geo = fields.Boolean(string='Situation géographique présente')
     cl_forme_juridique = fields.Boolean(string='Forme juridique présente')

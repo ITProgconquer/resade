@@ -71,7 +71,7 @@ class EtudeEnquete(models.Model):
         ('longitudinal', 'Longitudinal / Cohorte'),
         ('transversal', 'Transversal'),
         ('autre', 'Autre'),
-    ], string="Type d'étude", required=True)
+    ], string="Type d'étude")
     taille_echantillon = fields.Integer(string='Taille échantillon prévu')
     taille_echantillon_reel = fields.Integer(string='Taille échantillon réel')
 
@@ -102,13 +102,14 @@ class EtudeEnquete(models.Model):
 
     # ─── Avancement ──────────────────────────────────────────────────────────
     taux_avancement = fields.Float(
-        string="Taux d'avancement (%)",
+        string="Taux de progression (%)",
         digits=(5, 1),
         default=0.0,
         tracking=True,
     )
     difficultes = fields.Text(string='Difficultés / Obstacles rencontrés')
     mesures_correctives = fields.Text(string='Mesures correctives')
+    autres = fields.Text(string='Autres outils à préciser')
 
     # ─── Documents ───────────────────────────────────────────────────────────
     guide_entretien = fields.Binary(string="Guide d'entretien / Questionnaire")
@@ -120,6 +121,9 @@ class EtudeEnquete(models.Model):
         string='Jeux de données',
         compute='_compute_donnees_count',
     )
+
+    sais_net=fields.Html(string="Saisie et Nettoyage des données", placeholder="Saisie et nettoyage des données...")
+    analyse_upl=fields.Html(string="Analyse des données", placeholder="Analyse des données...")
 
     @api.model_create_multi
     def create(self, vals_list):

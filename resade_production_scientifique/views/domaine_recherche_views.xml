@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ VUE LISTE ═══════════════ -->
+    <record id="view_resade_domaine_recherche_list" model="ir.ui.view">
+        <field name="name">resade.domaine.recherche.list</field>
+        <field name="model">resade.domaine.recherche</field>
+        <field name="arch" type="xml">
+            <list string="Domaines de recherche">
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════ VUE FORMULAIRE ═══════════════ -->
+    <record id="view_resade_domaine_recherche_form" model="ir.ui.view">
+        <field name="name">resade.domaine.recherche.form</field>
+        <field name="model">resade.domaine.recherche</field>
+        <field name="arch" type="xml">
+            <form string="Domaine de recherche">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Ex: Santé publique, Épidémiologie..."/></h1>
+                    </div>
+                    <group>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════ VUE RECHERCHE ═══════════════ -->
+    <record id="view_resade_domaine_recherche_search" model="ir.ui.view">
+        <field name="name">resade.domaine.recherche.search</field>
+        <field name="model">resade.domaine.recherche</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un domaine">
+                <field name="name"/>
+                <filter string="Actifs" name="actifs" domain="[('active', '=', True)]"/>
+                <filter string="Archivés" name="archives" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══════════════ ACTION ═══════════════ -->
+    <record id="action_resade_domaine_recherche" model="ir.actions.act_window">
+        <field name="name">Domaines de recherche</field>
+        <field name="res_model">resade.domaine.recherche</field>
+        <!-- ✅ On déclare list et form ici -->
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier domaine de recherche
+            </p>
+            <p>
+                Les domaines de recherche sont utilisés pour classer les protocoles, les études et les articles scientifiques (ex: Santé publique, Épidémiologie...).
+            </p>
+        </field>
+    </record>
+
+</odoo>

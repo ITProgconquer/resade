@@ -55,7 +55,7 @@
                         <group string="Caractéristiques">
                             <field name="format_fichier"/>
                             <field name="taille_base"/>
-                            <field name="nb_observations"/>
+                            <field name="nb_observations" widget="html"/>
                             <field name="date_creation"/>
                             <field name="date_derniere_mise_a_jour"/>
                         </group>
@@ -69,8 +69,7 @@
                         <page string="Plan de gestion (DMP)">
                             <group>
                                 <field name="dmp_redige"/>
-                                <field name="dmp_fichier" filename="dmp_filename" widget="binary" invisible="not dmp_redige"/>
-                                <field name="dmp_filename" invisible="not dmp_redige"/>
+                                <field name="dmp_fichier" widget="many2many_binary" invisible="not dmp_redige"/>
                             </group>
                         </page>
                         <page string="Partage et Publication">

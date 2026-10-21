@@ -24,3 +24,5 @@ access_presse_rc,Presse (RC),model_resade_presse_communication,group_resade_scie
 access_presse_manager,Presse (Manager),model_resade_presse_communication,group_resade_scientifique_manager,1,1,1,1
 access_thematique_user,Thematique (User),model_resade_thematique,group_resade_scientifique_user,1,0,0,0
 access_thematique_manager,Thematique (Manager),model_resade_thematique,group_resade_scientifique_manager,1,1,1,1
+access_resade_domaine_recherche_user,resade.domaine.recherche user,model_resade_domaine_recherche,base.group_user,1,0,0,0
+access_resade_domaine_recherche_manager,resade.domaine.recherche manager,model_resade_domaine_recherche,group_resade_scientifique_manager,1,1,1,1

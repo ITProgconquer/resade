@@ -78,8 +78,13 @@ class DonneesRecherche(models.Model):
         default=False,
         tracking=True,
     )
-    dmp_fichier = fields.Binary(string='Fichier DMP')
-    dmp_filename = fields.Char()
+    dmp_fichier = fields.Many2many(
+        'ir.attachment',
+        'protocole_dmp_rel',       # nom de la table de liaison
+        'protocole_id',            # colonne pour ce modèle
+        'attachment_id',           # colonne pour l'attachment
+        string='Fichier DMP (Data Management Plan)'
+    )
 
     # ─── Stockage & Sécurité ─────────────────────────────────────────────────
     lieu_stockage = fields.Selection([

@@ -55,20 +55,24 @@ class ProtocoleRecherche(models.Model):
     )
 
     # ─── Contexte scientifique ────────────────────────────────────────────────
-    domaine_recherche = fields.Selection([
-        ('sante_publique', 'Santé publique'),
-        ('epidemiologie', 'Épidémiologie'),
-        ('economie_sante', 'Économie de la santé'),
-        ('politique_sante', 'Politique & Systèmes de santé'),
-        ('financement', 'Financement de la santé / CSU'),
-        ('evaluation', 'Évaluation de programmes'),
-        ('autre', 'Autre'),
-    ], string='Domaine de recherche', required=True)
-    objectif_general = fields.Text(string='Objectif général', required=True)
-    hypotheses = fields.Text(string='Hypothèses de recherche')
-    methodologie = fields.Text(string='Méthodologie')
-    population_cible = fields.Text(string="Population cible / Zone d'étude")
+    domaine_recherche_ids = fields.Many2many(
+        'resade.domaine.recherche',
+        'protocole_domaine_rel', 'protocole_id', 'domaine_id',
+        string='Domaines de recherche',
+        required=True
+    )
+    
+    objectif_general = fields.Html(string='Objectif', help='Objectif du protocole de recherche', required=True)
+    hypotheses = fields.Html(string='Hypothèses de recherche')
+    # methodologie = fields.Html(string='Méthodologie')
+    type_etude = fields.Html(string='Type d\'étude')
+    cadre_etude = fields.Html(string='Cadre de l\'étude & période')
+    echantillonnage = fields.Html(string='Échantillonnage')
+    population_cible = fields.Html(string="Population cible")
     duree_mois = fields.Integer(string='Durée prévisionnelle (mois)')
+    zone_etude = fields.Html(string='Zone d’étude')
+    outils_collecte = fields.Html(string='Outils de collecte de données')
+    analyse_donnees = fields.Html(string='Analyse des données')
 
     # ─── Dates ────────────────────────────────────────────────────────────────
     date_creation = fields.Date(
@@ -117,10 +121,20 @@ class ProtocoleRecherche(models.Model):
     commentaires_ethique = fields.Text(string='Commentaires / Réserves CERS')
 
     # ─── Formulaires RESADE (AECD) ────────────────────────────────────────────
-    formulaire_protocole = fields.Binary(string='Protocole (PDF/Word)')
-    formulaire_protocole_filename = fields.Char()
-    formulaire_consentement = fields.Binary(string='Formulaire de consentement éclairé')
-    formulaire_consentement_filename = fields.Char()
+    formulaire_protocole = fields.Many2many(
+        'ir.attachment',
+        'protocole_formulaire_rel',  # Nom de la table de liaison
+        'protocole_id',              # Colonne pour le protocole
+        'attachment_id',             # Colonne pour l'attachment
+        string='Protocole (PDF/Word)'
+    )
+    formulaire_consentement = fields.Many2many(
+        'ir.attachment',
+        'protocole_consentement_rel',  # Nom de la table de liaison
+        'protocole_id',                # Colonne pour le protocole
+        'attachment_id',               # Colonne pour l'attachment
+        string='Formulaire de consentement éclairé'
+    )
     # ─── Notes ────────────────────────────────────────────────────────────────
     notes_internes = fields.Text(string='Notes internes')
 

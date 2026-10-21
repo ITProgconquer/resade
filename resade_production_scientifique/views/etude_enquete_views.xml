@@ -46,7 +46,6 @@
                     <group>
                         <group string="Identification">
                             <field name="protocole_id"/>
-                            <field name="type_etude"/>
                             <field name="zone_etude"/>
                         </group>
                         <group string="Responsables">
@@ -65,6 +64,7 @@
                             <field name="taille_echantillon"/>
                             <field name="taille_echantillon_reel"/>
                             <field name="outil_collecte"/>
+                            <field name="autres" invisible="outil_collecte != 'autre'"/>
                             <field name="consentement_eclaire"/>
                         </group>
                     </group>
@@ -88,6 +88,18 @@
                                 </group>
                             </group>
                         </page>
+                        <page string="Saisie et Nettoyage" invisible="state not in ['saisie','analyse','rapport','termine']">
+                            
+                            <field name="sais_net" widget="html" nolabel="1" colspan="2" placeholder="Saisie et nettoyage des données..."/>
+                           
+                            
+                        </page>
+                        <page string="Analyse" invisible="state not in ['analyse','rapport','termine']">
+                            <group>
+                                <field name="analyse_upl" widget="html" nolabel="1" colspan="2" placeholder="Analyse des données..."/>
+                               
+                            </group>
+                        </page>
                     </notebook>
                 </sheet>
                 <chatter/>
@@ -102,7 +114,6 @@
             <list decoration-success="state == 'termine'" decoration-info="state == 'en_cours'">
                 <field name="reference"/>
                 <field name="titre"/>
-                <field name="type_etude"/>
                 <field name="investigateur_principal_id"/>
                 <field name="date_debut"/>
                 <field name="date_fin_prevue"/>

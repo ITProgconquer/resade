@@ -9,4 +9,5 @@ from . import (
     communication_interne,
     bibliotheque,
     presse_communication,
+    domaine_recherche,
 )

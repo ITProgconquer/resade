@@ -49,7 +49,7 @@
                     <group>
                         <group string="Identification">
                             <field name="acronyme"/>
-                            <field name="domaine_recherche"/>
+                            <field name="domaine_recherche_ids" widget="many2many_tags"/>
                             <field name="projet_id"/>
                             <field name="date_creation"/>
                             <field name="duree_mois"/>
@@ -62,10 +62,25 @@
                     </group>
                     <notebook>
                         <page string="Contenu scientifique" name="contenu">
-                            <field name="objectif_general" placeholder="Objectif général du protocole..."/>
-                            <field name="hypotheses" placeholder="Hypothèses de recherche..."/>
-                            <field name="methodologie" placeholder="Méthodologie..."/>
-                            <field name="population_cible" placeholder="Population cible / Zone d étude..."/>
+                                
+                            <field name="objectif_general" widget="html" nolabel="1" colspan="2" placeholder="Objectif..."/>
+                            
+                            <field name="hypotheses" widget="html" nolabel="1" colspan="2" placeholder="Hypothèses de recherche..."/>
+                            <field name="population_cible" widget="html" nolabel="1" colspan="2" placeholder="Population cible "/>
+                            <field name="zone_etude" widget="html" nolabel="1" colspan="2" placeholder=" Zone d étude..."/>
+                        </page>
+                        <page string="🔬 Méthodologie" name="methodologie">
+                           
+                            <field name="type_etude" widget="html" nolabel="1" colspan="2" placeholder="Décrivez le type d'étude (transversale, cohorte...)"/>
+                        
+                            <field name="cadre_etude" widget="html" nolabel="1" colspan="2" placeholder="Cadre de l'étude et période..."/>
+                        
+                            <field name="echantillonnage" widget="html" nolabel="1" colspan="2" placeholder="Méthode d'échantillonnage..."/>
+                        
+                            <field name="outils_collecte" widget="html" nolabel="1" colspan="2" placeholder="Outils et méthode de collecte..."/>
+                        
+                            <field name="analyse_donnees" widget="html" nolabel="1" colspan="2" placeholder="Méthodes d'analyse..."/>
+                        
                         </page>
                         <page string="Éthique et Conformité" name="ethique">
                             <group>
@@ -95,12 +110,10 @@
                         <page string="Documents" name="documents">
                             <group>
                                 <group string="Protocole">
-                                    <field name="formulaire_protocole" filename="formulaire_protocole_filename" widget="binary"/>
-                                    <field name="formulaire_protocole_filename"/>
+                                    <field name="formulaire_protocole" widget="many2many_binary"/>
                                 </group>
                                 <group string="Consentement">
-                                    <field name="formulaire_consentement" filename="formulaire_consentement_filename" widget="binary"/>
-                                    <field name="formulaire_consentement_filename"/>
+                                    <field name="formulaire_consentement" widget="many2many_binary"/>
                                 </group>
                             </group>
                         </page>
@@ -124,7 +137,7 @@
                   decoration-danger="state == 'rejete'">
                 <field name="reference"/>
                 <field name="titre"/>
-                <field name="domaine_recherche"/>
+                <field name="domaine_recherche_ids" widget="many2many_tags"/>
                 <field name="investigateur_principal_id"/>
                 <field name="date_creation"/>
                 <field name="avis_ethique"/>
@@ -150,7 +163,7 @@
                         domain="[('state','in',['revue_interne','soumission_ethique','avis_ethique_recu'])]"/>
                 <filter string="Brouillons" name="brouillon" domain="[('state','=','brouillon')]"/>
                 <group expand="0" string="Grouper par">
-                    <filter string="Domaine" name="gr_domaine" context="{'group_by':'domaine_recherche'}"/>
+                    <filter string="Domaine" name="gr_domaine" context="{'group_by':'domaine_recherche_ids'}"/>
                     <filter string="Statut" name="gr_state" context="{'group_by':'state'}"/>
                     <filter string="Investigateur" name="gr_pi" context="{'group_by':'investigateur_principal_id'}"/>
                     <filter string="Année" name="gr_annee" context="{'group_by':'date_creation:year'}"/>

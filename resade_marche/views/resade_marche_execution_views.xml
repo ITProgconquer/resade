@@ -279,12 +279,16 @@
                         <field name="cl_ifu"/>
                         <field name="cl_numero_facture"/>
                         <field name="cl_date_emission"/>
+                        <field name="cl_localite"/>            
+                        <field name="cl_situation_geo"/>  
                     </group>
                     <group>
                         <field name="cl_reference_bc"/>
                         <field name="cl_description"/>
                         <field name="cl_prix"/>
                         <field name="cl_coordonnees_bancaires"/>
+                        <field name="cl_forme_juridique"/>     
+                        <field name="cl_service_impot"/>
                     </group>
                 </group>
                 <group string="Résultat checklist">

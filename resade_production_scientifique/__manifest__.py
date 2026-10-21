@@ -46,6 +46,7 @@ Conforme aux matrices RACI & AECD du Manuel RESADE.
         'data/sequence_data.xml',
         'data/stage_data.xml',
         # Vues
+        'views/domaine_recherche_views.xml', 
         'views/protocole_recherche_views.xml',
         'views/etude_enquete_views.xml',
         'views/donnees_recherche_views.xml',

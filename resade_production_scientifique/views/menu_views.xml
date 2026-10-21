@@ -103,4 +103,10 @@
               parent="menu_resade_scientifique_config"
               action="action_resade_thematique"
               sequence="10"/>
+     
+     <menuitem id="menu_resade_domaine_recherche"
+          name="Domaines de recherche"
+          parent="menu_resade_scientifique_config"
+          action="action_resade_domaine_recherche"
+          sequence="20"/>
 </odoo>
