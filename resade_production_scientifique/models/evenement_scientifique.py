@@ -75,7 +75,7 @@ class EvenementScientifique(models.Model):
         ('panel', 'Participation à un panel'),
         ('autre', 'Autre'),
     ], string='Type de contribution')
-    resume_communication = fields.Text(string='Résumé soumis')
+    resume_communication = fields.Html(string='Résumé de la communication', help='Résumé de la communication soumise ou présentée à l\'événement')
 
     # ─── Financement ─────────────────────────────────────────────────────────
     budget_estime = fields.Float(string='Budget estimé (FCFA)')

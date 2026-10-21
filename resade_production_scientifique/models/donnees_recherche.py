@@ -61,7 +61,7 @@ class DonneesRecherche(models.Model):
     ], string='Type de données', required=True)
     format_fichier = fields.Char(string='Format(s) de fichier (ex. .csv, .dta, .xlsx)')
     taille_base = fields.Char(string='Taille / Volume estimé')
-    nb_observations = fields.Integer(string="Nombre d'observations")
+    nb_observations = fields.Html(string='Nombre d\'observations / individus', help='Nombre d\'observations ou d\'individus dans le jeu de données')
 
     # ─── Dates ────────────────────────────────────────────────────────────────
     date_creation = fields.Date(
@@ -94,6 +94,7 @@ class DonneesRecherche(models.Model):
         ('outil_collecte', 'Plateforme de collecte (KoBo/ODK)'),
         ('autre', 'Autre'),
     ], string='Lieu de stockage principal', required=True)
+    qutr=fields.Text(string='Préciser le lieu de stockage si autres', help='Indiquez le lieu de stockage si différent des options ci-dessus', invisible="lieu_stockage != 'autre'")
     chiffrement = fields.Boolean(string='Données chiffrées / anonymisées ?', default=True)
     acces_restreint = fields.Boolean(string='Accès restreint (données personnelles) ?', default=True)
     responsable_archivage_id = fields.Many2one('hr.employee', string='Responsable archivage (AECD-D)')

@@ -30,7 +30,7 @@ class ProtocoleRecherche(models.Model):
     )
     acronyme = fields.Char(string='Acronyme / Code court')
     projet_id = fields.Many2one(
-        'project.project',
+        'resade.projet',
         string='Projet rattaché',
         tracking=True,
     )
@@ -93,6 +93,10 @@ class ProtocoleRecherche(models.Model):
         ('soumission_ethique', 'Soumis au CERS'),
         ('avis_ethique_recu', 'Avis CERS reçu'),
         ('visa_statistique', 'Visa statistique en cours'),
+         ('soumission_visa', 'Soumis au Visa Statistique'),
+        ('visa_statistique_recu', 'Visa Statistique reçu'),
+        ('soumission_ministere', 'Soumis au Ministère'),
+        ('autorisation_ministere_recue', 'Autorisation Ministère reçue'),
         ('valide', 'Validé — Approuvé'),
         ('rejete', 'Rejeté'),
         ('archive', 'Archivé'),

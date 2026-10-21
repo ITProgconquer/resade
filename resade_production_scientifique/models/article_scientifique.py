@@ -38,7 +38,7 @@ class ArticleScientifique(models.Model):
         'resade.etude.enquete',
         string='Étude source',
     )
-    projet_id = fields.Many2one('project.project', string='Projet rattaché')
+    projet_id = fields.Many2one('resade.projet', string='Projet rattaché')
 
     # ─── Auteurs (conformité ICMJE) ───────────────────────────────────────────
     auteur_correspondant_id = fields.Many2one(
@@ -67,6 +67,9 @@ class ArticleScientifique(models.Model):
         ('rapport_technique', 'Rapport technique'),
         ('autre', 'Autre'),
     ], string="Type d'article", required=True)
+
+    sutr=fields.Char(string='Préciser le type d\'article si autre', help='Indiquez le type d\'article si différent des options ci-dessus')
+
     langue = fields.Selection([
         ('fr', 'Français'),
         ('en', 'Anglais'),
@@ -105,7 +108,7 @@ class ArticleScientifique(models.Model):
         'article_id', 'employee_id',
         string='Relecteurs internes',
     )
-    commentaires_revue_interne = fields.Text(string='Commentaires revue interne')
+    commentaires_revue_interne = fields.Html(string='Commentaires de la revue interne', help='Commentaires et recommandations des relecteurs internes')
     grille_revue = fields.Binary(string='Grille de revue interne complétée')
     grille_revue_filename = fields.Char()
 

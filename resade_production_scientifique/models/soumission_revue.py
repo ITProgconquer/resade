@@ -99,8 +99,8 @@ class SoumissionRevue(models.Model):
     # ─── Lettre de couverture ────────────────────────────────────────────────
     lettre_couverture = fields.Binary(string='Lettre de couverture (Cover letter)')
     lettre_couverture_filename = fields.Char()
-    manuscrit_soumis = fields.Binary(string='Manuscrit soumis (version finale)')
-    manuscrit_soumis_filename = fields.Char()
+    manuscrit_soumis = fields.Html(string='Manuscrit soumis', help='Contenu du manuscrit soumis à la revue scientifique')
+  
 
     notes = fields.Text(string='Notes / Historique')
 

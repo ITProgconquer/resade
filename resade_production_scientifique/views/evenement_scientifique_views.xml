@@ -57,7 +57,7 @@
                                 <field name="titre_communication"/>
                                 <field name="type_communication"/>
                             </group>
-                            <field name="resume_communication" placeholder="Résumé de la communication soumise..."/>
+                            <field name="resume_communication" widget="html" placeholder="Résumé de la communication soumise..."/>
                         </page>
                         <page string="Compte-rendu">
                             <group>

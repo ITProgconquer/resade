@@ -40,6 +40,7 @@
                     <group>
                         <group string="Identification">
                             <field name="type_article"/>
+                            <field name="sutr" invisible="type_article != 'autre'"/>
                             <field name="langue"/>
                             <field name="nb_mots"/>
                             <field name="mots_cles"/>
@@ -78,7 +79,7 @@
                                     <field name="grille_revue_filename"/>
                                 </group>
                             </group>
-                            <field name="commentaires_revue_interne" placeholder="Commentaires des relecteurs internes..."/>
+                            <field name="commentaires_revue_interne" widget="html" placeholder="Commentaires des relecteurs internes..."/>
                         </page>
                         <page string="Manuscrit">
                             <group>

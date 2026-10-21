@@ -34,6 +34,7 @@ Conforme aux matrices RACI & AECD du Manuel RESADE.
         'base',
         'mail',
         'project',
+        'resade_projet_h',
         'hr',
         'calendar',
         'contacts',

@@ -61,6 +61,7 @@
                         </group>
                         <group string="Stockage et Sécurité">
                             <field name="lieu_stockage"/>
+                            <field name="qutr" invisible="lieu_stockage != 'autre'"/> 
                             <field name="chiffrement"/>
                             <field name="acces_restreint"/>
                         </group>
