@@ -12,17 +12,25 @@
                             invisible="state != 'brouillon'"/>
                     <button name="action_soumettre_ethique" string="Soumettre au CERS"
                             type="object" class="btn-primary"
-                            invisible="state != 'revue_interne'"/>
+                            invisible="state != 'revue_interne' or not necessite_ethique"/>
                     <button name="action_avis_favorable" string="Avis CERS favorable"
                             type="object" class="btn-success"
-                            invisible="state != 'soumission_ethique'"/>
+                            invisible="state != 'soumission_ethique' or not necessite_ethique"/>
                     <button name="action_valider" string="Valider (DE)"
                             type="object" class="btn-success"
-                            invisible="state not in ['avis_ethique_recu', 'revue_interne','visa_statistique'] or (necessite_ethique and not date_avis_ethique)"
+                            invisible="state not in ['avis_ethique_recu', 'revue_interne','visa_statistique','visa_statistique_recu', 'autorisation_ministere_recue'] or (necessite_ethique and not date_avis_ethique) or  (necessite_visa_stat and not date_avis_visa_statistique) or (necessite_autorisation_msante and not date_avis_ministere)"
                             groups="resade_production_scientifique.group_resade_scientifique_manager"/>
                     <button name="action_visa_statistique" string="Visa statistique" 
                             type="object" class="btn-secondary"
                             invisible="state != 'avis_ethique_recu'"/>
+                    <button name="action_soumettre_visa" string="Soumettre Visa INSD" type="object" class="btn-secondary"
+                            invisible="state != 'visa_statistique' or not necessite_visa_stat"/>
+                    <button name="action_avis_visa_recu" string="Avis Visa Reçu" type="object" class="btn-primary"
+                            invisible="state != 'soumission_visa' or not necessite_visa_stat"/>
+                    <button name="action_soumettre_ministere" string="Soumettre au Ministère" type="object" class="btn-secondary"
+                            invisible="state not in ['avis_ethique_recu', 'visa_statistique_recu'] or not necessite_autorisation_msante"/>
+                    <button name="action_avis_ministere_recu" string="Avis Ministère Reçu" type="object" class="btn-primary"
+                            invisible="state != 'soumission_ministere' or not necessite_autorisation_msante"/>
                     <button name="action_rejeter" string="Rejeter"
                             type="object" class="btn-danger"
                             invisible="state in ['rejete','archive','valide']"/>
@@ -94,12 +102,20 @@
                                     <field name="date_avis_ethique"/>
                                     <field name="avis_ethique"/>
                                     <field name="numero_autorisation_cers"/>
+                                    <field name="commentaires_ethique" placeholder="Commentaires CERS..."/>
                                 </group>
                             </group>
-                            <field name="commentaires_ethique" placeholder="Commentaires CERS..."/>
+                           
                             <group>
                                 <group string="Visa statistique (INSD)">
                                     <field name="date_visa_statistique"/>
+                                    <field name="date_avis_visa_statistique"/>
+                                    <field name="commentaire_visa_statistique" widget="html" nolabel="1" colspan="2" placeholder="Commentaires Visa Statistique..."/>
+                                </group>
+                                <group string="Autorisation Ministère" invisible="not necessite_autorisation_msante">
+                                    <field name="date_soumission_ministere"/>
+                                    <field name="date_avis_ministere"/>
+                                    <field name="commentaire_ministere" widget="html" nolabel="1" colspan="2" placeholder="Commentaires Ministère..."/>
                                 </group>
                                 <group string="Validation interne">
                                     <field name="date_validation_interne"/>

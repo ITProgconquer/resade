@@ -33,8 +33,8 @@ Conforme aux matrices RACI & AECD du Manuel RESADE.
     'depends': [
         'base',
         'mail',
-        'project',
         'resade_projet_h',
+        'project',
         'hr',
         'calendar',
         'contacts',

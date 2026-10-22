@@ -86,12 +86,12 @@ class ResadeProjet(models.Model):
         'resade_projet_bord_rel', 'proj_id', 'att_id',
         string='Bordereau de notification démarrage (F-CD-01-03)'
     )
-    protocole_id = fields.One2many(
-        'resade.protocole.recherche',
-        'projet_id',
-        string='Protocole de recherche'
-    )
-    article_id = fields.One2many('resade.article.scientifique', 'projet_id', string='Articles scientifiques')
+    # protocole_id = fields.One2many(
+    #     'resade.protocole.recherche',
+    #     'projet_id',
+    #     string='Protocole de recherche'
+    # )
+    # article_id = fields.One2many('resade.article.scientifique', 'projet_id', string='Articles scientifiques')
 
     # ── MODULE 02 : P-CD-02 — Démarrage (Kick-off) ──
     date_debut = fields.Date(

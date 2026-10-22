@@ -86,6 +86,14 @@ class ProtocoleRecherche(models.Model):
     date_validation_interne = fields.Date(string='Date validation interne (DE)')
     date_demarrage_prevu = fields.Date(string='Date de démarrage prévue')
 
+    date_soumission_visa_statistique = fields.Date(string='Date soumission visa statistique')
+    date_avis_visa_statistique = fields.Date(string='Date avis visa statistique reçu')
+    commentaire_visa_statistique = fields.Html(string='Commentaire visa statistique', help='Commentaires ou réserves du visa statistique INSD')
+
+    date_soumission_ministere = fields.Date(string='Date soumission Ministère')
+    date_avis_ministere = fields.Date(string='Date avis Ministère reçu')
+    commentaire_ministere = fields.Html(string='Commentaire Ministère', help='Commentaires ou réserves du Ministère de la Santé')
+
     # ─── Statut / Workflow ───────────────────────────────────────────────────
     state = fields.Selection([
         ('brouillon', 'Brouillon'),
@@ -93,7 +101,7 @@ class ProtocoleRecherche(models.Model):
         ('soumission_ethique', 'Soumis au CERS'),
         ('avis_ethique_recu', 'Avis CERS reçu'),
         ('visa_statistique', 'Visa statistique en cours'),
-         ('soumission_visa', 'Soumis au Visa Statistique'),
+        ('soumission_visa', 'Soumis au Visa Statistique'),
         ('visa_statistique_recu', 'Visa Statistique reçu'),
         ('soumission_ministere', 'Soumis au Ministère'),
         ('autorisation_ministere_recue', 'Autorisation Ministère reçue'),
@@ -183,20 +191,41 @@ class ProtocoleRecherche(models.Model):
         for rec in self:
             rec.write({'state': 'visa_statistique'})
 
-        
+    def action_soumettre_visa(self):
+        self.write({'state': 'soumission_visa', 'date_soumission_visa_statistique': fields.Date.today()})
+
+    def action_avis_visa_recu(self):
+        self.write({'state': 'visa_statistique_recu', 'date_avis_visa_statistique': fields.Date.today()})
+
+    def action_soumettre_ministere(self):
+        self.write({'state': 'soumission_ministere', 'date_soumission_ministere': fields.Date.today()})
+
+    def action_avis_ministere_recu(self):
+        self.write({'state': 'autorisation_ministere_recue', 'date_avis_ministere': fields.Date.today()})
+
+
 
     def action_valider(self):
         self.ensure_one()
+        
+        # 1. Vérification CERS
         if self.necessite_ethique and not self.date_avis_ethique:
-            raise UserError(_(
-                "Ce protocole nécessite un avis CERS. "
-                "Impossible de valider tant que l'avis du Comité d'Éthique "
-                "pour la Recherche en Santé n'a pas été enregistré (Carnet I, P-CI-01)."
-            ))
+            raise UserError(_("Ce protocole nécessite un avis CERS. "
+                        "Impossible de valider tant que l'avis du Comité d'Éthique "
+                        "pour la Recherche en Santé n'a pas été enregistré (Carnet I, P-CI-01)."))
+            
+        # 2. Vérification INSD
+        if self.necessite_visa_stat and not self.date_avis_visa_statistique:
+            raise UserError(_("Ce protocole nécessite un visa statistique INSD."))
+
+        # 3. Vérification Ministère
+        if self.necessite_autorisation_msante and not self.date_avis_ministere:
+            raise UserError(_("Ce protocole nécessite une autorisation du Ministère."))
+
         self.write({
             'state': 'valide',
             'date_validation_interne': fields.Date.today()
-        })
+    })
 
     def action_rejeter(self):
         self.ensure_one()
