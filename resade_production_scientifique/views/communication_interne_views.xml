@@ -8,10 +8,13 @@
                 <header>
                     <button name="action_marquer_tenu" string="Marquer comme tenu"
                             type="object" class="btn-primary"
-                            invisible="state != 'planifie'"/>
+                            invisible="state != 'planifie'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
+
                     <button name="action_pv_redige" string="PV rédigé"
                             type="object"
-                            invisible="state != 'tenu'"/>
+                            invisible="state != 'tenu'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
                     <button name="action_pv_approuve" string="PV approuvé et Diffusé"
                             type="object" class="btn-success"
                             invisible="state != 'pv_redige'"

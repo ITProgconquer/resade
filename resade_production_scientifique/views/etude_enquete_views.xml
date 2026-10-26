@@ -9,22 +9,34 @@
                 <header>
                     <button name="action_demarrer" string="Démarrer la collecte"
                             type="object" class="btn-primary"
-                            invisible="state != 'preparation'"/>
+                            invisible="state != 'preparation'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
                     <button name="action_saisie" string="Saisie et nettoyage"
-                            type="object" invisible="state != 'en_cours'"/>
+                            type="object" 
+                            invisible="state != 'en_cours'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
                     <button name="action_analyser" string="Lancer analyse"
-                            type="object" invisible="state != 'saisie'"/>
+                            type="object" 
+                            invisible="state != 'saisie'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
                     <button name="action_rediger_rapport" string="Rédiger le rapport"
                             type="object" class="btn-secondary"
-                            invisible="state != 'analyse'"/>
-                     <button name="action_suspendre" string="⏸️ Suspendre"
+                            invisible="state != 'analyse'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
+                    <button name="action_suspendre" string="⏸️ Suspendre"
                             type="object" class="btn-warning"
-                            invisible="state in ['preparation','termine', 'suspendue']"/>
-                    
-                    <!-- ✅ AJOUT : Reprendre -->
+                            invisible="state in ['preparation','termine', 'suspendue']"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi,resade_production_scientifique.group_resade_scientifique_manager"/>
+
                     <button name="action_reprendre" string="▶️ Reprendre"
                             type="object" class="btn-secondary"
-                            invisible="state != 'suspendue'"/>
+                            invisible="state != 'suspendue'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
                     <button name="action_terminer" string="Terminer"
                             type="object" class="btn-success"
                             invisible="state not in ['analyse','rapport']"

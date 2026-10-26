@@ -23,7 +23,7 @@ class ProtocoleRecherche(models.Model):
         default=lambda self: _('Nouveau'),
         tracking=True,
     )
-    titre = fields.Char(
+    name = fields.Char(
         string='Titre du protocole',
         required=True,
         tracking=True,
@@ -101,6 +101,7 @@ class ProtocoleRecherche(models.Model):
         ('soumission_ethique', 'Soumis au CERS'),
         ('avis_ethique_recu', 'Avis CERS reçu'),
         ('visa_statistique', 'Visa statistique en cours'),
+        ('msante_en', 'Soumission MSANTE en cours'),
         ('soumission_visa', 'Soumis au Visa Statistique'),
         ('visa_statistique_recu', 'Visa Statistique reçu'),
         ('soumission_ministere', 'Soumis au Ministère'),
@@ -163,7 +164,9 @@ class ProtocoleRecherche(models.Model):
             if vals.get('reference', _('Nouveau')) == _('Nouveau'):
                 vals['reference'] = self.env['ir.sequence'].next_by_code(
                     'resade.protocole.recherche') or _('Nouveau')
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
 
     def _compute_etude_count(self):
         for rec in self:
@@ -190,6 +193,10 @@ class ProtocoleRecherche(models.Model):
     def action_visa_statistique(self):
         for rec in self:
             rec.write({'state': 'visa_statistique'})
+
+    def action_msanté(self):
+            for rec in self:
+                rec.write({'state': 'msante_en'})
 
     def action_soumettre_visa(self):
         self.write({'state': 'soumission_visa', 'date_soumission_visa_statistique': fields.Date.today()})
@@ -245,3 +252,41 @@ class ProtocoleRecherche(models.Model):
             'domain': [('protocole_id', '=', self.id)],
             'context': {'default_protocole_id': self.id},
         }
+
+
+    # ─────────────────────────────────────────────
+    # SYNCHRONISATION DES PIÈCES JOINTES
+    # ─────────────────────────────────────────────
+    def _sync_attachments(self):
+        """Synchronise toutes les pièces jointes avec le bon res_model et res_id."""
+        for record in self:
+            # Liste de tous les champs Many2many vers ir.attachment
+            champs_pj = [
+                'formulaire_protocole',   # Le champ qu'on a transformé en Many2many           # Le DMP
+                'formulaire_consentement',           # Si tu as un champ documents génériques
+                # Ajoute ici d'autres champs de pièces jointes s'il y en a
+            ]
+            
+            for field_name in champs_pj:
+                # On vérifie que le champ existe et qu'il contient des fichiers
+                if field_name in record._fields and record[field_name]:
+                    record[field_name].write({
+                        'res_model': 'resade.protocole.recherche',
+                        'res_id': record.id,
+                    })
+
+    def write(self, vals):
+        result = super().write(vals)
+        
+        # Liste des champs pièces jointes
+        champs_pj = [
+            'formulaire_protocole',
+            'formulaire_consentement',
+        ]
+        
+        # Si on modifie un champ pièce jointe, on synchronise
+        if any(f in vals for f in champs_pj):
+            self._sync_attachments()
+            
+        return result
+    

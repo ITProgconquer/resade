@@ -199,6 +199,7 @@
                             <field name="duree_reelle_jours" readonly="1"
                                 invisible="not date_retour_effectif"/>
                             <field name="type_justification"/>
+                            <field name="type_prise_en_charge"/>
                             <field name="analytic_account_id"/>
                             <field name="ligne_budgetaire_id"/>
                             <field name="montant_disponible_ligne" readonly="1"

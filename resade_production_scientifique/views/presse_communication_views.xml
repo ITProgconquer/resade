@@ -8,14 +8,18 @@
                 <header>
                     <button name="action_soumettre_revue" string="Soumettre pour approbation"
                             type="object" class="btn-primary"
-                            invisible="state != 'brouillon'"/>
+                            invisible="state != 'brouillon'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
+
                     <button name="action_approuver" string="Approuver (DE)"
                             type="object" class="btn-success"
                             invisible="state != 'revue'"
                             groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+
                     <button name="action_publier" string="Publier et Diffuser"
                             type="object" class="btn-success"
-                            invisible="state != 'approuve'"/>
+                            invisible="state != 'approuve'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="brouillon,revue,approuve,publie"/>
                 </header>

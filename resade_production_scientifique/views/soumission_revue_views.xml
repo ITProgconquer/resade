@@ -8,19 +8,28 @@
                 <header>
                     <button name="action_soumettre" string="Soumettre"
                             type="object" class="btn-primary"
-                            invisible="state != 'brouillon'"/>
+                            invisible="state != 'brouillon'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
                     <button name="action_revision_demandee" string="Révision demandée"
                             type="object"
-                            invisible="state not in ['soumis','peer_review']"/>
+                            invisible="state not in ['soumis','peer_review']"
+                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+
                     <button name="action_accepter" string="Accepté"
                             type="object" class="btn-success"
-                            invisible="state not in ['soumis','peer_review','revision_demandee','revision_mineure']"/>
+                            invisible="state not in ['soumis','peer_review','revision_demandee','revision_mineure']"
+                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+
                     <button name="action_publier" string="Publié"
                             type="object" class="btn-success"
-                            invisible="state != 'accepte'"/>
+                            invisible="state != 'accepte'"
+                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+
                     <button name="action_rejeter" string="Rejeté"
                             type="object" class="btn-danger"
-                            invisible="state in ['rejete','retire','publie']"/>
+                            invisible="state in ['rejete','retire','publie']"
+                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="brouillon,soumis,peer_review,accepte,publie"/>
                 </header>

@@ -402,6 +402,13 @@ class ResadeMission(models.Model):
     visa_budgetaire = fields.Boolean(string='Visa budgétaire accordé', tracking=True)
     note_visa = fields.Text(string='Note visa budgétaire')
 
+    type_prise_en_charge = fields.Selection([
+        ('resade', 'Prise en charge par RESADE (frais à rembourser)'),
+        ('invite', 'Invité / Prise en charge par un tiers (aucun frais)'),
+        ('mixte', 'Mixte (tiers + frais complémentaires RESADE)'),
+    ], string='Type de prise en charge', default='resade', required=True, tracking=True)
+
+
     # AJOUT : délai préavis conforme (P-GMD-01 B.7 étape 1)
     delai_preavis_ok = fields.Boolean(
         string='Préavis conforme (5j / 10j)',
@@ -460,7 +467,7 @@ class ResadeMission(models.Model):
             if rec.date_demande and rec.date_depart:
                 jours = (rec.date_depart - rec.date_demande).days
                 rec.nb_jours_preavis = jours
-                min_j = 10 if rec.type_mission == 'strategique' else 5
+                min_j = 1 if rec.type_mission == 'strategique' else 1
                 rec.delai_preavis_ok = jours >= min_j
             else:
                 rec.nb_jours_preavis = 0
@@ -502,9 +509,14 @@ class ResadeMission(models.Model):
             # Solde calculé UNIQUEMENT sur la partie frais annexes de l'avance.
             # Le per diem forfaitaire (montant_perdiem_approuve_de) est exclu :
             # il reste acquis au missionnaire quoi qu'il arrive (Manuel RESADE).
-            diff = rec.montant_avance_frais_annexes_a_solder - rec.montant_depense_reel
-            rec.montant_a_rembourser = diff if diff > 0 else 0
-            rec.montant_complement = abs(diff) if diff < 0 else 0
+            if rec.type_prise_en_charge == 'invite':
+                rec.montant_a_rembourser = 0.0
+                rec.montant_complement = 0.0
+                rec.montant_depense_reel = 0.0
+            else:
+                diff = rec.montant_avance_frais_annexes_a_solder - rec.montant_depense_reel
+                rec.montant_a_rembourser = diff if diff > 0 else 0
+                rec.montant_complement = abs(diff) if diff < 0 else 0
 
     @api.depends('date_retour_effectif', 'date_retour', 'date_soumission_rapport')
     def _compute_delai_rapport(self):
@@ -535,7 +547,7 @@ class ResadeMission(models.Model):
                     )
             if rec.date_demande and rec.date_depart:
                 delta = (rec.date_depart - rec.date_demande).days
-                min_days = 10 if rec.type_mission == 'strategique' else 5
+                min_days = 1 if rec.type_mission == 'strategique' else 1
                 if delta < min_days:
                     raise ValidationError(
                         _('Préavis insuffisant : %d jour(s) au lieu de %d jours minimum '
@@ -564,7 +576,9 @@ class ResadeMission(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code(
                     'resade.mission'
                 ) or _('Nouveau')
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._sync_attachments()
+        return records
 
     # ─────────────────────────────────────────────
     # WORKFLOW BUTTONS
@@ -601,6 +615,16 @@ class ResadeMission(models.Model):
         self.ensure_one()
         if self.state != 'valide_chef':
             raise UserError(_('La mission doit être validée par le Chef de département.'))
+
+        if self.type_prise_en_charge == 'invite':
+            self.write({
+                'state': 'approuve_caf',
+                'approuve_par_caf_id': self.env.user.id,
+                'approuve_caf_date': fields.Datetime.now(),
+            })
+            self.message_post(body=_('💰 Mission invitée : validation CAF sans impact budgétaire.'))
+            return True
+        
         if self.ligne_budgetaire_id:
             # Lève une UserError explicite si le crédit est insuffisant.
             self.ligne_budgetaire_id.reserver_credit(self.montant_avance_demande or 0.0)
@@ -978,7 +1002,7 @@ class ResadeMission(models.Model):
                 _('Le rapport de mission doit être approuvé par le DE '
                   'avant la soumission de la justification (P-GMD-03).')
             )
-        if not self.pieces_jointes_justif and not self.fiche_decompte_ids:
+        if self.type_prise_en_charge != 'invite' and not self.pieces_jointes_justif and not self.fiche_decompte_ids:
             raise UserError(
                 _('Joignez les pièces justificatives de dépenses '
                   '(factures, reçus, billets) et la fiche de décompte RESADE-F-GMD-02-02.')
@@ -997,6 +1021,15 @@ class ResadeMission(models.Model):
     def action_valider_remboursement(self):
         """P-GMD-03 – Validation remboursement/reversement par le CAF"""
         self.ensure_one()
+
+        if self.type_prise_en_charge == 'invite':
+            self.write({
+                'state': 'remboursement_ok',
+                'date_remboursement': fields.Date.today(),
+                'note_remboursement': 'Mission invitée : aucun frais à rembourser.',
+            })
+            self.message_post(body=_("🤝 Mission prise en charge par un tiers. Aucun paiement à effectuer."))
+            return True
         if self.state != 'justif_soumise':
             raise UserError(_('La justification doit être soumise.'))
         if not self.remboursement_valide_caf:
@@ -1206,3 +1239,43 @@ class ResadeMission(models.Model):
                 'res_id': self.registre_id.id,
                 'view_mode': 'form',
             }
+
+    # ─────────────────────────────────────────────
+    # SYNCHRONISATION DES PIÈCES JOINTES (ir.attachment)
+    # ─────────────────────────────────────────────
+    def _sync_attachments(self):
+        """Synchronise toutes les pièces jointes avec le bon res_model et res_id."""
+        for record in self:
+            # Liste de tous les champs Many2many vers ir.attachment dans la mission
+            champs_pj = [
+                'tdr_attachment_ids',
+                'pieces_jointes_rapport',
+                'fiche_decompte_ids',
+                'carnet_bord_ids',
+                'pieces_jointes_justif',
+            ]
+            
+            for field_name in champs_pj:
+                if field_name in record._fields and record[field_name]:
+                    record[field_name].write({
+                        'res_model': 'resade.mission',
+                        'res_id': record.id,
+                    })
+
+    def write(self, vals):
+        result = super().write(vals)
+        
+        # Liste des champs pièces jointes
+        champs_pj = [
+            'tdr_attachment_ids',
+            'pieces_jointes_rapport',
+            'fiche_decompte_ids',
+            'carnet_bord_ids',
+            'pieces_jointes_justif',
+        ]
+        
+        # Si l'un des champs pièces jointes a été modifié, on synchronise
+        if any(f in vals for f in champs_pj):
+            self._sync_attachments()
+            
+        return result

@@ -8,17 +8,23 @@
                 <header>
                     <button name="action_confirmer" string="Confirmer"
                             type="object" class="btn-primary"
-                            invisible="state != 'planifie'"/>
+                            invisible="state != 'planifie'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
+
                     <button name="action_demarrer" string="En cours"
                             type="object"
-                            invisible="state != 'confirme'"/>
+                            invisible="state != 'confirme'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
+
                     <button name="action_terminer" string="Terminer"
                             type="object" class="btn-success"
-                            invisible="state != 'en_cours'"/>
+                            invisible="state != 'en_cours'"
+                            groups="resade_production_scientifique.group_resade_scientifique_rc"/>
+
                     <button name="action_annuler" string="Annuler"
                             type="object" class="btn-danger"
                             invisible="state in ['termine','annule']"
-                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+                            groups="resade_production_scientifique.group_resade_scientifique_rc,resade_production_scientifique.group_resade_scientifique_manager"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="planifie,confirme,en_cours,termine"/>
                 </header>

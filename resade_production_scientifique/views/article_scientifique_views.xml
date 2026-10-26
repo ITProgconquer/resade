@@ -8,20 +8,28 @@
                 <header>
                     <button name="action_envoyer_revue_interne" string="Envoyer en revue interne"
                             type="object" class="btn-primary"
-                            invisible="state != 'brouillon'"/>
+                            invisible="state != 'brouillon'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
                     <button name="action_valider_interne" string="Valider (DE)"
                             type="object" class="btn-success"
                             invisible="state not in ['revue_interne','revision']"
                             groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+
                     <button name="action_marquer_soumis" string="Marquer soumis"
                             type="object"
-                            invisible="state != 'valide_interne'"/>
+                            invisible="state != 'valide_interne'"
+                            groups="resade_production_scientifique.group_resade_scientifique_pi"/>
+
                     <button name="action_marquer_accepte" string="Accepté"
                             type="object" class="btn-success"
-                            invisible="state not in ['soumis','revision_externe']"/>
+                            invisible="state not in ['soumis','revision_externe']"
+                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
+
                     <button name="action_marquer_publie" string="Publié"
                             type="object" class="btn-success"
-                            invisible="state != 'accepte'"/>
+                            invisible="state != 'accepte'"
+                            groups="resade_production_scientifique.group_resade_scientifique_manager"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="brouillon,revue_interne,valide_interne,soumis,accepte,publie"/>
                 </header>
